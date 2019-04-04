@@ -3,8 +3,8 @@ const path = require('path');
 module.exports = {
   entry: './src/index.js',
   output: {
-    filename: 'reason-score-core.js',
-    library: 'reason-score-core.js',
+    filename: 'ReasonScoreCore-1.js',
+    library: 'ReasonScoreCore',
     path: path.resolve(__dirname, 'dist')
   }
 };

@@ -1,9 +1,11 @@
-function component() {
-    let element = document.createElement('div');
-  
-    element.innerHTML = "Test";
-  
-    return element;
-  }
-  
-  document.body.appendChild(component());
+import data from './data';
+import ReasonScoreMath from './ReasonScoreMath';
+import ViewModelbuilder from './ViewModelBuilder';
+
+
+
+export {
+    data,
+    ReasonScoreMath,
+    ViewModelbuilder
+};
