@@ -26,7 +26,7 @@ class Data {
     const claims = Object.values(this.data.items).filter(claim =>
       claim.id === claimId
       && new Date(claim.start) <= this.when
-      && new Date(claim.end) >= this.when
+      && new Date(claim.end) > this.when
     )
     if (claims.length < 1) { debugger; }
     return claims[0];
