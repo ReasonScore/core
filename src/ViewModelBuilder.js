@@ -25,6 +25,12 @@ class ViewModelBuilder {
         });
     }
 
+    toggleChildrenDisplay(vm, show) {
+        const dataVm = this.data.data.items[vm.claim.ver];
+        dataVm.isChildrenDisplayed = show
+        this.updateState();
+    }
+
     newChild(vm, pro) {
         var newClaim = {
             type: "claim",
@@ -108,6 +114,8 @@ class ViewModelBuilder {
         } else {
             vm.onSelect = () => this.onSelect(vm);
         }
+        vm.hideChildren = () => this.toggleChildrenDisplay(vm, false);
+        vm.showChildren = () => this.toggleChildrenDisplay(vm, true);
         vm.increase = () => this.newChild(vm, true);
         vm.decrease = () => this.newChild(vm, false);
         vm.sendTransaction = this.data.sendTransaction.bind(this.data);
