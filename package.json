@@ -1,21 +1,31 @@
 {
-  "name": "reason-score-core",
+  "name": "@reason-score/core",
   "version": "0.1.0",
-  "description": "",
+  "description": "Core code for Reason Score http://ReasonScore.com",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "start": "webpack-dev-server"
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "npm run type-check -- --watch",
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:js": "babel src --out-dir lib --extensions \".ts,.tsx\" --source-maps inline"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ReasonScore/core.git"
+  },
   "author": "Bentley Davis <Bentley@BentleyDavis.com> (http://BentleyDavis.com)",
   "license": "ISC",
-  "devDependencies": {
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.3.0",
-    "webpack-dev-server": "^3.2.1"
+  "bugs": {
+    "url": "https://github.com/ReasonScore/core/issues"
   },
-  "dependencies": {
-    "eslint": "^5.16.0"
+  "homepage": "https://github.com/ReasonScore/core#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.4.3",
+    "@babel/core": "^7.4.3",
+    "@babel/plugin-proposal-class-properties": "^7.4.0",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.3",
+    "@babel/preset-env": "^7.4.3",
+    "@babel/preset-typescript": "^7.3.3",
+    "typescript": "^3.4.3"
   }
 }
