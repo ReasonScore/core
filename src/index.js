@@ -1,11 +1,11 @@
-import data from './data';
+import dataProcessor from './dataProcessor';
 import ReasonScoreMath from './ReasonScoreMath';
 import ViewModelBuilder from './ViewModelBuilder';
 
 
 
 export {
-    data,
+    dataProcessor,
     ReasonScoreMath,
     ViewModelBuilder
 };

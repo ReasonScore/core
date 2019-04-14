@@ -1,14 +1,14 @@
-import data from './data';
+import dataProcessor from './dataProcessor';
 import ReasonScoreMath from './ReasonScoreMath';
 
 class ViewModelBuilder {
     constructor(setState, topClaimId) {
         this.setState = setState;
         this.topClaimId = topClaimId;
-        this.data = new data(topClaimId, this.updateState.bind(this));
+        this.dataProcessor = new dataProcessor(topClaimId, this.updateState.bind(this));
         this.state = {
             vm: this.buildViewModel(this.topClaimId, this.topClaimId, []),
-            data: this.data
+            dataProcessor: this.dataProcessor
         };
     }
 
@@ -26,7 +26,7 @@ class ViewModelBuilder {
     }
 
     toggleChildrenDisplay(vm, show) {
-        const dataVm = this.data.data.items[vm.claim.ver];
+        const dataVm = this.dataProcessor.data.items[vm.claim.ver];
         dataVm.isChildrenDisplayed = show
         this.updateState();
     }
@@ -34,19 +34,19 @@ class ViewModelBuilder {
     newChild(vm, pro) {
         var newClaim = {
             type: "claim",
-            id: this.data.newId(),
+            id: this.dataProcessor.newId(),
             content: "",
         };
         var newArgument = {
             type: "argument",
-            id: this.data.newId(),
+            id: this.dataProcessor.newId(),
             parent: vm.claim.id,
             child: newClaim.id,
             scope: vm.claim.id,
             pro: pro,
             affects: "truth"
         };
-        this.data.sendTransaction([
+        this.dataProcessor.sendTransaction([
             {
                 id: newClaim.id,
                 act: 'add',
@@ -60,7 +60,7 @@ class ViewModelBuilder {
     }
 
     buildViewModel(topId, parentClaimId, ancestors, conTop) {
-        const childArguments = this.data.getArguments(parentClaimId, ancestors);
+        const childArguments = this.dataProcessor.getArguments(parentClaimId, ancestors);
         const childVms = [];
         const childScores = [];
         const childIds = [];
@@ -91,7 +91,7 @@ class ViewModelBuilder {
         childVms.forEach((childVm) => {
             childScores.push(childVm.score);
             if (!childVm.score.id) {
-                childVm.score.id = this.data.newId();
+                childVm.score.id = this.dataProcessor.newId();
             }
             childIds.push({
                 scoreId: childVm.score.id,
@@ -105,7 +105,7 @@ class ViewModelBuilder {
         vm.childIds = childIds
         vm.conTop = conTop;
         vm.className = 'claim' + (vm.conTop ? ' con' : ' pro');
-        vm.claim = this.data.getClaim(parentClaimId);
+        vm.claim = this.dataProcessor.getClaim(parentClaimId);
         vm.content = vm.claim.content;
         //vm.display = vm.score.display;
         if (this.selectedVm && vm.id === this.selectedVm.id) {
@@ -118,7 +118,7 @@ class ViewModelBuilder {
         vm.showChildren = () => this.toggleChildrenDisplay(vm, true);
         vm.increase = () => this.newChild(vm, true);
         vm.decrease = () => this.newChild(vm, false);
-        vm.sendTransaction = this.data.sendTransaction.bind(this.data);
+        vm.sendTransaction = this.dataProcessor.sendTransaction.bind(this.dataProcessor);
         return vm;
     }
 }

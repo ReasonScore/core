@@ -1,4 +1,4 @@
-class Data {
+class DataProcessor {
   constructor(topClaimId, notifyCallback) {
     this.topClaimId = topClaimId;
     this.when = new Date();
@@ -86,4 +86,4 @@ class Data {
   }
 }
 
-export default Data;
+export default DataProcessor;
