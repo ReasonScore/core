@@ -2,9 +2,9 @@ import { Score } from "./Score"
 import { Edge, Affects } from "./Edge"
 /**
  * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the children and scores into this array that are within scope.
- * @param childEdges an array of edges (aka arguments) that link an individual child to the claim this score is for. 
- * @param childScores an array of scores for child claims linked to the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the scores into this array that are within scope.
- * @param previousScore The previous score for this claim which may be replaced by this new score (if there are different)
+ * @param childEdges - an array of edges (aka arguments) that link an individual child to the claim this score is for. 
+ * @param childScores - an array of scores for child claims linked to the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the scores into this array that are within scope.
+ * @param previousScore - The previous score for this claim which may be replaced by this new score (if there are different)
  */
 export function calculateScore(claimId: string, childEdges: Edge[] = [], childScores: Score[] = []) {
     const newScore: Score = new Score(claimId);
@@ -19,20 +19,15 @@ export function calculateScore(claimId: string, childEdges: Edge[] = [], childSc
             if (childEdge.reversable) {
                 childScore.weight = childScore.score * childScore.relevance;
             } else {
-                // If the claim is not reversable and weight is below 0 then assume it is 0
-                childScore.weight = Math.max(0, childScore.score) * childScore.relevance;
+                childScore.weight = Math.max(0, childScore.score) * childScore.relevance; // If the claim is not reversable and weight is below 0 then assume it is 0
             }
-            // Add up all the weights of the children
-            newScore.childrenWeight += childScore.weight;
-
+            newScore.childrenWeight += childScore.weight; // Add up all the weights of the children
             if (childEdge.pro) {
                 childScore.strength = childScore.weight * childScore.score;
             } else {
                 childScore.strength = childScore.weight * -childScore.score;
             }
-            // Add up all the strength of the children
-            newScore.childrenStrength += childScore.strength;
-
+            newScore.childrenStrength += childScore.strength; // Add up all the strength of the children
             childScore.displayText = `${Math.round(childScore.weight * 100)}%`;// * (edge.pro ? 1 : -1)}%`;
         }
 

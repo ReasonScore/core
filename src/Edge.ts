@@ -1,14 +1,13 @@
 /**
  * Stores the relationship between two claims in a specific scope. This is directional as the edge points from one claim to another. This is just a adata transfer object so it should have no logic in it.
- * @property {string} parentId - The ID for the parent claim.
- * @property {string} childId - The ID for the parent claim.
- * @property {string} scopeId - The ID for the scope claim. A scope claim must be an ancestor in this relationship for this child to affect it's parent at all. 
- * @property {Affects} affects - How the child affects the parent.
  */
 export class Edge {
     constructor(
+        /** The ID for the parent claim this edge points to */
         public parentId: string,
+        /** The ID for the child claim this edge points from */
         public childId: string,
+        /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
         public affects: Affects,
         public pro: boolean = true,
         public reversable: boolean = false,
@@ -19,7 +18,6 @@ export class Edge {
 
 /**
  * How a child claim affects a parent claim
- * @property {Affects} affects - How the child affects the parent.
  */
 export enum Affects {
     Confidence = "confidence",
