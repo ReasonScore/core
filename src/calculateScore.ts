@@ -9,7 +9,7 @@ import { Edge, Affects } from "./Edge"
 export function calculateScore(claimId: string, childEdges: Edge[] = [], childScores: Score[] = []) {
     const newScore: Score = new Score(claimId);
     // ToDO: Removed the previous score. Comparisons and duplication of the previous score should be done in other places. This is so that the calcuations are as simple as possible. 
-    debugger;
+
     //If there are no children that affect the truth of the claim then assume the claim is 100% true and start strength at 1
     if (childEdges === undefined
         || childEdges.length < 1

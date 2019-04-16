@@ -44,15 +44,15 @@ function Score(claimId) {
 
   _defineProperty(this, "relevance", 1);
 
-  _defineProperty(this, "childrenStrength", 1);
+  _defineProperty(this, "childrenStrength", 0);
 
-  _defineProperty(this, "childrenWeight", 1);
+  _defineProperty(this, "childrenWeight", 0);
 
-  _defineProperty(this, "score", 0);
+  _defineProperty(this, "score", 1);
 
-  _defineProperty(this, "weight", 0);
+  _defineProperty(this, "weight", 1);
 
-  _defineProperty(this, "strength", 0);
+  _defineProperty(this, "strength", 1);
 
   _defineProperty(this, "displayText", "");
 };
@@ -79,8 +79,16 @@ function calculateScore(claimId) {
   var childEdges = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
   var childScores = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
   var newScore = new Score(claimId); // ToDO: Removed the previous score. Comparisons and duplication of the previous score should be done in other places. This is so that the calcuations are as simple as possible. 
-  // Loop through the child edges and determine the score of the parent. Many of the child properties are also filled out during this calcuation
+  //If there are no children that affect the truth of the claim then assume the claim is 100% true and start strength at 1
+
+  if (childEdges === undefined || childEdges.length < 1 || childEdges.filter(function (e) {
+    return e.affects === Affects.Confidence;
+  }).length < 1) {
+    newScore.childrenStrength = 1;
+    newScore.childrenWeight = 1;
+  } // Loop through the child edges and determine the score of the parent. Many of the child properties are also filled out during this calcuation
   // If there are no children that affect the confidence of the claim then assume the claim is 100% confident and start strength at 1. No code necessary as this is the default of the object
+
 
   childEdges.forEach(function (childEdge) {
     var childScore = childScores.filter(function (s) {

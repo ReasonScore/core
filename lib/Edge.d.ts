@@ -13,11 +13,11 @@ export declare class Edge {
     scopeId: string;
     constructor(
     /** The ID for the parent claim this edge points to */
-    parentId: string, 
+    parentId?: string, 
     /** The ID for the child claim this edge points from */
-    childId: string, 
+    childId?: string, 
     /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
-    affects: Affects, pro?: boolean, reversable?: boolean, scopeId?: string);
+    affects?: Affects, pro?: boolean, reversable?: boolean, scopeId?: string);
 }
 /**
  * How a child claim affects a parent claim
