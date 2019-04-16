@@ -4,11 +4,11 @@
 export class Edge {
     constructor(
         /** The ID for the parent claim this edge points to */
-        public parentId: string,
+        public parentId: string = "",
         /** The ID for the child claim this edge points from */
-        public childId: string,
+        public childId: string = "",
         /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
-        public affects: Affects,
+        public affects: Affects = Affects.Confidence,
         public pro: boolean = true,
         public reversable: boolean = false,
         public scopeId: string = "",

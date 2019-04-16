@@ -9,6 +9,15 @@ import { Edge, Affects } from "./Edge"
 export function calculateScore(claimId: string, childEdges: Edge[] = [], childScores: Score[] = []) {
     const newScore: Score = new Score(claimId);
     // ToDO: Removed the previous score. Comparisons and duplication of the previous score should be done in other places. This is so that the calcuations are as simple as possible. 
+    debugger;
+    //If there are no children that affect the truth of the claim then assume the claim is 100% true and start strength at 1
+    if (childEdges === undefined
+        || childEdges.length < 1
+        || childEdges.filter(e => e.affects === Affects.Confidence).length < 1) {
+        newScore.childrenStrength = 1;
+        newScore.childrenWeight = 1;
+    }
+
     // Loop through the child edges and determine the score of the parent. Many of the child properties are also filled out during this calcuation
     // If there are no children that affect the confidence of the claim then assume the claim is 100% confident and start strength at 1. No code necessary as this is the default of the object
     childEdges.forEach((childEdge) => {
