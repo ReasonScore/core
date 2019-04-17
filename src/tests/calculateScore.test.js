@@ -21,15 +21,17 @@ each`
   ${"con"} | ${0.0}  | ${false}   | ${"Confidence"} | ${0.0}   | ${1.0}
   ${"con"} | ${-1.0} | ${false}   | ${"Confidence"} | ${0.0}   | ${1.0}
   ${"con"} | ${-1.0} | ${true}    | ${"Confidence"} | ${1.0}   | ${1.0}
-`.test('one $score $affects $pro reversable:$reversable = $expScore ', ({ pro, score, reversable, affects, expScore, expRel }) => {
-    expect(calculateScore("1",
+`.describe('one $score affects:$affects $pro reversable:$reversable', ({ pro, score, reversable, affects, expScore, expRel }) => {
+    const result = calculateScore("1",
         [new Edge("1", "1.1", Affects[affects], pro === "pro" ? true : false, reversable)],
         [new Score("1.1", score)]
-    ).score).toBe(expScore);
-    expect(calculateScore("1",
-        [new Edge("1", "1.1", Affects[affects], pro === "pro" ? true : false, reversable)],
-        [new Score("1.1", score)]
-    ).relevance).toBe(expRel);
+    )
+    test(`score = ${expScore}`, () => {
+        expect(result.score).toBe(expScore);
+    });
+    test(`relevance = ${expRel}`, () => {
+        expect(result.relevance).toBe(expRel);
+    });
 });
 
 test('claim with one pro and one (non-reversable) con should have score of 0', () => {
