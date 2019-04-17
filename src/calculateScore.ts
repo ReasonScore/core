@@ -42,6 +42,7 @@ export function calculateScore(claimId: string, childEdges: Edge[] = [], childSc
 
         // Process Relevance child claims
         if (childEdge.affects === 'relevance') {
+            debugger
             if (childEdge.pro) {
                 childScore.relevance = 1 + childScore.score;
             } else {

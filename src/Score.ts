@@ -9,8 +9,6 @@ export class Score {
     childrenStrength: number = 0;
     /** The total summed weight of all the children scores */
     childrenWeight: number = 0;
-    /** The final score calculated for this claim in this scope. calculation: strengthTotal / weightTotal. This is usually set during the calculation of it's parent score. */
-    score: number = 1;
     /** The final weight of this claim on it's parent. Calculation: score * relvance. This is usually set during the calculation of it's parent score. */
     weight: number = 1;
     /** The final strength of this claim on it's parent. Calculation: childScore.weight * +/-childScore.score. This is usually set during the calculation of it's parent score. */
@@ -21,6 +19,8 @@ export class Score {
     constructor(
         /**The ID of the claim this score is based on */
         public claimId: string,
+        /** The final score calculated for this claim in this scope. calculation: strengthTotal / weightTotal. This is usually set during the calculation of it's parent score. */
+        public score: number = 1,
     ) {
     }
 
