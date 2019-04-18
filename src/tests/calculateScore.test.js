@@ -11,7 +11,7 @@ test('claim without any edges should have score of 1', () => {
 
 each`
        pro   | score   | relevance | reversable | affects         | expScore | expRel
-    ${"pro"} | ${1.0}  | ${1.0}    | ${false}   | ${"Confidence"} | ${1.0}   | ${1.0}
+    ${'pro'} | ${1.0}  | ${1.0}    | ${false}   | ${"Confidence"} | ${1.0}   | ${1.0}
     ${"pro"} | ${1.0}  | ${1.0}    | ${false}   | ${"Relevance"}  | ${1.0}   | ${2.0}
     ${"pro"} | ${0.5}  | ${1.0}    | ${false}   | ${"Confidence"} | ${0.5}   | ${1.0}
     ${"pro"} | ${0.0}  | ${1.0}    | ${false}   | ${"Confidence"} | ${0.0}   | ${1.0}
@@ -25,14 +25,14 @@ each`
       `.describe('', ({ pro, score, relevance, reversable, affects, expScore, expRel }) => {
     const result = calculateScore(
         [new Score(Affects[affects], false, score, relevance)],
-        pro==="pro"?true:false,
-        Affects.Confidence,
+        pro === "pro" ? true : false,
+        undefined,
         reversable,
     )
-    test(`${pro} ${(score<0?"":" ") + score.toFixed(1)} ${(relevance<0?"":" ") + relevance.toFixed(1)} ${reversable} ${affects},     score = ${expScore}`, () => {
+    test(`${pro} ${(score < 0 ? "" : " ") + score.toFixed(1)} ${(relevance < 0 ? "" : " ") + relevance.toFixed(1)} ${reversable ? "true " : "false"} ${affects.padEnd(10)},     score = ${(expScore < 0 ? "" : " ") + expScore.toFixed(1)}`, () => {
         expect(result.score).toBe(expScore);
     });
-    test(`${pro} ${(score<0?"":" ") + score.toFixed(1)} ${(relevance<0?"":" ") + relevance.toFixed(1)} ${reversable} ${affects}, relevance = ${expRel}`, () => {
+    test(`${pro} ${(score < 0 ? "" : " ") + score.toFixed(1)} ${(relevance < 0 ? "" : " ") + relevance.toFixed(1)} ${reversable ? "true " : "false"} ${affects.padEnd(10)}, relevance = ${(expRel < 0 ? "" : " ") + expRel.toFixed(1)}`, () => {
         expect(result.relevance).toBe(expRel);
     });
 });
