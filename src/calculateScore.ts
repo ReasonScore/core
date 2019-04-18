@@ -1,68 +1,63 @@
 import { Score } from "./Score"
-import { Edge, Affects } from "./Edge"
+import { Affects } from "./Affects"
+import { objectExpression } from "@babel/types";
 /**
  * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the children and scores into this array that are within scope.
  * @param childEdges - an array of edges (aka arguments) that link an individual child to the claim this score is for. 
  * @param childScores - an array of scores for child claims linked to the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the scores into this array that are within scope.
  * @param previousScore - The previous score for this claim which may be replaced by this new score (if there are different)
  */
-export function calculateScore(claimId: string, childEdges: Edge[] = [], childScores: Score[] = []) {
-    const newScore: Score = new Score(claimId);
-    // ToDO: Removed the previous score. Comparisons and duplication of the previous score should be done in other places. This is so that the calcuations are as simple as possible. 
+export function calculateScore(childScores: Score[] = [], pro = true, affects = Affects.Confidence, reversable = true) {
+    const newScore: Score = new Score(affects, reversable);
+    let childrenConfidence = 0
+    let childrenRelevance = 0
 
-    //If there are no children that affect the truth of the claim then assume the claim is 100% true and start strength at 1
-    if (childEdges === undefined
-        || childEdges.length < 1
-        || childEdges.filter(e => e.affects === Affects.Confidence).length < 1) {
-        newScore.childrenStrength = 1;
-        newScore.childrenWeight = 1;
+    //debugger;
+    if (childScores.filter(cs => cs.affects === Affects.Confidence).length < 1) {
+        // If there are no children that affect the confidence of the claim
+        // then assume the claim is 100% confident and start strength and weight at 1
+        childrenConfidence = 1;
+        childrenRelevance = 1;
     }
 
-    // Loop through the child edges and determine the score of the parent. Many of the child properties are also filled out during this calcuation
-    // If there are no children that affect the confidence of the claim then assume the claim is 100% confident and start strength at 1. No code necessary as this is the default of the object
-    childEdges.forEach((childEdge) => {
-        const childScore = childScores.filter(s => s.claimId === childEdge.childId)[0];
+    childScores.forEach((childScore) => {
+        // Loop through the child scores and determine the score of the parent.
 
-        // Process edges that affect confidence
-        if (childEdge.affects === Affects.Confidence) {
-            if (childEdge.reversable) {
-                childScore.weight = childScore.score * childScore.relevance;
-            } else {
-                childScore.weight = Math.max(0, childScore.score) * childScore.relevance; // If the claim is not reversable and weight is below 0 then assume it is 0
-            }
-            newScore.childrenWeight += childScore.weight; // Add up all the weights of the children
-            if (childEdge.pro) {
-                childScore.strength = childScore.weight * childScore.score;
-            } else {
-                childScore.strength = childScore.weight * -childScore.score;
-            }
-            newScore.childrenStrength += childScore.strength; // Add up all the strength of the children
-            childScore.displayText = `${Math.round(childScore.weight * 100)}%`;// * (edge.pro ? 1 : -1)}%`;
+        if (childScore.affects === Affects.Confidence) {
+            // Process edges that affect confidence
+            childrenConfidence += childScore.score * childScore.relevance; // Add up all the strength of the children
+            childrenRelevance += childScore.relevance;
         }
 
-        // Process Relevance child claims
-        if (childEdge.affects === 'relevance') {
-            debugger
-            if (childEdge.pro) {
-                childScore.relevance = 1 + childScore.score;
-            } else {
-                childScore.relevance = 1 - (childScore.score / 2);
-            }
-            newScore.relevance *= childScore.relevance;
-            childScore.displayText = `X${childScore.relevance}`;
+        if (childScore.affects === 'relevance') {
+            // Process Relevance child claims
+            newScore.relevance += childScore.score; // Add up all the strength of the children
         }
     });
 
-    if (newScore.childrenWeight === 0) {
+    if (childrenRelevance === 0) {
         // Protect against division by zero
         newScore.score = 0;
     } else {
-        newScore.score = newScore.childrenStrength / newScore.childrenWeight;
+        //Calculate the score
+        newScore.score = childrenConfidence / childrenRelevance;
     }
 
-    newScore.displayText = `${Math.round(newScore.score * 100)}%`;
+    if (!reversable && newScore.score < 0) {
+        // If it is not reversable then do not let it go negative
+        newScore.score = 0
+    }
+
+    if (!pro) {
+        // Reverse the score if it is a con
+        newScore.score = -newScore.score;
+    }
+
+    if (Object.is(newScore.score, -0)) {
+        // Protect against negative zero 
+        newScore.score = 0;
+    }
 
     return newScore;
-
 }
 
