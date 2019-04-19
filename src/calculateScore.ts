@@ -24,37 +24,37 @@ export function calculateScore(childScores: Score[] = [], pro = true, affects = 
 
         if (childScore.affects === Affects.Confidence) {
             // Process edges that affect confidence
-            childrenConfidence += childScore.score * childScore.relevance; // Add up all the strength of the children
-            childrenRelevance += childScore.relevance;
+            childrenConfidence += childScore.confidence * childScore.relevance; // Add up all the strength of the children
+            childrenRelevance += childScore.relevance; //Add up the relevance separately so we can do a weighted agerage later
         }
 
         if (childScore.affects === 'relevance') {
             // Process Relevance child claims
-            newScore.relevance += childScore.score; // Add up all the strength of the children
+            newScore.relevance += childScore.confidence; // Add up all the strength of the children
         }
     });
 
     if (childrenRelevance === 0) {
         // Protect against division by zero
-        newScore.score = 0;
+        newScore.confidence = 0;
     } else {
         //Calculate the score
-        newScore.score = childrenConfidence / childrenRelevance;
+        newScore.confidence = childrenConfidence / childrenRelevance;
     }
 
-    if (!reversable && newScore.score < 0) {
+    if (!reversable && newScore.confidence < 0) {
         // If it is not reversable then do not let it go negative
-        newScore.score = 0
+        newScore.confidence = 0
     }
 
     if (!pro) {
         // Reverse the score if it is a con
-        newScore.score = -newScore.score;
+        newScore.confidence = -newScore.confidence;
     }
 
-    if (Object.is(newScore.score, -0)) {
+    if (Object.is(newScore.confidence, -0)) {
         // Protect against negative zero 
-        newScore.score = 0;
+        newScore.confidence = 0;
     }
 
     return newScore;
