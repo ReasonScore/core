@@ -1,7 +1,6 @@
 import { calculateScore } from "../calculateScore";
 import { Score } from "../Score"
 import each from 'jest-each';
-import * from 'jest';
 
 
 
@@ -36,21 +35,3 @@ each`
         expect(result.relevance).toBe(expRel);
     });
 });
-
-// test('claim with one pro and one (non-reversable) con should have score of 0', () => {
-//     expect(calculateScore(
-//         "1",
-//         [new Edge("1", "1.1"),
-//         new Edge("1", "1.2", Affects.Confidence, false, false)],
-//         [new Score("1.1"), new Score("1.2")]
-//     ).score).toBe(0);
-// });
-
-// test('claim with one pro and one reversable con should have score of 0', () => {
-//     expect(calculateScore(
-//         "1",
-//         [new Edge("1", "1.1"),
-//         new Edge("1", "1.2", Affects.Confidence, false, true)],
-//         [new Score("1.1"), new Score("1.2")]
-//     ).score).toBe(0);
-// });
