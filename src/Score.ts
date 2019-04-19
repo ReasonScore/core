@@ -9,9 +9,10 @@ export class Score {
         public affects: Affects = Affects.Confidence,
         /** Can the confidence score go below 0 */
         public reversable: boolean = false,
-        /** */
+        /** how confident we sould be in the claim. (AKA True) */
         public confidence: number = 1,
-        /** How relevent this claim is to it's parent claim. Calculation: Pro: 1 + childScore.score, con: 1 - (childScore.score / 2). A multiplier set by all the child edges that affect 'relevance'. A multiplier set by all the child edges that affect 'relevance'. This is usually set during the calculation of it's parent score. */
+        /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
+         * A multiplier set by all the child edges that affect 'relevance'*/
         public relevance: number = 1,
     ) {
     }

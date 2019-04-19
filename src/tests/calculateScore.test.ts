@@ -28,10 +28,10 @@ each`
         undefined,
         reversable,
     )
-    test(`${id} ${polarity} ${(score1 < 0 ? "" : " ") + score1.toFixed(1)} ${(relevance1 < 0 ? "" : " ") + relevance1.toFixed(1)} ${affects1 ? "true " : "false"} ${affects1.padEnd(10)},     score = ${(expScore < 0 ? "" : " ") + expScore.toFixed(1)}`, () => {
+    test(`${id} ${polarity} ${(score1 < 0 ? "" : "+") + score1.toFixed(1)} ${(relevance1 < 0 ? "" : " ") + relevance1.toFixed(1)} ${affects1 ? "true " : "false"} ${affects1.padEnd(10)},     score = ${(expScore < 0 ? "" : " ") + expScore.toFixed(1)}`, () => {
         expect(result.confidence).toBe(expScore);
     });
-    test(`${id} ${polarity} ${(score1 < 0 ? "" : " ") + score1.toFixed(1)} ${(relevance1 < 0 ? "" : " ") + relevance1.toFixed(1)} ${affects1 ? "true " : "false"} ${affects1.padEnd(10)}, relevance = ${(expRel < 0 ? "" : " ") + expRel.toFixed(1)}`, () => {
+    test(`${id} ${polarity} ${(score1 < 0 ? "" : "+") + score1.toFixed(1)} ${(relevance1 < 0 ? "" : " ") + relevance1.toFixed(1)} ${affects1 ? "true " : "false"} ${affects1.padEnd(10)}, relevance = ${(expRel < 0 ? "" : " ") + expRel.toFixed(1)}`, () => {
         expect(result.relevance).toBe(expRel);
     });
 });

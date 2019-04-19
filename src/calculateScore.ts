@@ -1,12 +1,20 @@
 import { Score } from "./Score"
 import { Affects } from "./Affects"
 /**
- * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the children and scores into this array that are within scope.
- * @param childEdges - an array of edges (aka arguments) that link an individual child to the claim this score is for. 
- * @param childScores - an array of scores for child claims linked to the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the scores into this array that are within scope.
- * @param previousScore - The previous score for this claim which may be replaced by this new score (if there are different)
+ * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for.
+ * This function does not take into account scopes.
+ * The caller of this fuction should only put the children and scores into this array that are within scope.
  */
-export function calculateScore(childScores: Score[] = [], pro = true, affects = Affects.Confidence, reversable = true) {
+export function calculateScore(
+    /** An array of scores for child claims linked to the claim this score is for. */
+    childScores: Score[] = [],
+    /** Is this score pro of it's parent (or false if it is a con) */
+    pro = true,
+    /** How does this score affect it's parent */
+    affects = Affects.Confidence,
+    /** Can this score fall below a 0 confidence (have a negative confidence) */
+    reversable = true
+    ) {
     const newScore: Score = new Score(affects, reversable);
     let childrenConfidence = 0
     let childrenRelevance = 0
@@ -14,7 +22,7 @@ export function calculateScore(childScores: Score[] = [], pro = true, affects = 
     //debugger;
     if (childScores.filter(cs => cs.affects === Affects.Confidence).length < 1) {
         // If there are no children that affect the confidence of the claim
-        // then assume the claim is 100% confident and start strength and weight at 1
+        // then assume the claim is 100% confident and start strength and relevance at 1
         childrenConfidence = 1;
         childrenRelevance = 1;
     }
