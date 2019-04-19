@@ -8,19 +8,6 @@ test('claim without any edges should have score of 1', () => {
     expect(calculateScore().score).toBe(1);
 });
 
-//    pro   | score   | relevance | reversable | affects         | expScore | expRel
-// ${'pro'} | ${1.0}  | ${1.0}    | ${false}   | ${"Confidence"} | ${1.0}   | ${1.0}
-// ${"pro"} | ${1.0}  | ${1.0}    | ${false}   | ${"Relevance"}  | ${1.0}   | ${2.0}
-// ${"pro"} | ${0.5}  | ${1.0}    | ${false}   | ${"Confidence"} | ${0.5}   | ${1.0}
-// ${"pro"} | ${0.0}  | ${1.0}    | ${false}   | ${"Confidence"} | ${0.0}   | ${1.0}
-// ${"pro"} | ${-1.0} | ${1.0}    | ${false}   | ${"Confidence"} | ${0.0}   | ${1.0}
-// ${"pro"} | ${-1.0} | ${1.0}    | ${true}    | ${"Confidence"} | ${-1.0}  | ${1.0}
-// ${"con"} | ${1.0}  | ${1.0}    | ${false}   | ${"Confidence"} | ${-1.0}  | ${1.0}
-// ${"con"} | ${0.5}  | ${1.0}    | ${false}   | ${"Confidence"} | ${-0.5}  | ${1.0}
-// ${"con"} | ${0.0}  | ${1.0}    | ${false}   | ${"Confidence"} | ${0.0}   | ${1.0}
-// ${"con"} | ${-1.0} | ${1.0}    | ${false}   | ${"Confidence"} | ${0.0}   | ${1.0}
-// ${"con"} | ${-1.0} | ${1.0}    | ${true}    | ${"Confidence"} | ${1.0}   | ${1.0}
-
 each`
     id       | expScore  | expRel   | polarity | reversable | affects1        | score1    | relevance1
     ${'__1'} | ${+1.00}  | ${+1.00} | ${'pro'} | ${false}   | ${'Confidence'} | ${+1.00}  | ${+1.00}
