@@ -1,3 +1,4 @@
+import { Affects } from "./Affects";
 /**
  * Stores the relationship between two claims in a specific scope. This is directional as the edge points from one claim to another. This is just a adata transfer object so it should have no logic in it.
  */
@@ -18,11 +19,4 @@ export declare class Edge {
     childId?: string, 
     /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
     affects?: Affects, pro?: boolean, reversable?: boolean, scopeId?: string);
-}
-/**
- * How a child claim affects a parent claim
- */
-export declare enum Affects {
-    Confidence = "confidence",
-    Relevance = "relevance"
 }

@@ -1,6 +1,5 @@
 import { Score } from "./Score"
 import { Affects } from "./Affects"
-import { objectExpression } from "@babel/types";
 /**
  * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for. This function does not take into account scopes. The caller of this fuction should only put the children and scores into this array that are within scope.
  * @param childEdges - an array of edges (aka arguments) that link an individual child to the claim this score is for. 
