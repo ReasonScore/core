@@ -1,10 +1,14 @@
 import { Affects } from "./Affects"
+import { Item } from "./Item"
+import { Type } from "./Type";
+import { types } from "@babel/core";
 /**
  * Stores the relationship between two claims in a specific scope.
  * This is directional as the edge points from one claim to another.
  * This is just a data transfer object so it should have no logic in it.
  */
-export class Edge {
+export class Edge implements Item {
+    public type: Type = Type.edge;
     constructor(
         /** The ID for the parent claim this edge points to */
         public parentId: string = "",
@@ -18,6 +22,10 @@ export class Edge {
         public reversable: boolean = false,
         /** What claimId need to be an ancestor of this edge for this edge to be displayed or used in the calculations*/
         public scopeId: string = "",
+        public id: string = "",
+        public version: string = "",
+        public start: Date = new Date(),
+        public end: Date = new Date('3000-01-01'),
     ) {
     }
 }
