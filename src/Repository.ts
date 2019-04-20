@@ -1,8 +1,12 @@
-import { Item } from "./Item"
+import { View } from "./View";
+import { Claim } from "./Claim";
+import { Score } from "./Score";
+import { Item } from "./Item";
+import { ClaimEdge } from "./ClaimEdge";
+import { ViewEdge } from "./viewEdge";
 
 export class Repository {
     Subscriptions: Query[] = [];
-    items: Item[] = [];
 
     constructor() {
 
@@ -20,9 +24,12 @@ export class Repository {
 
 export class RSData {
     constructor(
-        public items: Item[] = [],
+        public claims: Claim[] = [],
+        public claimEdges: ClaimEdge[] = [],
         public history: Date[] = [],
-        public scores: Date[] = [],
+        public scores: Score[] = [],
+        public views: View[] = [],
+        public viewEdges: ViewEdge[] = [],
     ) {
     }
 }

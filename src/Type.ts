@@ -4,5 +4,8 @@
  */
 export enum Type {
     claim = "claim",
-    edge = "edge",
+    claimEdge = "claimEdge",
+    score = "score",
+    view = "view",
+    viewEdge = "viewEdge",
 }

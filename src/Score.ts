@@ -1,10 +1,13 @@
 import { Affects } from "./Affects"
+import { Item } from "./Item";
 import { Type } from "./Type";
 /**
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  * Usually within the context of a view of the claim or another claim
  */
-export class Score  {
+export class Score implements Item {
+    type: Type = Type.score
+    
     constructor(
         /** This is how the child claim affects the parent claim's score */
         public affects: Affects = Affects.Confidence,
