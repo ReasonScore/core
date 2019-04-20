@@ -10,13 +10,15 @@ export class View implements Item {
     type: Type = Type.view
     
     constructor(
-        /** The ID for the parent View this edge points to */
-        public scoreId: string = "",
-        /** The ID for the child View this edge points from */
-        public claimId: string = "",
         public topClaimId: string = "",
-        /** This ViewEdge ID Will match the topClaimID if this is the top viewEdge */
+        public claimId: string = "",
         public id: string = "",
+        /** The ID for the child View this edge points from */
+        /** The ID for the parent View this edge points to */
+        public content: string = "",
+        public scoreDisplay: string = "",
+        public scoreId: string = "",
+        /** This ViewEdge ID Will match the topClaimID if this is the top viewEdge */
         public version: string = "",
         public start: Date = new Date(),
         public end: Date = new Date('3000-01-01'),

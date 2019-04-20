@@ -15,7 +15,9 @@ export function calculateScore(
     /** Can this score fall below a 0 confidence (have a negative confidence) */
     reversable = true
     ) {
-    const newScore: Score = new Score(affects, reversable);
+    const newScore: Score = new Score();
+    newScore.affects = affects;
+    newScore.reversable = reversable
     let childrenConfidence = 0
     let childrenRelevance = 0
 
