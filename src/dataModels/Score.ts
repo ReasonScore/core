@@ -6,7 +6,7 @@ import { Type } from "./Type";
  * Usually within the context of a view of the claim or another claim
  */
 export class Score implements Item {
-    type: Type = Type.score
+    type: string = Type.score
     
     constructor(
         /** how confident we sould be in the claim. (AKA True) */
@@ -16,12 +16,12 @@ export class Score implements Item {
         public relevance: number = 1,
         public id: string = "",
         /** This is how the child claim affects the parent claim's score */
-        public affects: Affects = Affects.Confidence,
+        public affects: string = Affects.Confidence,
         /** Can the confidence score go below 0 */
         public reversable: boolean = false,
         public version: string = "",
-        public start: Date = new Date(),
-        public end: Date = new Date('3000-01-01'),
+        public start: string = new Date().toISOString(),
+        public end: string = new Date('3000-01-01').toISOString(),
     ) {
     }
 

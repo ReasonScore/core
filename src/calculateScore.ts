@@ -1,5 +1,5 @@
-import { Score } from "./Score"
-import { Affects } from "./Affects"
+import { Affects } from "./dataModels/Affects"
+import { Score } from "./dataModels/Score";
 /**
  * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for.
  * This function does not take into account scopes.

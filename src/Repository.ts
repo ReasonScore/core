@@ -1,23 +1,18 @@
-import { View } from "./View";
-import { Claim } from "./Claim";
-import { Score } from "./Score";
-import { Item } from "./Item";
-import { ClaimEdge } from "./ClaimEdge";
-import { ViewEdge } from "./viewEdge";
-import { RSData } from "./RsData";
+import { Item } from "./dataModels/Item";
+import { RsDate } from "./dataModels/RsData";
 
 export class Repository {
     public Subscribers: Query[] = [];
 
     constructor(
-        public rsData:RSData = new RSData
+        public rsData:RsDate = new RsDate
         ) {
     }
 
     get(query: Query) {
 
         if (query.update) this.Subscribers.push(query);
-        return new Promise<RSData>((response, reject) => {
+        return new Promise<RsDate>((response, reject) => {
             // To DO: make this pull out the right data instead of just dumping the whole object
             response(this.rsData);
         })

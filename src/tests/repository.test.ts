@@ -1,7 +1,7 @@
 import { Repository } from "../Repository";
-import { ExampleData } from "../ExampleData";
+import { ExampleData, GenerateExampleData } from "../dataModels/ExampleData";
 
-let repo = new Repository(ExampleData());
+let repo = new Repository(GenerateExampleData());
 
 test('Repository should have an edge between claim4 and claim2', () => {
     let claimEdge42 = repo.rsData.claimEdges.find(e => e.parentId == "2" && e.childId == "4" && e.scopeId == "2");

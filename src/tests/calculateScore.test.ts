@@ -1,11 +1,11 @@
 import { calculateScore } from "../calculateScore";
-import { Score } from "../Score"
+import { Score } from "../dataModels/Score";
 
-test.skip('claim without any edges should have score of 1', () => {
+test('claim without any edges should have score of 1', () => {
     expect(calculateScore().confidence).toBe(1);
 });
 
-describe.skip.each`
+describe.each`
     id       | expScore  | expRel   | polarity | reversable | affects1        | confidence1 | relevance1
     ${'__1'} | ${+1.00}  | ${+1.00} | ${'pro'} | ${false}   | ${'confidence'} | ${+1.00}    | ${+1.00}
     ${'__2'} | ${+1.00}  | ${+2.00} | ${'pro'} | ${false}   | ${'relevance'}  | ${+1.00}    | ${+1.00}
