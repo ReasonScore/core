@@ -3,7 +3,7 @@ import { ViewEdge } from "./viewEdge";
 import { View } from "./View";
 import { ClaimEdge } from "./ClaimEdge";
 import { Claim } from "./Claim";
-import { RSData } from "./Repository";
+import { RSData } from "./RsData";
 
 export function ExampleData(): RSData {
 

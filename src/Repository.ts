@@ -4,20 +4,22 @@ import { Score } from "./Score";
 import { Item } from "./Item";
 import { ClaimEdge } from "./ClaimEdge";
 import { ViewEdge } from "./viewEdge";
-import { ExampleData } from "./ExampleData";
+import { RSData } from "./RsData";
 
 export class Repository {
     public Subscribers: Query[] = [];
 
-    constructor() {
-
+    constructor(
+        public rsData:RSData = new RSData
+        ) {
     }
 
     get(query: Query) {
 
         if (query.update) this.Subscribers.push(query);
         return new Promise<RSData>((response, reject) => {
-            response(ExampleData());
+            // To DO: make this pull out the right data instead of just dumping the whole object
+            response(this.rsData);
         })
 
     }
@@ -25,18 +27,8 @@ export class Repository {
     /** this function can be called by outside code to notfy this repository of changes */
     notify(transaction: Change[]) {
 
-    }
-}
 
-export class RSData {
-    constructor(
-        public claims: Claim[] = [],
-        public claimEdges: ClaimEdge[] = [],
-        public history: Date[] = [],
-        public scores: Score[] = [],
-        public views: View[] = [],
-        public viewEdges: ViewEdge[] = [],
-    ) {
+
     }
 }
 
