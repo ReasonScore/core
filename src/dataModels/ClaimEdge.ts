@@ -1,11 +1,12 @@
 import { Affects } from "./Affects"
 import { Item } from "./Item";
 import { Type } from "./Type";
+import End from "./End"
 /**
  * Stores the relationship between two claims in a specific scope.
  * This is directional as the edge points from one claim to another.
  * This is just a data transfer object so it should have no logic in it
- * and only JSON compatible types string, number, object, array, true, false
+ * and only JSON compatible types string, number, object, array, boolean
  */
 export class ClaimEdge implements Item {
     type: string = Type.claimEdge
@@ -26,7 +27,7 @@ export class ClaimEdge implements Item {
         public id: string = "",
         public version: string = "",
         public start: string = new Date().toISOString(),
-        public end: string = new Date('3000-01-01').toISOString(),
+        public end: string = End,
     ) {
     }
 }

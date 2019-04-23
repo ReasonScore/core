@@ -4,9 +4,10 @@ import { View } from "./View";
 import { ClaimEdge } from "./ClaimEdge";
 import { Claim } from "./Claim";
 import { RsDate } from "./RsData";
+import { Affects } from "./Affects";
 
 export function ExampleData(): RsDate {
-    var tempRsData: RsDate = {
+    var rsData: RsDate = {
         "claims": [
             {
                 "content": "Arctic City Should Implement the City 3000 plan                       ",
@@ -118,9 +119,9 @@ export function ExampleData(): RsDate {
                 "childId": "4",
                 "scopeId": "2",
                 "affects": "confidence",
-                "pro": true,
+                "pro": false,
                 "reversable": false,
-                "id": "",
+                "id": "2-4",
                 "version": "",
                 "start": "2019-04-21T13:37:30.081Z",
                 "end": "3000-01-01T00:00:00.000Z",
@@ -144,7 +145,7 @@ export function ExampleData(): RsDate {
                 "childId": "6",
                 "scopeId": "0",
                 "affects": "confidence",
-                "pro": true,
+                "pro": false,
                 "reversable": false,
                 "id": "",
                 "version": "",
@@ -157,7 +158,7 @@ export function ExampleData(): RsDate {
                 "childId": "7",
                 "scopeId": "1",
                 "affects": "confidence",
-                "pro": true,
+                "pro": false,
                 "reversable": false,
                 "id": "",
                 "version": "",
@@ -606,7 +607,7 @@ export function ExampleData(): RsDate {
         ],
         "history": []
     }
-    return <RsDate>tempRsData;
+    return rsData;
 }
 
 export function GenerateExampleData(): RsDate {
@@ -626,10 +627,10 @@ export function GenerateExampleData(): RsDate {
             new ClaimEdge("0", "2", "0"),
             new ClaimEdge("1", "2", "1"),
             new ClaimEdge("2", "3", "2"),
-            new ClaimEdge("2", "4", "2"),
+            new ClaimEdge("2", "4", "2", Affects.Confidence,false),
             new ClaimEdge("2", "5", "2"),
-            new ClaimEdge("3", "6", "0"),
-            new ClaimEdge("5", "7", "1"),
+            new ClaimEdge("3", "6", "0", Affects.Confidence,false),
+            new ClaimEdge("5", "7", "1", Affects.Confidence,false),
         ],
         views: [
             new View("0", "0", "0      ", "Arctic City Should Implement the City 3000 plan                       ", " 50%", "0      "),
@@ -678,6 +679,5 @@ export function GenerateExampleData(): RsDate {
         ],
         history: [],
     }
-    debugger
     return rsData
 }

@@ -1,12 +1,16 @@
-import { Item } from "./dataModels/Item";
 import { RsDate } from "./dataModels/RsData";
+import { ClaimEdge } from "./dataModels/ClaimEdge";
+import End from "./dataModels/end";
+import { Type } from "./dataModels/Type";
+import { Change } from "./dataModels/Change";
+import { Query } from "./dataModels/Query";
 
 export class Repository {
     public Subscribers: Query[] = [];
 
     constructor(
-        public rsData:RsDate = new RsDate
-        ) {
+        public rsData: RsDate = new RsDate
+    ) {
     }
 
     get(query: Query) {
@@ -21,26 +25,22 @@ export class Repository {
 
     /** this function can be called by outside code to notfy this repository of changes */
     notify(transaction: Change[]) {
+        for (let change of transaction) {
+            if (change.newItem.type == Type.claimEdge) {
+                let oldItem = this.getclaimEdge(change.newItem.id)
+                oldItem.end = new Date().toISOString();
+                this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
+                // Re-calculate score for all ancestors of this claim
 
+            }
+        }
+    }
 
-
+    getclaimEdge(id: string, when: string = "3000-01-01T00:00:00.000Z"): ClaimEdge {
+        let tempclaimEdge = this.rsData.claimEdges.find(e =>
+            e.id == id &&
+            e.end >= End);
+        return tempclaimEdge ? tempclaimEdge : new ClaimEdge();
     }
 }
 
-export class Change {
-    constructor(
-        public versionId: string,
-        public oldItem: Item,
-        public newItem: Item
-    ) {
-    }
-}
-
-export interface Query {
-    start?: Date;
-    end?: Date;
-    depth?: number;
-    claimId: number;
-    viewOnly: boolean;
-    update: () => Change[];
-}
