@@ -4,7 +4,7 @@ import { Score } from "./Score";
 import { View } from "./View";
 import { ViewEdge } from "./viewEdge";
 
-export class RsDate {
+export class RsData {
     constructor(
         public claims: Claim[] = [],
         public claimEdges: ClaimEdge[] = [],

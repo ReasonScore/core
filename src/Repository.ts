@@ -1,4 +1,4 @@
-import { RsDate } from "./dataModels/RsData";
+import { RsData } from "./dataModels/RsData";
 import { ClaimEdge } from "./dataModels/ClaimEdge";
 import End from "./dataModels/end";
 import { Type } from "./dataModels/Type";
@@ -9,14 +9,14 @@ export class Repository {
     public Subscribers: Query[] = [];
 
     constructor(
-        public rsData: RsDate = new RsDate
+        public rsData: RsData = new RsData
     ) {
     }
 
     get(query: Query) {
 
         if (query.update) this.Subscribers.push(query);
-        return new Promise<RsDate>((response, reject) => {
+        return new Promise<RsData>((response, reject) => {
             // To DO: make this pull out the right data instead of just dumping the whole object
             response(this.rsData);
         })
@@ -31,12 +31,17 @@ export class Repository {
                 oldItem.end = new Date().toISOString();
                 this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
                 // Re-calculate score for all ancestors of this claim
-
+                debugger;
+                
             }
         }
     }
 
-    getclaimEdge(id: string, when: string = "3000-01-01T00:00:00.000Z"): ClaimEdge {
+    calculateScore(){
+        
+    }
+
+    getclaimEdge(id: string, when: string = End): ClaimEdge {
         let tempclaimEdge = this.rsData.claimEdges.find(e =>
             e.id == id &&
             e.end >= End);
