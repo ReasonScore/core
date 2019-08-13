@@ -9,7 +9,7 @@ debugger;
 let claimEdge42 = repo.getclaimEdge("2-4    ");
 
 
-test.skip('Repository should have an edge between claim4 and claim2', () => {
+test('Repository should have an edge between claim4 and claim2', () => {
     expect(claimEdge42.pro).toBe(false);
 });
 
