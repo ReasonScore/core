@@ -1,4 +1,6 @@
-export function newId(when: Date = new Date()): string {
+import { Id } from "./dataModels/Id";
+
+export function newId(when: Date = new Date()): Id {
   // take the UTC date and convert to base 62
   let decimal = 5000000000000 - when.getTime();
   const s = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -12,5 +14,5 @@ export function newId(when: Date = new Date()): string {
   result += Array(5).join().split(',').map(() => s[(Math.floor(Math.random() * s.length))])
     .join('');
 
-  return result;
+  return result as any;
 }

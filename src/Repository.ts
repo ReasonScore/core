@@ -6,6 +6,7 @@ import { Change } from "./dataModels/Change";
 import { Query } from "./dataModels/Query";
 import { Score } from "./dataModels/Score";
 import { Claim } from "./dataModels/Claim";
+import { Id } from "./dataModels/Id";
 
 export class Repository {
     public Subscribers: Query[] = [];
@@ -43,21 +44,21 @@ export class Repository {
         
     }
 
-    getClaimEdge(id: string, when: string = End): ClaimEdge {
+    getClaimEdge(id: Id, when: string = End): ClaimEdge {
         let tempClaimEdge = this.rsData.claimEdges.find(e =>
             e.id == id &&
             e.end >= End);
         return tempClaimEdge ? tempClaimEdge : new ClaimEdge();
     }
 
-    getScore(id: string, when: string = End): Score {
+    getScore(id: Id, when: string = End): Score {
         let tempScore = this.rsData.scores.find(e =>
             e.id == id &&
             e.end >= End);
         return tempScore ? tempScore : new Score();
     }
 
-    getClaim(id: string, when: string = End): Claim {
+    getClaim(id: Id, when: string = End): Claim {
         let tempClaim = this.rsData.claims.find(e =>
             e.id == id &&
             e.end >= End);

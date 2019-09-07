@@ -1,5 +1,6 @@
 import { calculateScore } from "../calculateScore";
 import { Score } from "../dataModels/Score";
+import { Id, ID } from "../dataModels/Id";
 
 test('claim without any edges should have score of 1', () => {
     expect(calculateScore().confidence).toBe(1);
@@ -19,7 +20,7 @@ describe.each`
     ${'_10'} | ${+0.00}  | ${+1.00} | ${'con'} | ${false}   | ${'confidence'} | ${-1.00}    | ${+1.00}
     ${'_11'} | ${+1.00}  | ${+1.00} | ${'con'} | ${true}    | ${'confidence'} | ${-1.00}    | ${+1.00}
 `('', ({ id, expScore, expRel, polarity, reversable, affects1, confidence1, relevance1 }) => {
-    const scores = [new Score(confidence1, relevance1, id, "", undefined, affects1, false)];
+    const scores = [new Score(confidence1, relevance1, id, ID(""), undefined, affects1, false)];
     const result = calculateScore(
         scores,
         polarity === "pro" ? true : false,
@@ -41,8 +42,8 @@ describe.each`
 `('', ({ id, expScore, expRel, polarity, reversable, affects1, confidence1, relevance1 , affects2, confidence2, relevance2}) => {
     const scores = [
 
-        new Score(confidence1, relevance1, id, "", undefined, affects1, false),
-        new Score(confidence2, relevance2, id+ "_2", "", undefined, affects2, false),           
+        new Score(confidence1, relevance1, id, ID(""), undefined, affects1, false),
+        new Score(confidence2, relevance2, ID(id+ "_2"), ID(""), undefined, affects2, false),           
     ];
     //debugger;
     const result = calculateScore(

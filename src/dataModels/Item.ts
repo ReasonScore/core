@@ -1,8 +1,8 @@
-import { Type } from "./Type";
+import { Id } from "./Id";
 
 export interface Item {
-    id: string
-    version: string
+    id: Id
+    version: Id
     type: string
     start: string
     end: string

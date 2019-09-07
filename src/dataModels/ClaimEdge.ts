@@ -3,6 +3,7 @@ import { Item } from "./Item";
 import { Type } from "./Type";
 import End from "./End"
 import { newId } from "../newId";
+import { Id } from "./Id";
 /**
  * Stores the relationship between two claims in a specific scope.
  * This is directional as the edge points from one claim to another.
@@ -25,8 +26,8 @@ export class ClaimEdge implements Item {
         public pro: boolean = true,
         /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
         public reversable: boolean = false,
-        public id: string = newId(),
-        public version: string = newId(),
+        public id: Id = newId(),
+        public version: Id = newId(),
         public start: string = new Date().toISOString(),
         public end: string = End,
     ) {

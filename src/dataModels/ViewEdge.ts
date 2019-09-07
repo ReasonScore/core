@@ -2,6 +2,7 @@ import { Item } from "./Item";
 import { Type } from "./Type";
 import { newId } from "../newId";
 import End from "./End";
+import { Id } from "./Id";
 
 /**
  * Stores the relationship between two view nodes that are children of a top claim
@@ -19,8 +20,8 @@ export class ViewEdge implements Item {
         public childId: string = "",
         public claimEdgeID: string = "",
         /** This ViewEdge ID Will match the topClaimID if this is the top viewEdge */
-        public id: string = newId(),
-        public version: string = newId(),
+        public id: Id = newId(),
+        public version: Id = newId(),
         public start: string = new Date().toISOString(),
         public end: string = End,
     ) {
