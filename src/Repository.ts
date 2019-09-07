@@ -4,6 +4,8 @@ import End from "./dataModels/end";
 import { Type } from "./dataModels/Type";
 import { Change } from "./dataModels/Change";
 import { Query } from "./dataModels/Query";
+import { Score } from "./dataModels/Score";
+import { Claim } from "./dataModels/Claim";
 
 export class Repository {
     public Subscribers: Query[] = [];
@@ -27,7 +29,7 @@ export class Repository {
     notify(transaction: Change[]) {
         for (let change of transaction) {
             if (change.newItem.type == Type.claimEdge) {
-                let oldItem = this.getclaimEdge(change.newItem.id)
+                let oldItem = this.getClaimEdge(change.newItem.id)
                 oldItem.end = new Date().toISOString();
                 this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
                 // Re-calculate score for all ancestors of this claim
@@ -41,11 +43,25 @@ export class Repository {
         
     }
 
-    getclaimEdge(id: string, when: string = End): ClaimEdge {
-        let tempclaimEdge = this.rsData.claimEdges.find(e =>
+    getClaimEdge(id: string, when: string = End): ClaimEdge {
+        let tempClaimEdge = this.rsData.claimEdges.find(e =>
             e.id == id &&
             e.end >= End);
-        return tempclaimEdge ? tempclaimEdge : new ClaimEdge();
+        return tempClaimEdge ? tempClaimEdge : new ClaimEdge();
+    }
+
+    getScore(id: string, when: string = End): Score {
+        let tempScore = this.rsData.scores.find(e =>
+            e.id == id &&
+            e.end >= End);
+        return tempScore ? tempScore : new Score();
+    }
+
+    getClaim(id: string, when: string = End): Claim {
+        let tempClaim = this.rsData.claims.find(e =>
+            e.id == id &&
+            e.end >= End);
+        return tempClaim ? tempClaim : new Claim();
     }
 }
 
