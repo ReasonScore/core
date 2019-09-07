@@ -21,7 +21,7 @@ export class Score implements Item {
         /** The claim to which this score belongs */
         public sourceClaimId: Id = newId(),
         /** If this claim is resticted to a scope this will be the ID of the scope */
-        public scopeId?: string,
+        public scopeId?: Id,
         /** This is how the child claim affects the parent claim's score */
         public affects: string = Affects.Confidence,
         /** Can the confidence score go below 0 */
