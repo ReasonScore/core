@@ -5,7 +5,7 @@ import End from "./End";
 import { Id } from "./Id";
 
 export class Claim implements Item {
-    type: string = Type.claim.toString()
+    type: Type = Type.claim
     
     constructor(
         public content: string = "",

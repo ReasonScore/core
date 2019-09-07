@@ -10,7 +10,7 @@ import { Id } from "./Id";
  * This is just a data transfer object so it should have no logic in it.
  */
 export class ViewEdge implements Item {
-    type: string = Type.viewEdge
+    type: Type = Type.viewEdge
     
     constructor(
         public topClaimId: string = "",

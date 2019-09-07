@@ -9,7 +9,7 @@ import { Id } from "./Id";
  * Usually within the context of a view of the claim or another claim
  */
 export class Score implements Item {
-    type: string = Type.score
+    type: Type = Type.score
     
     constructor(
         /** how confident we sould be in the claim. (AKA True) */

@@ -11,7 +11,7 @@ import { Id } from "./Id";
  * and only JSON compatible types string, number, object, array, boolean
  */
 export class ClaimEdge implements Item {
-    type: string = Type.claimEdge
+    type: Type = Type.claimEdge
     
     constructor(
         /** The ID for the parent claim this edge points to */
