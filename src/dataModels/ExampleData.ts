@@ -22,14 +22,14 @@ export function GenerateExampleData(): RsData {
       new Claim("Equator City is built on a marsh so a subway would be cost prohibitive", ID("7")),
     ],
     claimEdges: [
-      //  ClaimEdge parent   child    scope    affects    pro        reversable ID
-      new ClaimEdge(ID("0"), ID("2"), ID("0"), undefined, undefined, undefined, ID("0-2    ")),
-      new ClaimEdge(ID("1"), ID("2"), ID("1"), undefined, undefined, undefined, ID("1-2    ")),
-      new ClaimEdge(ID("2"), ID("3"), ID("2"), undefined, undefined, undefined, ID("2-3    ")),
-      new ClaimEdge(ID("2"), ID("4"), ID("2"), Affects.Confidence, false, undefined, ID("2-4    ")),
-      new ClaimEdge(ID("2"), ID("5"), ID("2"), undefined, undefined, undefined, ID("2-5    ")),
-      new ClaimEdge(ID("3"), ID("6"), ID("0"), Affects.Confidence, false, undefined, ID("3-6    ")),
-      new ClaimEdge(ID("5"), ID("7"), ID("1"), Affects.Confidence, false, undefined, ID("5-7    ")),
+      //  ClaimEdge parent   child    scope    affects    pro   reversable ID
+      new ClaimEdge(ID("0"), ID("2"), ID("0"), undefined, true, undefined, ID("0-2    ")),
+      new ClaimEdge(ID("1"), ID("2"), ID("1"), undefined, true, undefined, ID("1-2    ")),
+      new ClaimEdge(ID("2"), ID("3"), ID("2"), undefined, true, undefined, ID("2-3    ")),
+      new ClaimEdge(ID("2"), ID("4"), ID("2"), undefined, false, undefined, ID("2-4    ")),
+      new ClaimEdge(ID("2"), ID("5"), ID("2"), undefined, true, undefined, ID("2-5    ")),
+      new ClaimEdge(ID("3"), ID("6"), ID("0"), undefined, false, undefined, ID("3-6    ")),
+      new ClaimEdge(ID("5"), ID("7"), ID("1"), undefined, false, undefined, ID("5-7    ")),
     ],
     views: [
       //  View top      claim    id             content                                                                   confid  scoreId
@@ -71,17 +71,17 @@ export function GenerateExampleData(): RsData {
       new Score(+1.0, 1, ID("2-5    "), ID("5")),
       // Scoped to claim 0
       new Score(+0.0, 1, ID("0      "), ID("0")),
-      new Score(+0.0, 1, ID("0-2    "), ID("2"), undefined, "0"),
-      new Score(-1.0, 1, ID("0-2-3  "), ID("3"), undefined, "0"),
-      new Score(+1.0, 1, ID("0-2-4  "), ID("4"), undefined, "0"),
-      new Score(+1.0, 1, ID("0-2-3-6"), ID("6"), undefined, "0"),
+      new Score(+0.0, 1, ID("0-2    "), ID("2"), ID("0")),
+      new Score(-1.0, 1, ID("0-2-3  "), ID("3"), ID("0")),
+      new Score(+1.0, 1, ID("0-2-4  "), ID("4"), ID("0")),
+      new Score(+1.0, 1, ID("0-2-3-6"), ID("6"), ID("0")),
 
       //Scoped to claim 1
       new Score(+0.0, 1, ID("1      "), ID("1")),
-      new Score(+0.0, 1, ID("1-2    "), ID("2"), undefined, "1"),
-      new Score(+1.0, 1, ID("1-2-4  "), ID("4"), undefined, "1"),
-      new Score(-1.0, 1, ID("1-2-5  "), ID("5"), undefined, "1"),
-      new Score(+1.0, 1, ID("1-2-5-7"), ID("7"), undefined, "1"),
+      new Score(+0.0, 1, ID("1-2    "), ID("2"), ID("1")),
+      new Score(+1.0, 1, ID("1-2-4  "), ID("4"), ID("1")),
+      new Score(-1.0, 1, ID("1-2-5  "), ID("5"), ID("1")),
+      new Score(+1.0, 1, ID("1-2-5-7"), ID("7"), ID("1")),
     ],
     history: [],
   }
