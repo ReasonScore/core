@@ -51,11 +51,23 @@ export class Repository {
         return tempClaimEdge ? tempClaimEdge : new ClaimEdge();
     }
 
+    getClaimEdgesByParent(parentId: Id, when: string = End): ClaimEdge[] {
+        return this.rsData.claimEdges.filter(e =>
+            e.parentId == parentId &&
+            e.end >= End);
+    }
+
     getScore(id: Id, when: string = End): Score {
         let tempScore = this.rsData.scores.find(e =>
             e.id == id &&
             e.end >= End);
         return tempScore ? tempScore : new Score();
+    }
+
+    getScoresbyClaimId(id: Id, when: string = End): Score[] {
+        return this.rsData.scores.filter(e =>
+            e.sourceClaimId == id &&
+            e.end >= End);
     }
 
     getClaim(id: Id, when: string = End): Claim {
