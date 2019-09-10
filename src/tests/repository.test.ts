@@ -6,6 +6,7 @@ import { Change } from "../dataModels/Change";
 import { calculateScore } from "../calculateScore";
 import { Id, ID } from "../dataModels/Id";
 import { Score } from "../dataModels/Score";
+import { groupScoresByScope, ScoresByScope } from "../groupScoresByScope";
 
 const exampleDataJson = JSON.stringify(GenerateExampleData(), undefined, 2);
 let repo = new Repository(JSON.parse(exampleDataJson));
@@ -38,22 +39,11 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
     const finalScores: Score[] = [];
 
     //Get all scopes
-    const scopes: Record<string, Score[]> = {};
+    const scopes: ScoresByScope = {};
     claimEdges.forEach((claimEdge) => {
         //Get all the scores for each child claim of this edge
         const claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
-        claimEdgeScores.forEach(score => {
-            let idString: string;
-            if (score.scopeId != undefined) {
-                idString = score.scopeId.toString();
-            } else {
-                idString = claimEdge.parentId.toString();
-            }
-            if (scopes[idString] === undefined) {
-                scopes[idString] = [];
-            }
-            scopes[idString].push(score);
-        });
+        groupScoresByScope(claimEdgeScores, claimEdge.parentId.toString(), scopes);
     });
 
     //For each scope, loop through and create a score
@@ -71,6 +61,23 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
 });
 
 
+// interface ScoresByScope { [Id: string]: Score[] }//  | undefined }
+
+// function groupScoresByScope(scores: Score[], parentId: string, ScoresByScope: ScoresByScope) {
+//     scores.forEach(score => {
+//         let idString: string;
+//         if (score.scopeId != undefined) {
+//             idString = score.scopeId.toString();
+//         }
+//         else {
+//             idString = parentId;
+//         }
+//         if (ScoresByScope[idString] === undefined) {
+//             ScoresByScope[idString] = [];
+//         }
+//         ScoresByScope[idString].push(score);
+//     });
+// }
 // test('Switching 42 form con to pro should change scores', () => {
 //     debugger;
 //     let newClaimEdge42 = <ClaimEdge>deepClone(claimEdge42);
