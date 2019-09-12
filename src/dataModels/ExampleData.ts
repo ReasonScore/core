@@ -23,13 +23,13 @@ export function GenerateExampleData(): RsData {
     ],
     claimEdges: [
       //  ClaimEdge parent   child    scope    affects    pro   reversable ID
-      new ClaimEdge(ID("0"), ID("2"), ID("0"), undefined, true, undefined, ID("0-2    ")),
-      new ClaimEdge(ID("1"), ID("2"), ID("1"), undefined, true, undefined, ID("1-2    ")),
-      new ClaimEdge(ID("2"), ID("3"), ID("2"), undefined, true, undefined, ID("2-3    ")),
-      new ClaimEdge(ID("2"), ID("4"), ID("2"), undefined, false, undefined, ID("2-4    ")),
-      new ClaimEdge(ID("2"), ID("5"), ID("2"), undefined, true, undefined, ID("2-5    ")),
-      new ClaimEdge(ID("3"), ID("6"), ID("0"), undefined, false, undefined, ID("3-6    ")),
-      new ClaimEdge(ID("5"), ID("7"), ID("1"), undefined, false, undefined, ID("5-7    ")),
+      new ClaimEdge(ID("0"), ID("2"), ID("0"), undefined, true, ID("0-2    ")),
+      new ClaimEdge(ID("1"), ID("2"), ID("1"), undefined, true, ID("1-2    ")),
+      new ClaimEdge(ID("2"), ID("3"), ID("2"), undefined, true, ID("2-3    ")),
+      new ClaimEdge(ID("2"), ID("4"), ID("2"), undefined, false, ID("2-4    ")),
+      new ClaimEdge(ID("2"), ID("5"), ID("2"), undefined, true, ID("2-5    ")),
+      new ClaimEdge(ID("3"), ID("6"), ID("0"), undefined, false, ID("3-6    ")),
+      new ClaimEdge(ID("5"), ID("7"), ID("1"), undefined, false, ID("5-7    ")),
     ],
     views: [
       //  View top      claim    id             content                                                                   confid  scoreId
@@ -68,7 +68,7 @@ export function GenerateExampleData(): RsData {
       //No Scopes
       new Score(1 / 3, 1, ID("2      "), ID("2")),
       new Score(+1.0, 1, ID("2-3    "), ID("3")),
-      new Score(-1.0, 1, ID("2-4    "), ID("4")),
+      new Score(+1.0, 1, ID("2-4    "), ID("4")),
       new Score(+1.0, 1, ID("2-5    "), ID("5")),
 
       // Scoped to claim 0

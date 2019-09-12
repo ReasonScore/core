@@ -24,8 +24,6 @@ export class ClaimEdge implements Item {
         public affects: Affects = Affects.Confidence,
         /** Is the child claim a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
-        /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
-        public reversable: boolean = false,
         public id: Id = newId(),
         public version: Id = newId(),
         public start: string = new Date().toISOString(),
@@ -33,3 +31,6 @@ export class ClaimEdge implements Item {
     ) {
     }
 }
+
+        /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
+        //public reversable: boolean = false,

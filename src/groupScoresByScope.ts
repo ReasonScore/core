@@ -15,6 +15,10 @@ export function groupScoresByScope(scores: Score[], parentId: string, ScoresBySc
         if (ScoresByScope[idString] === undefined) {
             ScoresByScope[idString] = [];
         }
-        ScoresByScope[idString].push(score);
+        //Only add it to the list of scores if the Scope is not the same as the child ID.
+        //If the scope ID is the same then that score ID it should not propogate up the hierarchy any further.
+        if (score.id.toString() != idString){
+            ScoresByScope[idString].push(score);
+        }
     });
 }
