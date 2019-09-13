@@ -39,7 +39,6 @@ export function calculateScore(
 
     scoreAndClaimEdges.forEach((scoreAndClaimEdge) => {
         // Loop through the child scores and determine the score of the parent.
-debugger;
         if (scoreAndClaimEdge.claimEdge.affects === Affects.Confidence) {
             // Process edges that affect confidence
             if (scoreAndClaimEdge.claimEdge.pro) {

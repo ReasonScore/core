@@ -49,6 +49,7 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
 
     claimEdges.forEach((claimEdge) => {
         //Get all the scores for each child claim of this edge
+        //We assume all the scores exist
         const claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
         claimEdgeScores.forEach((score) => {
             scoreAndClaimEdges.push(
@@ -57,7 +58,6 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
         });
     });
 
-    //Move to 
     const scoreAndClaimEdgesByScoreScopeIds = GroupScoreAndClaimEdgesByScoreScopeIds(scoreAndClaimEdges);
 
     //For each scope, loop through and create a score
@@ -67,7 +67,6 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
         newScore.scopeId = ID(scopeIdString);
         finalScores.push(newScore);
     });
-    debugger;
 
     expect(finalScores[0].confidence).toBe(-1 / 3);
     expect(finalScores[1].confidence).toBe(-1 / 3);
@@ -77,44 +76,48 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
 test('Calculate All - City 3000', () => {
     let repo = new Repository(JSON.parse(exampleDataJson));
     repo.rsData.scores = [];
-    //scoreChildren(repo, ID("0"))
+    scoreDescendants(repo, ID("0"));
+    debugger;
+
+    const scores6 = repo.getScoresbyClaimId(ID("6"));
+    expect(scores6[0].confidence).toBe(1);
 });
 
+function scoreDescendants(repo: Repository, parentId: Id, ScopeId?: Id): void {
+    const claimEdges = repo.getClaimEdgesByParentId(parentId);
+    const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
 
-// //***********Need to completely rethink this***************************************
-// /*function scoreChildren(repo: Repository, parentId: Id): void {
-//     //ToDO: check to see if a score exists before you calculate
-//     //debugger;
-//     const claimEdges = repo.getClaimEdgesByParent(parentId);
-//     const scopes: ScoresByScope = {};
-//     if (claimEdges.length == 0) {
-//         const newScore = calculateScore();
-//         newScore.sourceClaimId = parentId;
-//         repo.rsData.scores.push(newScore);
-//     } else {
-//         //debugger;
-//         claimEdges.forEach((claimEdge) => {
-//             //Get all the scores for each child claim of this edge
-//             scoreChildren(repo, claimEdge.childId);
-//             const claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
-//             groupScoresByScope(claimEdgeScores, claimEdge.parentId.toString(), scopes);
-//         });
-//         Object.entries(scopes).forEach(([scopeIdString, scopeScores]) => {
-//             debugger;
-//             const newScore = calculateScore(scopeScores,);
-//             newScore.sourceClaimId = ID(scopeIdString);
-//             repo.rsData.scores.push(newScore);
-//         });
-//     }
-// }
-// */
+    claimEdges.forEach((claimEdge) => {
+        let claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
+        //Check to see if the scores exist. create them if they do not
+        if (claimEdgeScores.length == 0) {
+            scoreDescendants(repo, claimEdge.childId, claimEdge.scopeId)
+            claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
+        }
+        claimEdgeScores.forEach((score) => {
+            scoreAndClaimEdges.push(
+                new ScoreAndClaimEdge(score, claimEdge)
+            );
+        });
+    });
 
-// // test('Switching 42 form con to pro should change scores', () => {
-// //     debugger;
-// //     let newClaimEdge42 = <ClaimEdge>deepClone(claimEdge42);
-// //     newClaimEdge42.pro = true;
-// //     repo.notify([new Change("", claimEdge42, newClaimEdge42)])
-// //     let testClaimEdge42 = repo.getclaimEdge("2-4    ");
+    const scoreAndClaimEdgesByScoreScopeIds = GroupScoreAndClaimEdgesByScoreScopeIds(scoreAndClaimEdges);
 
-// //     expect(testClaimEdge42.pro).toBe(true);
-// // });
+    //For each scope, loop through and create a score
+    Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(([scopeIdString, scoreAndClaimEdge]) => {
+        //ToDO: do we need to get any claims that are not in the current scope or do we assume they are all there?
+        const newScore = calculateScore(scoreAndClaimEdge);
+        newScore.scopeId = ID(scopeIdString);
+        newScore.sourceClaimId = scoreAndClaimEdge[0].claimEdge.parentId; //ToDo: Is there a better way to get this?
+        repo.rsData.scores.push(newScore);
+    });
+
+    //If there are no edges below it then create a base score
+    if (claimEdges.length === 0){
+        repo.rsData.scores.push(
+            new Score( undefined, undefined, undefined, parentId, ScopeId)
+        );
+    }
+
+}
+
