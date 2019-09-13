@@ -12,7 +12,7 @@ import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
  */
 export function calculateScore(
     /**An array of grouped edges and claims*/
-    claimAndClaimEdges: ScoreAndClaimEdge[] = [],
+    scoreAndClaimEdges: ScoreAndClaimEdge[] = [],
     // /** An array of scores for child claims linked to the claim this score is for. */
     // childScores: Score[] = [],
     // /** Is this score pro of it's parent (or false if it is a con) */
@@ -30,14 +30,14 @@ export function calculateScore(
     let childrenRelevance = 0
 
     //debugger;
-    if (claimAndClaimEdges.filter(c => c.claimEdge.affects === Affects.Confidence).length < 1) {
+    if (scoreAndClaimEdges.filter(c => c.claimEdge.affects === Affects.Confidence).length < 1) {
         // If there are no children that affect the confidence of the claim
         // then assume the claim is 100% confident and start strength and relevance at 1
         childrenConfidence = 1;
         childrenRelevance = 1;
     }
 
-    claimAndClaimEdges.forEach((scoreAndClaimEdge) => {
+    scoreAndClaimEdges.forEach((scoreAndClaimEdge) => {
         // Loop through the child scores and determine the score of the parent.
 debugger;
         if (scoreAndClaimEdge.claimEdge.affects === Affects.Confidence) {

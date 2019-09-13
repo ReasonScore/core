@@ -1,7 +1,10 @@
 import { Score } from "./dataModels/Score";
+import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 
 
 export interface ScoresByScope { [Id: string]: Score[] }//  | undefined }
+
+export interface ScoreAndClaimEdgesByScoreScopeId { [Id: string]: ScoreAndClaimEdge[] }//  | undefined }
 
 export function groupScoresByScope(scores: Score[], parentId: string, ScoresByScope: ScoresByScope) {
     scores.forEach(score => {

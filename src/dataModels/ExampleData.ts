@@ -75,7 +75,7 @@ export function GenerateExampleData(): RsData {
       new Score(+0.0, 1, ID("0      "), ID("0")),
       new Score(+0.0, 1, ID("0-2    "), ID("2"), ID("0")),
       new Score(-1.0, 1, ID("0-2-3  "), ID("3"), ID("0")),
-      new Score(-1.0, 1, ID("0-2-4  "), ID("4"), ID("0")), //Should not exist on first pass Shouldwe pull from blank scope?
+      new Score(+1.0, 1, ID("0-2-4  "), ID("4"), ID("0")), //Should not exist on first pass Shouldwe pull from blank scope?
       new Score(+1.0, 1, ID("0-2-5  "), ID("5"), ID("0")), //Should not exist on first pass Shouldwe pull from blank scope?
       new Score(+1.0, 1, ID("0-2-3-6"), ID("6"), ID("0")),
 
@@ -83,7 +83,7 @@ export function GenerateExampleData(): RsData {
       new Score(+0.0, 1, ID("1      "), ID("1")),
       new Score(+0.0, 1, ID("1-2    "), ID("2"), ID("1")),
       new Score(+1.0, 1, ID("1-2-3  "), ID("3"), ID("1")), //Should not exist on first pass Shouldwe pull from blank scope?
-      new Score(-1.0, 1, ID("1-2-4  "), ID("4"), ID("1")), //Should not exist on first pass Shouldwe pull from blank scope?
+      new Score(+1.0, 1, ID("1-2-4  "), ID("4"), ID("1")), //Should not exist on first pass Shouldwe pull from blank scope?
       new Score(-1.0, 1, ID("1-2-5  "), ID("5"), ID("1")),
       new Score(+1.0, 1, ID("1-2-5-7"), ID("7"), ID("1")),
     ],

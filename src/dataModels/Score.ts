@@ -20,12 +20,8 @@ export class Score implements Item {
         public id: Id = newId(),
         /** The claim to which this score belongs */
         public sourceClaimId: Id = newId(),
-        /** If this claim is resticted to a scope this will be the ID of the scope */
+        /** If this score is calulated under a scope this will be the ID of the scope */
         public scopeId?: Id,
-        /** This is how the child claim affects the parent claim's score */
-        // public affects: Affects = Affects.Confidence,
-        // /** Can the confidence score go below 0 */
-        // public reversable: boolean = false,
         public version: Id = newId(),
         public start: string = new Date().toISOString(),
         public end: string = End,

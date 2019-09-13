@@ -7,6 +7,7 @@ import { Query } from "./dataModels/Query";
 import { Score } from "./dataModels/Score";
 import { Claim } from "./dataModels/Claim";
 import { Id } from "./dataModels/Id";
+import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 
 export class Repository {
     public Subscribers: Query[] = [];
@@ -35,13 +36,13 @@ export class Repository {
                 this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
                 // Re-calculate score for all ancestors of this claim
                 debugger;
-                
+
             }
         }
     }
 
-    calculateScore(){
-        
+    calculateScore() {
+
     }
 
     getClaimEdge(id: Id, when: string = End): ClaimEdge {
@@ -51,7 +52,7 @@ export class Repository {
         return tempClaimEdge ? tempClaimEdge : new ClaimEdge();
     }
 
-    getClaimEdgesByParent(parentId: Id, when: string = End): ClaimEdge[] {
+    getClaimEdgesByParentId(parentId: Id, when: string = End): ClaimEdge[] {
         return this.rsData.claimEdges.filter(e =>
             e.parentId == parentId &&
             e.end >= End);
