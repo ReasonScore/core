@@ -6,7 +6,7 @@ import { Change } from "../dataModels/Change";
 import { calculateScore } from "../calculateScore";
 import { Id, ID } from "../dataModels/Id";
 import { Score } from "../dataModels/Score";
-import { groupScoresByScope, ScoresByScope, ScoreAndClaimEdgesByScoreScopeId } from "../groupScoresByScope";
+import { ScoreAndClaimEdgesByScoreScopeId, GroupScoreAndClaimEdgesByScoreScopeIds } from "../GroupScoreAndClaimEdgesByScoreScopeIds";
 import { ScoreAndClaimEdge } from "../dataModels/ScoreAndClaimEdge";
 
 const exampleDataJson = JSON.stringify(GenerateExampleData(), undefined, 2);
@@ -58,27 +58,7 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
     });
 
     //Move to 
-    const scoreAndClaimEdgesByScoreScopeIds: ScoreAndClaimEdgesByScoreScopeId = {};
-    scoreAndClaimEdges.forEach((claimEdgeScore) => {
-        let idString: string;
-        if (claimEdgeScore.score.scopeId != undefined) {
-            idString = claimEdgeScore.score.scopeId.toString();
-        }
-        else {
-            idString = claimEdgeScore.claimEdge.parentId.toString();
-        }
-        if (scoreAndClaimEdgesByScoreScopeIds[idString] === undefined) {
-            scoreAndClaimEdgesByScoreScopeIds[idString] = [];
-        }
-        //Only add it to the list of scores if the Scope is not the same as the child ID.
-        //If the scope ID is the same then that score ID it should not propogate up the hierarchy any further.
-        if (claimEdgeScore.score.id.toString() != idString) {
-            scoreAndClaimEdgesByScoreScopeIds[idString].push(
-                new ScoreAndClaimEdge(claimEdgeScore.score, claimEdgeScore.claimEdge)
-            );
-        }
-    })
-
+    const scoreAndClaimEdgesByScoreScopeIds = GroupScoreAndClaimEdgesByScoreScopeIds(scoreAndClaimEdges);
 
     //For each scope, loop through and create a score
     Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(([scopeIdString, scoreAndClaimEdge]) => {
@@ -94,13 +74,11 @@ test('Check Score for 2:"The City 3000 Plan is worth the investment" with all sc
     expect(finalScores[2].confidence).toBe(1 / 3);
 });
 
-// test('Calculate All - City 3000', () => {
-//     let repo = new Repository(JSON.parse(exampleDataJson));
-//     repo.rsData.scores = [];
-//     //debugger;
-//     //scoreChildren(repo, ID("0"))
-//     debugger;
-// });
+test('Calculate All - City 3000', () => {
+    let repo = new Repository(JSON.parse(exampleDataJson));
+    repo.rsData.scores = [];
+    //scoreChildren(repo, ID("0"))
+});
 
 
 // //***********Need to completely rethink this***************************************
