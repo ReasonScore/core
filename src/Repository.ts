@@ -71,6 +71,21 @@ export class Repository {
             e.end >= End);
     }
 
+    /** Will create a new score if it does not already exist */
+    getScorebyClaimIdAndScope(id: Id, scopeId: Id, when: string = End, ): Score {
+        let score = this.rsData.scores.find(e =>
+            e.sourceClaimId == id &&
+            e.scopeId == scopeId &&
+            e.end >= End);
+
+            if (score === undefined) {
+                score = new Score(undefined, undefined, undefined,id, scopeId);
+                this.rsData.scores.push(score);
+            }
+            
+            return score;
+    }
+
     getClaim(id: Id, when: string = End): Claim {
         let tempClaim = this.rsData.claims.find(e =>
             e.id == id &&

@@ -1,0 +1,59 @@
+import { Repository } from "./Repository";
+import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
+import { GroupScoreAndClaimEdgesByScoreScopeIds } from "./GroupScoreAndClaimEdgesByScoreScopeIds";
+import { calculateScore } from "./calculateScore";
+import { ID, Id } from "./dataModels/Id";
+import { Score } from "./dataModels/Score";
+
+export function scoreDescendants(repo: Repository, parentId: Id, ScopeId?: Id): void {
+    const claimEdges = repo.getClaimEdgesByParentId(parentId);
+    const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
+
+    claimEdges.forEach((claimEdge) => {
+        let claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
+        // If none of the scores exist then we need to generate them
+        if (claimEdgeScores.length == 0) {
+            scoreDescendants(repo, claimEdge.childId, claimEdge.scopeId)
+            claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
+        }
+        claimEdgeScores.forEach((score) => {
+            scoreAndClaimEdges.push(
+                new ScoreAndClaimEdge(score, claimEdge)
+            );
+        });
+    });
+
+    const scoreAndClaimEdgesByScoreScopeIds = GroupScoreAndClaimEdgesByScoreScopeIds(scoreAndClaimEdges);
+
+    //Check each Scope and ClaimEdge and create any missing scores
+    Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(([scopeIdString]) => {
+        claimEdges.forEach((claimEdge) => {
+            if (scoreAndClaimEdgesByScoreScopeIds[scopeIdString].find(
+                sce => sce.claimEdge == claimEdge) == undefined) {
+                //Look for already existing scores
+                const foundScore = repo.getScorebyClaimIdAndScope(claimEdge.childId, ID(scopeIdString))
+                scoreAndClaimEdgesByScoreScopeIds[scopeIdString].push(
+                    new ScoreAndClaimEdge(foundScore, claimEdge)
+                )
+            }
+        });
+    });
+
+    //For each scope, loop through and create a score
+    Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(([scopeIdString, scoreAndClaimEdges]) => {
+        //ToDO: do we need to get any claims that are not in the current scope or do we assume they are all there?
+        //debugger;
+        const newScore = calculateScore(scoreAndClaimEdges);
+        newScore.scopeId = ID(scopeIdString);
+        newScore.sourceClaimId = scoreAndClaimEdges[0].claimEdge.parentId; //ToDo: Is there a better way to get this?
+        repo.rsData.scores.push(newScore);
+    });
+
+    //If there are no edges below it then create a base score
+    if (claimEdges.length === 0) {
+        repo.rsData.scores.push(
+            new Score(undefined, undefined, undefined, parentId, ScopeId)
+        );
+    }
+
+}
