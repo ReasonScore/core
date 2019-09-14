@@ -34,15 +34,15 @@ export class Repository {
                 let oldItem = this.getClaimEdge(change.newItem.id)
                 oldItem.end = new Date().toISOString();
                 this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
-                // Re-calculate score for all ancestors of this claim
-                debugger;
-
+                // ToDO: Re-calculate score for all ancestors of this claim
+            }
+            if (change.newItem.type == Type.score) {
+                let oldItem = this.getScore(change.newItem.id)
+                oldItem.end = new Date().toISOString();
+                this.rsData.scores.push(<Score>change.newItem)
+                // ToDO: Re-calculate score for all ancestors of this claim
             }
         }
-    }
-
-    calculateScore() {
-
     }
 
     getClaimEdge(id: Id, when: string = End): ClaimEdge {

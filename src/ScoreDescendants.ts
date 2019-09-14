@@ -4,6 +4,7 @@ import { FindScopes } from "./FindScopes";
 import { calculateScore } from "./calculateScore";
 import { ID, Id } from "./dataModels/Id";
 import { Score } from "./dataModels/Score";
+import { Change } from "./dataModels/Change";
 
 export function scoreDescendants(repo: Repository, parentId: Id, ScopeId?: Id): void {
     const claimEdges = repo.getClaimEdgesByParentId(parentId);
@@ -41,19 +42,18 @@ export function scoreDescendants(repo: Repository, parentId: Id, ScopeId?: Id): 
 
     //For each scope, loop through and create a score
     Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(([scopeIdString, scoreAndClaimEdges]) => {
-        //ToDO: do we need to get any claims that are not in the current scope or do we assume they are all there?
-        //debugger;
         const newScore = calculateScore(scoreAndClaimEdges);
         newScore.scopeId = ID(scopeIdString);
         newScore.sourceClaimId = scoreAndClaimEdges[0].claimEdge.parentId; //ToDo: Is there a better way to get this?
-        repo.rsData.scores.push(newScore);
+        repo.notify([new Change(newScore)]);
     });
 
     //If there are no edges below it then create a base score
     if (claimEdges.length === 0) {
-        repo.rsData.scores.push(
+        repo.notify([new Change(
             new Score(undefined, undefined, undefined, parentId, ScopeId)
-        );
+        )]);
+
     }
 
 }
