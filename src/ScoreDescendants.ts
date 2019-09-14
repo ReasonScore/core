@@ -1,6 +1,6 @@
 import { Repository } from "./Repository";
 import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
-import { GroupScoreAndClaimEdgesByScoreScopeIds } from "./GroupScoreAndClaimEdgesByScoreScopeIds";
+import { FindScopes } from "./FindScopes";
 import { calculateScore } from "./calculateScore";
 import { ID, Id } from "./dataModels/Id";
 import { Score } from "./dataModels/Score";
@@ -23,7 +23,7 @@ export function scoreDescendants(repo: Repository, parentId: Id, ScopeId?: Id): 
         });
     });
 
-    const scoreAndClaimEdgesByScoreScopeIds = GroupScoreAndClaimEdgesByScoreScopeIds(scoreAndClaimEdges);
+    const scoreAndClaimEdgesByScoreScopeIds = FindScopes(scoreAndClaimEdges);
 
     //Check each Scope and ClaimEdge and create any missing scores
     Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(([scopeIdString]) => {

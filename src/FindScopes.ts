@@ -6,7 +6,7 @@ export interface ScoresByScope { [Id: string]: Score[] }//  | undefined }
 
 export interface ScoreAndClaimEdgesByScoreScopeId { [Id: string]: ScoreAndClaimEdge[] }//  | undefined }
 
-export function GroupScoreAndClaimEdgesByScoreScopeIds(scoreAndClaimEdges: ScoreAndClaimEdge[]): ScoreAndClaimEdgesByScoreScopeId {
+export function FindScopes(scoreAndClaimEdges: ScoreAndClaimEdge[]): ScoreAndClaimEdgesByScoreScopeId {
     const scoreAndClaimEdgesByScoreScopeIds: ScoreAndClaimEdgesByScoreScopeId = {};
     scoreAndClaimEdges.forEach((claimEdgeScore) => {
         const score = claimEdgeScore.score;
