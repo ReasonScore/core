@@ -17,31 +17,33 @@ export class Repository {
     ) {
     }
 
-    get(query: Query) {
+    private subscribers: {(changes: Change[]): void;}[] = []
 
-        if (query.update) this.Subscribers.push(query);
-        return new Promise<RsData>((response, reject) => {
-            // To DO: make this pull out the right data instead of just dumping the whole object
-            response(this.rsData);
-        })
-
+    subscribe(callback: (changes: Change[]) => void) : void {
+        this.subscribers.push(callback)
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify(transaction: Change[]) {
-        for (let change of transaction) {
+    notify(changes: Change[]) {
+        for (const change of changes) {
             if (change.newItem.type == Type.claimEdge) {
-                let oldItem = this.getClaimEdge(change.newItem.id)
+                const oldItem = this.getClaimEdge(change.newItem.id)
                 oldItem.end = new Date().toISOString();
                 this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
-                // ToDO: Re-calculate score for all ancestors of this claim
+                // ToDO: Re-calculate score for all relatives of this claim. 
+                //Should we just recalc after all the changes are entered?
             }
             if (change.newItem.type == Type.score) {
-                let oldItem = this.getScore(change.newItem.id)
+                const oldItem = this.getScore(change.newItem.id)
                 oldItem.end = new Date().toISOString();
                 this.rsData.scores.push(<Score>change.newItem)
-                // ToDO: Re-calculate score for all ancestors of this claim
+                // ToDO: Re-calculate score for all ancestors of this score?
+                //Should we just recalc after all the changes are entered?
             }
+        }
+
+        for (const subscriber of this.subscribers){
+            subscriber(changes);
         }
     }
 
