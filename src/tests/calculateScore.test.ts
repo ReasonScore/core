@@ -1,6 +1,6 @@
 import { calculateScore } from "../calculateScore";
 import { Score } from "../dataModels/Score";
-import { Id, ID } from "../dataModels/Id";
+import { ID } from "../dataModels/Id";
 import { ScoreAndClaimEdge } from "../dataModels/ScoreAndClaimEdge";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
 

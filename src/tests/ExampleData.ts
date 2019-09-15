@@ -1,11 +1,10 @@
-import { Score } from "./Score";
-import { ViewEdge } from "./viewEdge";
-import { View } from "./View";
-import { ClaimEdge } from "./ClaimEdge";
-import { Claim } from "./Claim";
-import { RsData } from "./RsData";
-import { Affects } from "./Affects";
-import { Id, ID } from "./Id";
+import { Score } from "../dataModels/Score";
+import { ViewEdge } from "../dataModels/viewEdge";
+import { View } from "../dataModels/View";
+import { ClaimEdge } from "../dataModels/ClaimEdge";
+import { Claim } from "../dataModels/Claim";
+import { RsData } from "../dataModels/RsData";
+import { Id, ID } from "../dataModels/Id";
 
 export function GenerateExampleData(): RsData {
 

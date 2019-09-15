@@ -1,12 +1,9 @@
 import { Repository } from "../Repository";
-import { GenerateExampleData } from "../dataModels/ExampleData";
-import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { deepClone } from "../utils/deepClone";
-import { Change } from "../dataModels/Change";
+import { GenerateExampleData } from "./ExampleData";
 import { calculateScore } from "../calculateScore";
-import { Id, ID } from "../dataModels/Id";
+import { ID } from "../dataModels/Id";
 import { Score } from "../dataModels/Score";
-import { ScoreAndClaimEdgesByScoreScopeId, FindScopes } from "../FindScopes";
+import { FindScopes } from "../FindScopes";
 import { ScoreAndClaimEdge } from "../dataModels/ScoreAndClaimEdge";
 import { scoreDescendants } from "../ScoreDescendants";
 

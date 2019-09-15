@@ -1,14 +1,9 @@
 import { Repository } from "../Repository";
-import { GenerateExampleData } from "../dataModels/ExampleData";
-import { ClaimEdge } from "../dataModels/ClaimEdge";
+import { GenerateExampleData } from "./ExampleData";
 import { deepClone } from "../utils/deepClone";
 import { Change } from "../dataModels/Change";
-import { calculateScore } from "../calculateScore";
-import { Id, ID } from "../dataModels/Id";
-import { Score } from "../dataModels/Score";
-import { ScoreAndClaimEdgesByScoreScopeId, FindScopes } from "../FindScopes";
-import { ScoreAndClaimEdge } from "../dataModels/ScoreAndClaimEdge";
-import { scoreDescendants } from "../ScoreDescendants";
+import { ID } from "../dataModels/Id";
+
 
 const exampleDataJson = JSON.stringify(GenerateExampleData(), undefined, 2);
 
@@ -18,6 +13,10 @@ test('City 300 listen to changes then calculate', () => {
 
     repo.subscribe((changes:Change[]) => {
         changeLog.push(changes);
+
+        //trigger Calculate scores down?
+
+        //trigger Calculate Scores Up?
     })
 
     const claimEdge7 = repo.getClaimEdgesByParentId(ID("5"))[0];
