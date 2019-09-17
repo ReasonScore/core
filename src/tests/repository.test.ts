@@ -57,8 +57,6 @@ test('FindScopes', () => {
     });
 
     const scoreAndClaimEdgesByScoreScopeIds = FindScopes(scoreAndClaimEdges);
-
-    debugger;
     expect(scoreAndClaimEdgesByScoreScopeIds["0"].length).toBe(0);
     expect(scoreAndClaimEdgesByScoreScopeIds["1"].length).toBe(0);
     expect(scoreAndClaimEdgesByScoreScopeIds["2"].length).toBe(0);
@@ -66,18 +64,16 @@ test('FindScopes', () => {
 
 test('Calculate All - City 3000', () => {
     let repo = new Repository(JSON.parse(exampleDataJson));
+debugger;
     repo.rsData.scores = [];
     scoreDescendants(repo, ID("0"));
     scoreDescendants(repo, ID("1"));
-    debugger;
 
     expect(repo.getScorebyClaimIdAndScope(ID("6"), ID("0")).confidence).toBe(1);
     expect(repo.getScorebyClaimIdAndScope(ID("3"), ID("0")).confidence).toBe(-1);
     expect(repo.getScorebyClaimIdAndScope(ID("2"), ID("0")).confidence).toBe(-1 / 3);
     expect(repo.getScorebyClaimIdAndScope(ID("0"), ID("0")).confidence).toBe(-1 / 3);
     expect(repo.getScorebyClaimIdAndScope(ID("1"), ID("1")).confidence).toBe(-1 / 3);
-
-
     expect(repo.rsData.scores.length).toBe(18);
     // The below scores should not exist but maybe only if we know all the ancestors so we know that scope is never used again
     // expect(repo.rsData.scores.length).toBe(16);

@@ -30,15 +30,14 @@ export class Repository {
                 const oldItem = this.getClaimEdge(change.newItem.id)
                 oldItem.end = new Date().toISOString();
                 this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
-                // ToDO: Re-calculate score for all relatives of this claim. 
-                //Should we just recalc after all the changes are entered?
             }
             if (change.newItem.type == Type.score) {
-                const oldItem = this.getScore(change.newItem.id)
+                const newScore = <Score>change.newItem;
+                //ToDo: this is a little weird that we are not using the ID like in the other items.
+                const oldItem = this.getScorebyClaimIdAndScope(newScore.sourceClaimId,newScore.scopeId)
                 oldItem.end = new Date().toISOString();
-                this.rsData.scores.push(<Score>change.newItem)
-                // ToDO: Re-calculate score for all ancestors of this score?
-                //Should we just recalc after all the changes are entered?
+                newScore.id = oldItem.id;
+                this.rsData.scores.push(newScore)
             }
         }
 
@@ -74,14 +73,14 @@ export class Repository {
     }
 
     /** Will create a new score if it does not already exist */
-    getScorebyClaimIdAndScope(id: Id, scopeId: Id, when: string = End, ): Score {
+    getScorebyClaimIdAndScope(sourceClaimId: Id, scopeId: Id | undefined, when: string = End, ): Score {
         let score = this.rsData.scores.find(e =>
-            e.sourceClaimId == id &&
+            e.sourceClaimId == sourceClaimId &&
             e.scopeId == scopeId &&
             e.end >= End);
 
             if (score === undefined) {
-                score = new Score(undefined, undefined, undefined,id, scopeId);
+                score = new Score(undefined, undefined, undefined,sourceClaimId, scopeId);
                 this.rsData.scores.push(score);
             }
             
