@@ -8,40 +8,44 @@ import { Score } from "./dataModels/Score";
 import { Claim } from "./dataModels/Claim";
 import { Id } from "./dataModels/Id";
 import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
+import { Item } from "./dataModels/Item";
+
+interface ItemDictionary { [idString: string]: Item[]; }
+interface Index { [searchIndex: string]: string; } //Store the string for the ID
+
+class Indexes {
+    scorebyClaimIdAndScope: Index = {}
+}
 
 export class Repository {
-    public Subscribers: Query[] = [];
+    private subscribers: { (changes: Change[]): void; }[] = []
+    private items: ItemDictionary = {};
+    private indexes: Indexes = new Indexes();
 
-    constructor(
-        public rsData: RsData = new RsData
-    ) {
-    }
-
-    private subscribers: {(changes: Change[]): void;}[] = []
-
-    subscribe(callback: (changes: Change[]) => void) : void {
+    subscribe(callback: (changes: Change[]) => void): void {
         this.subscribers.push(callback)
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
     notify(changes: Change[]) {
         for (const change of changes) {
-            if (change.newItem.type == Type.claimEdge) {
-                const oldItem = this.getClaimEdge(change.newItem.id)
-                oldItem.end = new Date().toISOString();
-                this.rsData.claimEdges.push(<ClaimEdge>change.newItem)
-            }
+            //Store by ID
+            const oldItem = this.items[change.newItem.id.toString()][0]
+            oldItem.end = new Date().toISOString();
+            this.items[change.newItem.id.toString()].unshift(change.newItem);
+
             if (change.newItem.type == Type.score) {
-                const newScore = <Score>change.newItem;
-                //ToDo: this is a little weird that we are not using the ID like in the other items.
-                const oldItem = this.getScorebyClaimIdAndScope(newScore.sourceClaimId,newScore.scopeId)
-                oldItem.end = new Date().toISOString();
-                newScore.id = oldItem.id;
-                this.rsData.scores.push(newScore)
+                const score = <Score>change.newItem
+                if (score.scopeId) {
+                    this.indexes.scorebyClaimIdAndScope[
+                        score.sourceClaimId.toString() +
+                        score.scopeId.toString()
+                    ] = score.id.toString();
+                }
             }
         }
 
-        for (const subscriber of this.subscribers){
+        for (const subscriber of this.subscribers) {
             subscriber(changes);
         }
     }
@@ -73,18 +77,18 @@ export class Repository {
     }
 
     /** Will create a new score if it does not already exist */
-    getScorebyClaimIdAndScope(sourceClaimId: Id, scopeId: Id | undefined, when: string = End, ): Score {
+    getScorebyClaimIdAndScope(sourceClaimId: Id, scopeId: Id | undefined, when: string = End): Score {
         let score = this.rsData.scores.find(e =>
             e.sourceClaimId == sourceClaimId &&
             e.scopeId == scopeId &&
             e.end >= End);
 
-            if (score === undefined) {
-                score = new Score(undefined, undefined, undefined,sourceClaimId, scopeId);
-                this.rsData.scores.push(score);
-            }
-            
-            return score;
+        if (score === undefined) {
+            score = new Score(undefined, undefined, undefined, sourceClaimId, scopeId);
+            this.rsData.scores.push(score);
+        }
+
+        return score;
     }
 
     getClaim(id: Id, when: string = End): Claim {
