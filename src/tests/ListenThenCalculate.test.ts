@@ -1,51 +1,39 @@
 import { Repository } from "../Repository";
 import { GenerateExampleData } from "./ExampleData";
-import { deepClone } from "../utils/deepClone";
+import { Messenger } from "../Messenger";
+import { CalculationLooper } from "../CalculationLooper";
 import { Change } from "../dataModels/Change";
+import { Claim } from "../dataModels/Claim";
 import { ID } from "../dataModels/Id";
-import { Type } from "../dataModels/Type";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { scoreDescendants } from "../ScoreDescendants";
 
 
 const exampleDataJson = JSON.stringify(GenerateExampleData(), undefined, 2);
 
 test('City 300 listen to changes then calculate', () => {
-    let repo = new Repository(JSON.parse(exampleDataJson));
-    const changeLog: Change[][] = [];
+    const repo = new Repository();
+    const calculationLoop = new CalculationLooper(repo);
 
-    repo.subscribe((changes:Change[]) => {
-        changeLog.push(changes);
-        for (const change of changes) {
-            if (change.newItem.type == Type.claimEdge) {
-                const claimEdge = <ClaimEdge>change.newItem;
-                scoreDescendants(repo, claimEdge.parentId)
-            }
-            if (change.newItem.type == Type.score) {
+    calculationLoop.notify([new Change(new Claim("test", ID("2")))]);
+    expect(repo.getScoreByClaimIdAndScope(ID("2"), ID("2")).confidence).toBe(1);
 
-            }
-        }
-    })
+    calculationLoop.notify([new Change(new Claim("The City 3000 Plan is worth the investment                            ", ID("2")))]);
+    expect(repo.items["2"].length).toBe(2);
 
-    //Pre-Check that data matches]
-    const pre_score5_1 = repo.getScorebyClaimIdAndScope(ID("5"),ID("1"))
-    expect(pre_score5_1.confidence).toBe(-1);
+    calculationLoop.notify([
+        new Change(
+            new Claim("The City 3000 plan is expensive                                       ", ID("4")),
+        ),
+        new Change(
+            new ClaimEdge(ID("2"), ID("4"), ID("2"), undefined, false, ID("2-4    ")),
+        ),
+    ]);
 
-    //CHange Data
-    const claimEdge7 = repo.getClaimEdgesByParentId(ID("5"))[0];
-    const claimEdge7_2 = deepClone(claimEdge7);
-    claimEdge7_2.pro = true;
-    repo.notify([new Change(claimEdge7_2,claimEdge7)]);
-
-    //Verify Changes
     debugger;
-    expect(changeLog.length).toBe(2);
+    expect(repo.getScoresByClaimId(ID("2"))[0].confidence).toBe(-1);
 
-    const testClaimEdge = repo.getClaimEdgesByParentId(ID("5"))[0];
-    expect(testClaimEdge.pro).toBe(true);
 
-    const score5_1 = repo.getScorebyClaimIdAndScope(ID("5"),ID("1"))
-    expect(score5_1.confidence).toBe(1);
+
 });
 
 

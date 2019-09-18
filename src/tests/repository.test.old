@@ -64,7 +64,6 @@ test('FindScopes', () => {
 
 test('Calculate All - City 3000', () => {
     let repo = new Repository(JSON.parse(exampleDataJson));
-debugger;
     repo.rsData.scores = [];
     scoreDescendants(repo, ID("0"));
     scoreDescendants(repo, ID("1"));

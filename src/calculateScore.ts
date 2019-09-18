@@ -1,8 +1,6 @@
 import { Affects } from "./dataModels/Affects"
 import { Score } from "./dataModels/Score";
 import { Id, ID } from "./dataModels/Id";
-import { ClaimEdge } from "./dataModels/ClaimEdge";
-import { Claim } from "./dataModels/Claim";
 import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 
 /**
@@ -29,7 +27,6 @@ export function calculateScore(
     let childrenConfidence = 0
     let childrenRelevance = 0
 
-    //debugger;
     if (scoreAndClaimEdges.filter(c => c.claimEdge.affects === Affects.Confidence).length < 1) {
         // If there are no children that affect the confidence of the claim
         // then assume the claim is 100% confident and start strength and relevance at 1
@@ -45,8 +42,8 @@ export function calculateScore(
                 childrenConfidence += scoreAndClaimEdge.score.confidence * scoreAndClaimEdge.score.relevance; // Add up all the strength of the children
                 childrenRelevance += scoreAndClaimEdge.score.relevance; //Add up the relevance separately so we can do a weighted agerage later
             } else {
-                childrenConfidence -= scoreAndClaimEdge.score.confidence * scoreAndClaimEdge.score.relevance; 
-                childrenRelevance += scoreAndClaimEdge.score.relevance; 
+                childrenConfidence -= scoreAndClaimEdge.score.confidence * scoreAndClaimEdge.score.relevance;
+                childrenRelevance += scoreAndClaimEdge.score.relevance;
             }
         }
 
@@ -55,7 +52,7 @@ export function calculateScore(
             if (scoreAndClaimEdge.claimEdge.pro) {
                 newScore.relevance += scoreAndClaimEdge.score.confidence; // Add up all the strength of the children
             } else {
-                newScore.relevance -= scoreAndClaimEdge.score.confidence; 
+                newScore.relevance -= scoreAndClaimEdge.score.confidence;
             }
         }
     });

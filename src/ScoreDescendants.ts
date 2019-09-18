@@ -11,11 +11,11 @@ export function scoreDescendants(repo: Repository, parentId: Id, ScopeId?: Id): 
     const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
 
     claimEdges.forEach((claimEdge) => {
-        let claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
+        let claimEdgeScores = repo.getScoresByClaimId(claimEdge.childId);
         // If none of the scores exist then we need to generate them
         if (claimEdgeScores.length == 0) {
             scoreDescendants(repo, claimEdge.childId, claimEdge.scopeId)
-            claimEdgeScores = repo.getScoresbyClaimId(claimEdge.childId);
+            claimEdgeScores = repo.getScoresByClaimId(claimEdge.childId);
         }
         claimEdgeScores.forEach((score) => {
             scoreAndClaimEdges.push(
@@ -32,7 +32,7 @@ export function scoreDescendants(repo: Repository, parentId: Id, ScopeId?: Id): 
             if (scoreAndClaimEdgesByScoreScopeIds[scopeIdString].find(
                 sce => sce.claimEdge == claimEdge) == undefined) {
                 //Look for already existing scores
-                const foundScore = repo.getScorebyClaimIdAndScope(claimEdge.childId, ID(scopeIdString))
+                const foundScore = repo.getScoreByClaimIdAndScope(claimEdge.childId, ID(scopeIdString))
                 scoreAndClaimEdgesByScoreScopeIds[scopeIdString].push(
                     new ScoreAndClaimEdge(foundScore, claimEdge)
                 )
