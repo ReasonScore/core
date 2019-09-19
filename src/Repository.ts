@@ -12,7 +12,7 @@ interface Index { [searchIndex: string]: string; } //Store the string for the ID
 interface IndexArray { [searchIndex: string]: string[]; } //Store the string for the ID
 
 export class Indexes {
-    scorebyClaimIdAndScope: Index = {}
+    scoreByClaimIdAndScope: Index = {}
     scoresByClaimId: IndexArray = {}
     claimEdgesByParentId: IndexArray = {}
 }
@@ -20,9 +20,11 @@ export class Indexes {
 export class Repository {
     public readonly items: ItemDictionary = {};
     public readonly indexes: Indexes = new Indexes();
+    public readonly log: Change[][] = [];
 
     /** this function can be called by outside code to notfy this repository of changes */
     notify(changes: Change[]) {
+        this.log.push(changes);
         for (const change of changes) {
             const idString = change.newItem.id.toString();
             //Change the end date on the previous version of this item to now
@@ -48,8 +50,8 @@ export class Repository {
     private indexScore(score: Score) {
         //scoreByClaimIdAndScope
         if (score.scopeId) {
-            this.indexes.scorebyClaimIdAndScope[
-                score.sourceClaimId.toString() +
+            this.indexes.scoreByClaimIdAndScope[
+                score.sourceClaimId.toString() + "-" +
                 score.scopeId.toString()
             ] = score.id.toString();
         }
@@ -107,15 +109,19 @@ export class Repository {
     // }
 
     getScoresByClaimId(claimId: Id, when: string = End): Score[] {
-        return <Score[]>this.getItemsForArray(this.indexes.scoresByClaimId[claimId.toString()])
+        const scores = this.indexes.scoresByClaimId[claimId.toString()]
+        if (scores) {
+            return <Score[]>this.getItemsForArray(scores)
+        } else {
+            return [];
+        }
     }
 
     /** Will create a new score if it does not already exist */
-    getScoreByClaimIdAndScope(sourceClaimId: Id, scopeId: Id | undefined, when: string = End): Score {
-        const scores = <Score[]>this.getItemsForArray(this.indexes.scoresByClaimId[sourceClaimId.toString()])
-        debugger;
-        let score = scores.find(s => s.scopeId == scopeId );
-        if (score){
+    getScoreByClaimIdAndScope(claimId: Id, scopeId: Id | undefined, when: string = End): Score {
+        const scores = this.getScoresByClaimId(claimId,when);
+        let score = scores.find(s => s.scopeId == scopeId);
+        if (score) {
             return score;
         } else {
             return new Score();

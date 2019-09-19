@@ -9,6 +9,7 @@ import { ID } from "./dataModels/Id";
 import { calculateScore } from "./calculateScore";
 import { Score } from "./dataModels/Score";
 import { Claim } from "./dataModels/Claim";
+import { debuggerStatement } from "@babel/types";
 
 export class CalculationLooper {
     private messenger?: Messenger;
@@ -44,9 +45,11 @@ export class CalculationLooper {
     }
 
     private calculateFromClaimEdge(sourceClaimEdge: ClaimEdge) {
+        debugger;
         const claimEdges = this.repo.getClaimEdgesByParentId(sourceClaimEdge.parentId);
         const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
 
+        //get scores for claimedges
         claimEdges.forEach((claimEdge) => {
             let claimEdgeScores = this.repo.getScoresByClaimId(claimEdge.childId);
             claimEdgeScores.forEach((score) => {
@@ -57,7 +60,6 @@ export class CalculationLooper {
         });
 
         const scoreAndClaimEdgesByScoreScopeIds = FindScopes(scoreAndClaimEdges);
-
         //Check each Scope and ClaimEdge and create any missing scores
         Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(([scopeIdString]) => {
             claimEdges.forEach((claimEdge) => {
@@ -78,7 +80,6 @@ export class CalculationLooper {
             newScore.scopeId = ID(scopeIdString);
             newScore.sourceClaimId = scoreAndClaimEdges[0].claimEdge.parentId; //ToDo: Is there a better way to get this?
             const oldScore = this.repo.getScoreByClaimIdAndScope(newScore.sourceClaimId, newScore.scopeId)
-            debugger;
             if (oldScore) {
                 newScore.id = oldScore.id;
             }

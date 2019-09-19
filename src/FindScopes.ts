@@ -18,7 +18,8 @@ export function FindScopes(scoreAndClaimEdges: ScoreAndClaimEdge[]): ScoreAndCla
             idString = score.scopeId.toString();
         }
         else {
-            idString = claimEdgeScore.claimEdge.parentId.toString();
+            //idString = claimEdgeScore.claimEdge.parentId.toString();
+            idString = claimEdgeScore.claimEdge.scopeId.toString();
         }
         if (scoreAndClaimEdgesByScoreScopeIds[idString] === undefined) {
             scoreAndClaimEdgesByScoreScopeIds[idString] = [];
