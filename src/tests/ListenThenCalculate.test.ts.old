@@ -13,24 +13,23 @@ test('City 3000 1 level scope', () => {
     const calculationLoop = new CalculationLooper(repo);
 
     calculationLoop.notify([
-        new Change(new Claim("Measured Claim", ID("0"))),
+        new Change(new Claim("Measured Claim", ID("c0"))),
         new Change(new Claim("Con with scope of X", ID("1"))),
-        new Change(new ClaimEdge(ID("0"), ID("1"), ID("X"), undefined, false, ID("1-X"))),
-        new Change(new Claim("Con with scope of Y", ID("2"))),
-        new Change(new ClaimEdge(ID("0"), ID("2"), ID("Y"), undefined, false, ID("2-Y"))),
+        new Change(new ClaimEdge(ID("c0"), ID("1"), ID("X"), undefined, false, ID("1:X"))),
+        //new Change(new Claim("Con with scope of Y", ID("2"))),
+        //new Change(new ClaimEdge(ID("c0"), ID("2"), ID("Y"), undefined, false, ID("2:Y"))),
     ]);
-    expect(repo.getScoreByClaimIdAndScope(ID("0"), ID("X")).confidence).toBe(-1);
-    expect(repo.getScoreByClaimIdAndScope(ID("0"), ID("Y")).confidence).toBe(-1);
-    expect(repo.getScoreByClaimIdAndScope(ID("0"), ID("0")).confidence).toBe(1);
+    expect(repo.getScoreByClaimIdAndScope(ID("c0"), ID("X")).confidence).toBe(-1);
+    expect(repo.getScoreByClaimIdAndScope(ID("c0"), ID("Y")).confidence).toBe(-1);
+    expect(repo.getScoreByClaimIdAndScope(ID("c0"), ID("c0")).confidence).toBe(1);
 
     //Add one with a scope of x to the top and see if it gets the 0 scope or the x scope
     calculationLoop.notify([
-        new Change(new Claim("Top X Scope Claim", ID("-1"))),
-        new Change(new ClaimEdge(ID("-1"), ID("0"), ID("X"), undefined, true, ID("2-Y"))),
+        new Change(new Claim("Top X Scope Claim", ID("c-1"))),
+        new Change(new ClaimEdge(ID("c-1"), ID("c0"), ID("X"), undefined, true, ID("c-1:x"))),
     ]);
-    debugger;
-    expect(repo.getScoreByClaimIdAndScope(ID("-1"), ID("X")).confidence).toBe(-1);
-    expect(repo.getScoreByClaimIdAndScope(ID("-1"), ID("-1")).confidence).toBe(-1);
+    expect(repo.getScoreByClaimIdAndScope(ID("c-1"), ID("X")).confidence).toBe(-1);
+    expect(repo.getScoreByClaimIdAndScope(ID("c-1"), ID("c-1")).confidence).toBe(-1);
 });
 
 
