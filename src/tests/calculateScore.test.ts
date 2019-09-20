@@ -25,7 +25,7 @@ describe.each`
     const scoreAndClaimEdges = [
         new ScoreAndClaimEdge(
             new Score(confidence1, relevance1, id, ID(""), undefined),
-            new ClaimEdge(undefined, undefined, undefined,
+            new ClaimEdge(undefined, undefined,
                 affects1,
                 polarity === "pro" ? true : false)
         )];
@@ -48,13 +48,13 @@ describe.each`
     const scoreAndClaimEdges = [
         new ScoreAndClaimEdge(
             new Score(confidence1, relevance1, id, ID(""), undefined),
-            new ClaimEdge(undefined, undefined, undefined,
+            new ClaimEdge(undefined, undefined,
                 affects1,
                 polarity1 === "pro" ? true : false)
         ),
         new ScoreAndClaimEdge(
             new Score(confidence2, relevance2, id, ID(""), undefined),
-            new ClaimEdge(undefined, undefined, undefined,
+            new ClaimEdge(undefined, undefined,
                 affects2,
                 polarity2 === "pro" ? true : false)
         )

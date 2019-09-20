@@ -20,8 +20,6 @@ export class Score implements Item {
         public id: Id = newId(),
         /** The claim to which this score belongs */
         public sourceClaimId: Id = newId(),
-        /** If this score is calulated under a scope this will be the ID of the scope */
-        public scopeId?: Id,
         public version: Id = newId(),
         public start: string = new Date().toISOString(),
         public end: string = End,

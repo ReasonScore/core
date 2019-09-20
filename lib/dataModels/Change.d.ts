@@ -3,6 +3,6 @@ import { Claim } from "./Claim";
 import { Score } from "./Score";
 export declare class Change {
     newItem: (ClaimEdge | Claim | Score);
-    oldItem?: Score | ClaimEdge | Claim | undefined;
-    constructor(newItem: (ClaimEdge | Claim | Score), oldItem?: Score | ClaimEdge | Claim | undefined);
+    oldItem?: ClaimEdge | Claim | Score | undefined;
+    constructor(newItem: (ClaimEdge | Claim | Score), oldItem?: ClaimEdge | Claim | Score | undefined);
 }

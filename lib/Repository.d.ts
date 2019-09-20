@@ -6,14 +6,10 @@ import { Item } from "./dataModels/Item";
 interface ItemDictionary {
     [idString: string]: Item[];
 }
-interface Index {
-    [searchIndex: string]: string;
-}
 interface IndexArray {
     [searchIndex: string]: string[];
 }
 export declare class Indexes {
-    scoreByClaimIdAndScope: Index;
     scoresByClaimId: IndexArray;
     claimEdgesByParentId: IndexArray;
 }
@@ -28,7 +24,5 @@ export declare class Repository {
     private getItemsForArray;
     getClaimEdgesByParentId(parentId: Id, when?: string): ClaimEdge[];
     getScoresByClaimId(claimId: Id, when?: string): Score[];
-    /** Will create a new score if it does not already exist */
-    getScoreByClaimIdAndScope(claimId: Id, scopeId: Id | undefined, when?: string): Score;
 }
 export {};

@@ -12,7 +12,6 @@ interface Index { [searchIndex: string]: string; } //Store the string for the ID
 interface IndexArray { [searchIndex: string]: string[]; } //Store the string for the ID
 
 export class Indexes {
-    scoreByClaimIdAndScope: Index = {}
     scoresByClaimId: IndexArray = {}
     claimEdgesByParentId: IndexArray = {}
 }
@@ -48,14 +47,6 @@ export class Repository {
     }
 
     private indexScore(score: Score) {
-        //scoreByClaimIdAndScope
-        if (score.scopeId) {
-            this.indexes.scoreByClaimIdAndScope[
-                score.sourceClaimId.toString() + "-" +
-                score.scopeId.toString()
-            ] = score.id.toString();
-        }
-
         //scoreByClaimId
         let destination = this.indexes.scoresByClaimId[score.sourceClaimId.toString()];
         if (!destination) {
@@ -65,7 +56,6 @@ export class Repository {
         if (!destination.includes(score.id.toString())) {
             destination.push(score.id.toString())
         }
-
     }
 
     private indexClaimEdgeByParentId(claimEdge: ClaimEdge) {
@@ -114,17 +104,6 @@ export class Repository {
             return <Score[]>this.getItemsForArray(scores)
         } else {
             return [];
-        }
-    }
-
-    /** Will create a new score if it does not already exist */
-    getScoreByClaimIdAndScope(claimId: Id, scopeId: Id | undefined, when: string = End): Score {
-        const scores = this.getScoresByClaimId(claimId,when);
-        let score = scores.find(s => s.scopeId == scopeId);
-        if (score) {
-            return score;
-        } else {
-            return new Score();
         }
     }
 
