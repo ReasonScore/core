@@ -9,19 +9,11 @@ import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 export function calculateScore(
     /**An array of grouped edges and claims*/
     scoreAndClaimEdges: ScoreAndClaimEdge[] = [],
-    // /** An array of scores for child claims linked to the claim this score is for. */
-    // childScores: Score[] = [],
-    // /** Is this score pro of it's parent (or false if it is a con) */
-    // pro = true,
-    // /** How does this score affect it's parent */
-    // affects = Affects.Confidence,
     // /** Can this score fall below a 0 confidence (have a negative confidence) */
     reversable = true,
     sourceClaimId: Id = ID(""),
 ) {
     const newScore: Score = new Score();
-    // newScore.affects = affects;
-    // newScore.reversable = reversable
     let childrenConfidence = 0
     let childrenRelevance = 0
 
