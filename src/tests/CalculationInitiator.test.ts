@@ -46,4 +46,5 @@ test('claim with two con descendants should have a confidence of 1', () => {
         new Change(new ClaimEdge(childClaim.id,descendantClaim.id,Affects.Confidence,false)),
    ]);
     expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(1);
+    debugger;
 });

@@ -4,7 +4,7 @@ import { Type } from "./dataModels/Type";
 import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 import { ClaimEdge } from "./dataModels/ClaimEdge";
 import { calculateScore } from "./calculateScore";
-import { Score } from "./dataModels/Score";
+import { Score, differentScores } from "./dataModels/Score";
 import { Claim } from "./dataModels/Claim";
 import { Id } from "./dataModels/Id";
 
@@ -31,7 +31,16 @@ export class CalculationInitator {
             if (newItem.type == Type.claimEdge) {
                 const claimEdge = <ClaimEdge>newItem;
                 const newScore = this.CalculateByClaimId(claimEdge.parentId);
-                this.notify([new Change(newScore)]);
+                const oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
+                if (oldScore) {
+                    if (differentScores(oldScore, newScore)) {
+                        newScore.id = oldScore.id;
+                        this.notify([new Change(newScore,oldScore)]);
+                    }
+                } else {
+                    this.notify([new Change(newScore)]);
+                }
+            this.notify([new Change(newScore, oldScore)]);
             }
 
             // Initiate calculations from a canged/new claim
@@ -49,7 +58,15 @@ export class CalculationInitator {
                 const claimseEdges = this.repo.getClaimEdgesByChildId(score.sourceClaimId);
                 claimseEdges.forEach(claimEdge => {
                     const newScore = this.CalculateByClaimId(claimEdge.parentId);
-                    this.notify([new Change(newScore)]);
+                    const oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
+                    if (oldScore) {
+                        if (differentScores(oldScore, newScore)) {
+                            newScore.id = oldScore.id;
+                            this.notify([new Change(newScore,oldScore)]);
+                        }
+                    } else {
+                        this.notify([new Change(newScore)]);
+                    }
                 })
             }
         }
