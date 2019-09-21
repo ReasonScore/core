@@ -6,12 +6,14 @@ import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 /**
  * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for.
  */
-export function calculateScore(
-    /**An array of grouped edges and claims*/
-    scoreAndClaimEdges: ScoreAndClaimEdge[] = [],
-    // /** Can this score fall below a 0 confidence (have a negative confidence) */
-    reversable = true,
-    sourceClaimId: Id = ID(""),
+export function calculateScore({ scoreAndClaimEdges = [], reversable = true, sourceClaimId = ID("") }: {
+    /** An array of grouped edges and claims*/
+    scoreAndClaimEdges?: ScoreAndClaimEdge[];
+    /** Can this score fall below a 0 confidence (have a negative confidence) */
+    reversable?: boolean;
+    /** The ID of the claim we are creating a score for */
+    sourceClaimId?: Id;
+} = {},
 ) {
     const newScore: Score = new Score();
     let childrenConfidence = 0
@@ -24,25 +26,25 @@ export function calculateScore(
         childrenRelevance = 1;
     }
 
-    scoreAndClaimEdges.forEach((scoreAndClaimEdge) => {
+    scoreAndClaimEdges.forEach(({score, claimEdge}) => {
         // Loop through the child scores and determine the score of the parent.
-        if (scoreAndClaimEdge.claimEdge.affects === Affects.Confidence) {
+        if (claimEdge.affects === Affects.Confidence) {
             // Process edges that affect confidence
-            if (scoreAndClaimEdge.claimEdge.pro) {
-                childrenConfidence += scoreAndClaimEdge.score.confidence * scoreAndClaimEdge.score.relevance; // Add up all the strength of the children
-                childrenRelevance += scoreAndClaimEdge.score.relevance; //Add up the relevance separately so we can do a weighted agerage later
+            if (claimEdge.pro) {
+                childrenConfidence += score.confidence * score.relevance; // Add up all the strength of the children
+                childrenRelevance += score.relevance; //Add up the relevance separately so we can do a weighted agerage later
             } else {
-                childrenConfidence -= scoreAndClaimEdge.score.confidence * scoreAndClaimEdge.score.relevance;
-                childrenRelevance += scoreAndClaimEdge.score.relevance;
+                childrenConfidence -= score.confidence * score.relevance;
+                childrenRelevance += score.relevance;
             }
         }
 
-        if (scoreAndClaimEdge.claimEdge.affects === 'relevance') {
+        if (claimEdge.affects === 'relevance') {
             // Process Relevance child claims
-            if (scoreAndClaimEdge.claimEdge.pro) {
-                newScore.relevance += scoreAndClaimEdge.score.confidence; // Add up all the strength of the children
+            if (claimEdge.pro) {
+                newScore.relevance += score.confidence; // Add up all the strength of the children
             } else {
-                newScore.relevance -= scoreAndClaimEdge.score.confidence;
+                newScore.relevance -= score.confidence;
             }
         }
     });

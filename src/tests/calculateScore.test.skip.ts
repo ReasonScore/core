@@ -29,9 +29,7 @@ describe.each`
                 affects1,
                 polarity === "pro" ? true : false)
         )];
-    const result = calculateScore(
-        scoreAndClaimEdges, reversable
-    )
+    const result = calculateScore({ scoreAndClaimEdges, reversable });
     test(`${id} ${polarity} ${(confidence1 < 0 ? "" : "+") + confidence1.toFixed(1)} ${(relevance1 < 0 ? "" : " ") + relevance1.toFixed(1)} ${affects1 ? "true " : "false"} ${affects1.padEnd(10)},     score = ${(expScore < 0 ? "" : " ") + expScore.toFixed(1)}`, () => {
         expect(result.confidence).toBe(expScore);
     });
@@ -59,9 +57,7 @@ describe.each`
                 polarity2 === "pro" ? true : false)
         )
     ];
-    const result = calculateScore(
-        scoreAndClaimEdges, reversable
-    )
+    const result = calculateScore({ scoreAndClaimEdges, reversable });
     test(`${id} confidence`, () => { expect(result.confidence).toBe(expScore); });
     test(`${id} relevance`, () => { expect(result.relevance).toBe(expRel); });
 });
