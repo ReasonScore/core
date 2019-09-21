@@ -6,6 +6,7 @@ import { ClaimEdge } from "./dataModels/ClaimEdge";
 import { calculateScore } from "./calculateScore";
 import { Score } from "./dataModels/Score";
 import { Claim } from "./dataModels/Claim";
+import { Id } from "./dataModels/Id";
 
 export class CalculationInitator {
     private repo: Repository;
@@ -29,8 +30,7 @@ export class CalculationInitator {
             // Initiate calculations from a changed/new claim Edge
             if (newItem.type == Type.claimEdge) {
                 const claimEdge = <ClaimEdge>newItem;
-                //Get all the claims for the parent
-                const newScore = this.CalculateByClaimEdge(claimEdge);
+                const newScore = this.CalculateByClaimId(claimEdge.parentId);
                 this.notify([new Change(newScore)]);
             }
 
@@ -48,7 +48,7 @@ export class CalculationInitator {
                 // Get all the claimEdges that have this score's SourceClaimId as the child and re calculate them
                 const claimseEdges = this.repo.getClaimEdgesByChildId(score.sourceClaimId);
                 claimseEdges.forEach(claimEdge => {
-                    const newScore = this.CalculateByClaimEdge(claimEdge);
+                    const newScore = this.CalculateByClaimId(claimEdge.parentId);
                     this.notify([new Change(newScore)]);
                 })
             }
@@ -56,15 +56,18 @@ export class CalculationInitator {
     }
 
 
-    private CalculateByClaimEdge(claimEdge: ClaimEdge) {
+    private CalculateByClaimId(parentId: Id) {
         const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
-        const claimseEdges = this.repo.getClaimEdgesByParentId(claimEdge.parentId);
+        //Get all the claims for the parent to calculate the score
+        const claimseEdges = this.repo.getClaimEdgesByParentId(parentId);
         claimseEdges.forEach(c => {
-            scoreAndClaimEdges.push(new ScoreAndClaimEdge(<Score>this.repo.getScoreBySourceClaimId(c.childId), c));
+            scoreAndClaimEdges.push(
+                new ScoreAndClaimEdge(<Score>this.repo.getScoreBySourceClaimId(c.childId), c)
+            );
         });
         const newScore = calculateScore({
             scoreAndClaimEdges: scoreAndClaimEdges,
-            sourceClaimId: claimEdge.parentId
+            sourceClaimId: parentId
         });
         return newScore;
     }
