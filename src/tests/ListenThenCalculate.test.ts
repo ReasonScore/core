@@ -1,6 +1,4 @@
 import { Repository } from "../Repository";
-import { GenerateExampleData } from "./ExampleData";
-import { Messenger } from "../Messenger";
 import { CalculationLooper } from "../CalculationLooper";
 import { Change } from "../dataModels/Change";
 import { Claim } from "../dataModels/Claim";
