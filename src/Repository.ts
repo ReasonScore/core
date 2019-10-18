@@ -1,5 +1,5 @@
 import { ClaimEdge } from "./dataModels/ClaimEdge";
-import End from "./dataModels/end";
+import End from "./dataModels/End";
 import { Type } from "./dataModels/Type";
 import { Change } from "./dataModels/Change";
 import { Score } from "./dataModels/Score";
