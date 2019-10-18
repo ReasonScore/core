@@ -27,3 +27,7 @@ export declare class Score implements Item {
     /** The claim to which this score belongs */
     sourceClaimId?: Id, version?: Id, start?: string, end?: string);
 }
+/** Compare two scores to see if they are different in what the score is.
+ *  Just compares confidence and relavance
+ */
+export declare function differentScores(scoreA: Score, scoreB: Score): boolean;

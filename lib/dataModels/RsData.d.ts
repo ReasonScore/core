@@ -1,14 +1,17 @@
-import { Claim } from "./Claim";
-import { ClaimEdge } from "./ClaimEdge";
-import { Score } from "./Score";
-import { View } from "./View";
-import { ViewEdge } from "./viewEdge";
+import { Item } from "./Item";
+export interface ItemDictionary {
+    [idString: string]: Item[];
+}
+export interface Index {
+    [searchIndex: string]: string;
+}
+export interface IndexArray {
+    [searchIndex: string]: string[];
+}
 export declare class RsData {
-    claims: Claim[];
-    claimEdges: ClaimEdge[];
-    history: Date[];
-    scores: Score[];
-    views: View[];
-    viewEdges: ViewEdge[];
-    constructor(claims?: Claim[], claimEdges?: ClaimEdge[], history?: Date[], scores?: Score[], views?: View[], viewEdges?: ViewEdge[]);
+    items: ItemDictionary;
+    scoreBySourceClaimId: Index;
+    claimEdgesByParentId: IndexArray;
+    claimEdgesByChildId: IndexArray;
+    constructor(items?: ItemDictionary, scoreBySourceClaimId?: Index, claimEdgesByParentId?: IndexArray, claimEdgesByChildId?: IndexArray);
 }
