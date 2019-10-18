@@ -1,6 +1,5 @@
 export * from "./calculateScore";
-export * from "./CalculationLooper";
-// export * from "./FindScopes";
+export * from "./CalculationInitiator";
 export * from "./Messenger";
 export * from "./newId";
 export * from "./Repository";

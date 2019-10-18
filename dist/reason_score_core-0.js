@@ -1,4 +1,4 @@
-var reasonscore_core = (function (exports) {
+var reason_score_core = (function (exports) {
     'use strict';
 
     /**

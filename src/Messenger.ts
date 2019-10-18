@@ -1,5 +1,4 @@
 import { Change } from "./dataModels/Change";
-import { Repository } from "./Repository";
 
 export class Messenger {
     public readonly subscribers: { (changes: Change[]): void; }[] = []

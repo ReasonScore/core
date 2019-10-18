@@ -25,13 +25,11 @@ describe.each`
     const scoreAndClaimEdges = [
         new ScoreAndClaimEdge(
             new Score(confidence1, relevance1, id, ID(""), undefined),
-            new ClaimEdge(undefined, undefined, undefined,
+            new ClaimEdge(undefined, undefined,
                 affects1,
                 polarity === "pro" ? true : false)
         )];
-    const result = calculateScore(
-        scoreAndClaimEdges, reversable
-    )
+    const result = calculateScore({ scoreAndClaimEdges, reversable });
     test(`${id} ${polarity} ${(confidence1 < 0 ? "" : "+") + confidence1.toFixed(1)} ${(relevance1 < 0 ? "" : " ") + relevance1.toFixed(1)} ${affects1 ? "true " : "false"} ${affects1.padEnd(10)},     score = ${(expScore < 0 ? "" : " ") + expScore.toFixed(1)}`, () => {
         expect(result.confidence).toBe(expScore);
     });
@@ -48,20 +46,18 @@ describe.each`
     const scoreAndClaimEdges = [
         new ScoreAndClaimEdge(
             new Score(confidence1, relevance1, id, ID(""), undefined),
-            new ClaimEdge(undefined, undefined, undefined,
+            new ClaimEdge(undefined, undefined,
                 affects1,
                 polarity1 === "pro" ? true : false)
         ),
         new ScoreAndClaimEdge(
             new Score(confidence2, relevance2, id, ID(""), undefined),
-            new ClaimEdge(undefined, undefined, undefined,
+            new ClaimEdge(undefined, undefined,
                 affects2,
                 polarity2 === "pro" ? true : false)
         )
     ];
-    const result = calculateScore(
-        scoreAndClaimEdges, reversable
-    )
+    const result = calculateScore({ scoreAndClaimEdges, reversable });
     test(`${id} confidence`, () => { expect(result.confidence).toBe(expScore); });
     test(`${id} relevance`, () => { expect(result.relevance).toBe(expRel); });
 });

@@ -14,8 +14,6 @@ export declare class Score implements Item {
     id: Id;
     /** The claim to which this score belongs */
     sourceClaimId: Id;
-    /** If this score is calulated under a scope this will be the ID of the scope */
-    scopeId?: Id | undefined;
     version: Id;
     start: string;
     end: string;
@@ -27,7 +25,9 @@ export declare class Score implements Item {
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance?: number, id?: Id, 
     /** The claim to which this score belongs */
-    sourceClaimId?: Id, 
-    /** If this score is calulated under a scope this will be the ID of the scope */
-    scopeId?: Id | undefined, version?: Id, start?: string, end?: string);
+    sourceClaimId?: Id, version?: Id, start?: string, end?: string);
 }
+/** Compare two scores to see if they are different in what the score is.
+ *  Just compares confidence and relavance
+ */
+export declare function differentScores(scoreA: Score, scoreB: Score): boolean;
