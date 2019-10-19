@@ -1,7 +1,7 @@
 {
   "name": "@reasonscore/core",
   "main": "lib/index.js",
-  "version": "0.1.7",
+  "version": "0.1.10",
   "description": "Core code for Reason Score http://ReasonScore.com",
   "scripts": {
     "type-check": "tsc --noEmit",
@@ -33,7 +33,7 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-typescript": "^7.6.0",
-    "@types/jest": "^24.0.18",
+    "@types/jest": "^24.0.19",
     "jest": "^24.9.0",
     "rollup": "^1.23.1",
     "rollup-plugin-babel": "^4.3.3",

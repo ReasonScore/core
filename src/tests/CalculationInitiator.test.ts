@@ -36,15 +36,33 @@ test('claim with two con descendants should have a confidence of 1', () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
-    const childClaim = new Claim("Child Claim", ID("childClaim"));
-    const descendantClaim = new Claim("Descendant Claim", ID("descendantClaim"));
+    const childClaim1 = new Claim("Child Claim 1", ID("childClaim1"));
+        const descendantClaim = new Claim("Descendant Claim", ID("descendantClaim"));
     calcInitator.notify([
         new Change(measuredClaim),
-        new Change(childClaim),
+        new Change(childClaim1),
         new Change(descendantClaim),
-        new Change(new ClaimEdge(measuredClaim.id,childClaim.id,Affects.Confidence,false)),
-        new Change(new ClaimEdge(childClaim.id,descendantClaim.id,Affects.Confidence,false)),
+        new Change(new ClaimEdge(measuredClaim.id,childClaim1.id,Affects.Confidence,false)),
+        new Change(new ClaimEdge(childClaim1.id,descendantClaim.id,Affects.Confidence,false)),
    ]);
     expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(1);
-    debugger;
+});
+
+test('Multiple children calculation', () => {
+    const repo = new Repository();
+    const calcInitator = new CalculationInitator(repo);
+    const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
+    const childClaim1 = new Claim("Child Claim 1", ID("childClaim1"));
+    const childClaim2 = new Claim("Child Claim 2", ID("childClaim2"));
+        const descendantClaim = new Claim("Descendant Claim", ID("descendantClaim"));
+    calcInitator.notify([
+        new Change(measuredClaim),
+        new Change(childClaim1),
+        new Change(childClaim2),
+        new Change(descendantClaim),
+        new Change(new ClaimEdge(measuredClaim.id,childClaim1.id,Affects.Confidence,false)),
+        new Change(new ClaimEdge(measuredClaim.id,childClaim2.id,Affects.Confidence,false)),
+        new Change(new ClaimEdge(childClaim1.id,descendantClaim.id,Affects.Confidence,false)),
+   ]);
+    expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(0);
 });

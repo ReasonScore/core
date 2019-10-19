@@ -47,48 +47,6 @@ var reasonscore_core = (function (exports) {
       return obj;
     }
 
-    function _slicedToArray(arr, i) {
-      return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest();
-    }
-
-    function _arrayWithHoles(arr) {
-      if (Array.isArray(arr)) return arr;
-    }
-
-    function _iterableToArrayLimit(arr, i) {
-      if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) {
-        return;
-      }
-
-      var _arr = [];
-      var _n = true;
-      var _d = false;
-      var _e = undefined;
-
-      try {
-        for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) {
-          _arr.push(_s.value);
-
-          if (i && _arr.length === i) break;
-        }
-      } catch (err) {
-        _d = true;
-        _e = err;
-      } finally {
-        try {
-          if (!_n && _i["return"] != null) _i["return"]();
-        } finally {
-          if (_d) throw _e;
-        }
-      }
-
-      return _arr;
-    }
-
-    function _nonIterableRest() {
-      throw new TypeError("Invalid attempt to destructure non-iterable instance");
-    }
-
     /**
      * Different types of items/ data that can be a target of an edge
      * Can we supported or discupte by claims
@@ -132,10 +90,9 @@ var reasonscore_core = (function (exports) {
       var relevance = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
       var id = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : newId();
       var sourceClaimId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : newId();
-      var scopeId = arguments.length > 4 ? arguments[4] : undefined;
-      var version = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : newId();
-      var start = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : new Date().toISOString();
-      var end = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : End;
+      var version = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : newId();
+      var start = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : new Date().toISOString();
+      var end = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : End;
 
       _classCallCheck(this, Score);
 
@@ -143,13 +100,19 @@ var reasonscore_core = (function (exports) {
       this.relevance = relevance;
       this.id = id;
       this.sourceClaimId = sourceClaimId;
-      this.scopeId = scopeId;
       this.version = version;
       this.start = start;
       this.end = end;
 
       _defineProperty(this, "type", exports.Type.score);
     };
+    /** Compare two scores to see if they are different in what the score is.
+     *  Just compares confidence and relavance
+     */
+
+    function differentScores(scoreA, scoreB) {
+      return !(scoreA.confidence == scoreB.confidence && scoreA.relevance == scoreB.relevance);
+    }
 
     /**
      * How a child claim affects a parent claim
@@ -160,16 +123,17 @@ var reasonscore_core = (function (exports) {
 
     /**
      * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for.
-     * This function does not take into account scopes.
-     * The caller of this fuction should only put the children and scores into this array that are within scope.
      */
     function calculateScore() {
-      var scoreAndClaimEdges = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-      var reversable = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-      var sourceClaimId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ID("");
-      var newScore = new Score(); // newScore.affects = affects;
-      // newScore.reversable = reversable
+      var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+          _ref$scoreAndClaimEdg = _ref.scoreAndClaimEdges,
+          scoreAndClaimEdges = _ref$scoreAndClaimEdg === void 0 ? [] : _ref$scoreAndClaimEdg,
+          _ref$reversable = _ref.reversable,
+          reversable = _ref$reversable === void 0 ? true : _ref$reversable,
+          _ref$sourceClaimId = _ref.sourceClaimId,
+          sourceClaimId = _ref$sourceClaimId === void 0 ? ID("") : _ref$sourceClaimId;
 
+      var newScore = new Score();
       var childrenConfidence = 0;
       var childrenRelevance = 0;
 
@@ -182,26 +146,29 @@ var reasonscore_core = (function (exports) {
         childrenRelevance = 1;
       }
 
-      scoreAndClaimEdges.forEach(function (scoreAndClaimEdge) {
-        // Loop through the child scores and determine the score of the parent.
-        if (scoreAndClaimEdge.claimEdge.affects === exports.Affects.Confidence) {
-          // Process edges that affect confidence
-          if (scoreAndClaimEdge.claimEdge.pro) {
-            childrenConfidence += scoreAndClaimEdge.score.confidence * scoreAndClaimEdge.score.relevance; // Add up all the strength of the children
+      scoreAndClaimEdges.forEach(function (_ref2) {
+        var score = _ref2.score,
+            claimEdge = _ref2.claimEdge;
 
-            childrenRelevance += scoreAndClaimEdge.score.relevance; //Add up the relevance separately so we can do a weighted agerage later
+        // Loop through the child scores and determine the score of the parent.
+        if (claimEdge.affects === exports.Affects.Confidence) {
+          // Process edges that affect confidence
+          if (claimEdge.pro) {
+            childrenConfidence += score.confidence * score.relevance; // Add up all the strength of the children
+
+            childrenRelevance += score.relevance; //Add up the relevance separately so we can do a weighted agerage later
           } else {
-            childrenConfidence -= scoreAndClaimEdge.score.confidence * scoreAndClaimEdge.score.relevance;
-            childrenRelevance += scoreAndClaimEdge.score.relevance;
+            childrenConfidence -= score.confidence * score.relevance;
+            childrenRelevance += score.relevance;
           }
         }
 
-        if (scoreAndClaimEdge.claimEdge.affects === 'relevance') {
+        if (claimEdge.affects === 'relevance') {
           // Process Relevance child claims
-          if (scoreAndClaimEdge.claimEdge.pro) {
-            newScore.relevance += scoreAndClaimEdge.score.confidence; // Add up all the strength of the children
+          if (claimEdge.pro) {
+            newScore.relevance += score.confidence; // Add up all the strength of the children
           } else {
-            newScore.relevance -= scoreAndClaimEdge.score.confidence;
+            newScore.relevance -= score.confidence;
           }
         }
       });
@@ -231,37 +198,47 @@ var reasonscore_core = (function (exports) {
       return newScore;
     }
 
-    var End$1 = "3000-01-01T00:00:00.000Z";
+    var Change = function Change(newItem, oldItem) {
+      _classCallCheck(this, Change);
 
-    //Store the string for the ID
-    var Indexes = function Indexes() {
-      _classCallCheck(this, Indexes);
-
-      _defineProperty(this, "scoreByClaimIdAndScope", {});
-
-      _defineProperty(this, "scoresByClaimId", {});
-
-      _defineProperty(this, "claimEdgesByParentId", {});
+      this.newItem = newItem;
+      this.oldItem = oldItem;
     };
-    var Repository =
+
+    /**
+     * Stores a score and it's edge in one inseparable unit to reduce future searching
+     */
+    var ScoreAndClaimEdge = function ScoreAndClaimEdge(score, claimEdge) {
+      _classCallCheck(this, ScoreAndClaimEdge);
+
+      this.score = score;
+      this.claimEdge = claimEdge;
+    };
+
+    var CalculationInitator =
     /*#__PURE__*/
     function () {
-      function Repository() {
-        _classCallCheck(this, Repository);
+      function CalculationInitator(repo) {
+        _classCallCheck(this, CalculationInitator);
 
-        _defineProperty(this, "items", {});
+        _defineProperty(this, "repo", void 0);
 
-        _defineProperty(this, "indexes", new Indexes());
-
-        _defineProperty(this, "log", []);
+        this.repo = repo;
       }
+      /** this function can be called by outside code to notfy this repository of changes */
 
-      _createClass(Repository, [{
+
+      _createClass(CalculationInitator, [{
         key: "notify",
-
-        /** this function can be called by outside code to notfy this repository of changes */
         value: function notify(changes) {
-          this.log.push(changes);
+          this.repo.notify(changes);
+          this.CalculationInitiator(changes);
+        }
+      }, {
+        key: "CalculationInitiator",
+        value: function CalculationInitiator(changes) {
+          var _this = this;
+
           var _iteratorNormalCompletion = true;
           var _didIteratorError = false;
           var _iteratorError = undefined;
@@ -269,26 +246,52 @@ var reasonscore_core = (function (exports) {
           try {
             for (var _iterator = changes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
               var change = _step.value;
+              var newItem = change.newItem,
+                  oldItem = change.oldItem; // Initiate calculations from a changed/new claim Edge
 
-              var _idString = change.newItem.id.toString(); //Change the end date on the previous version of this item to now
+              if (newItem.type == exports.Type.claimEdge) {
+                var claimEdge = newItem;
+                var newScore = this.CalculateByClaimId(claimEdge.parentId);
+                var oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
+
+                if (oldScore) {
+                  if (differentScores(oldScore, newScore)) {
+                    newScore.id = oldScore.id;
+                    this.notify([new Change(newScore, oldScore)]);
+                  }
+                } else {
+                  this.notify([new Change(newScore)]);
+                }
+
+                this.notify([new Change(newScore, oldScore)]);
+              } // Initiate calculations from a canged/new claim
 
 
-              var oldItems = this.items[_idString];
+              if (newItem.type == exports.Type.claim) {
+                var claim = newItem;
+                this.notify([new Change(new Score(undefined, undefined, undefined, claim.id))]);
+              } // Initiate calculations from a canged/new score
 
-              if (oldItems && oldItems.length > 0) {
-                oldItems[0].end = new Date().toISOString();
-              } else {
-                this.items[_idString] = [];
-              }
 
-              this.items[_idString].unshift(change.newItem);
+              if (newItem.type == exports.Type.score) {
+                var score = newItem; // Get all the claimEdges that have this score's SourceClaimId as the child and re calculate them
 
-              if (change.newItem.type == exports.Type.score) {
-                this.indexScore(change.newItem);
-              }
+                var claimseEdges = this.repo.getClaimEdgesByChildId(score.sourceClaimId);
+                claimseEdges.forEach(function (claimEdge) {
+                  var newScore = _this.CalculateByClaimId(claimEdge.parentId);
 
-              if (change.newItem.type == exports.Type.claimEdge) {
-                this.indexClaimEdgeByParentId(change.newItem);
+                  var oldScore = _this.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
+
+                  if (oldScore) {
+                    if (differentScores(oldScore, newScore)) {
+                      newScore.id = oldScore.id;
+
+                      _this.notify([new Change(newScore, oldScore)]);
+                    }
+                  } else {
+                    _this.notify([new Change(newScore)]);
+                  }
+                });
               }
             }
           } catch (err) {
@@ -307,126 +310,25 @@ var reasonscore_core = (function (exports) {
           }
         }
       }, {
-        key: "indexScore",
-        value: function indexScore(score) {
-          //scoreByClaimIdAndScope
-          if (score.scopeId) {
-            this.indexes.scoreByClaimIdAndScope[score.sourceClaimId.toString() + "-" + score.scopeId.toString()] = score.id.toString();
-          } //scoreByClaimId
+        key: "CalculateByClaimId",
+        value: function CalculateByClaimId(parentId) {
+          var _this2 = this;
 
+          var scoreAndClaimEdges = []; //Get all the claims for the parent to calculate the score
 
-          var destination = this.indexes.scoresByClaimId[score.sourceClaimId.toString()];
-
-          if (!destination) {
-            destination = [];
-            this.indexes.scoresByClaimId[score.sourceClaimId.toString()] = destination;
-          }
-
-          if (!destination.includes(score.id.toString())) {
-            destination.push(score.id.toString());
-          }
-        }
-      }, {
-        key: "indexClaimEdgeByParentId",
-        value: function indexClaimEdgeByParentId(claimEdge) {
-          var destination = this.indexes.claimEdgesByParentId[claimEdge.parentId.toString()];
-
-          if (!destination) {
-            destination = [];
-            this.indexes.claimEdgesByParentId[claimEdge.parentId.toString()] = destination;
-          }
-
-          if (!destination.includes(claimEdge.id.toString())) {
-            destination.push(claimEdge.id.toString());
-          }
-        }
-      }, {
-        key: "getItemsForArray",
-        value: function getItemsForArray(itemIds) {
-          var result = [];
-          var _iteratorNormalCompletion2 = true;
-          var _didIteratorError2 = false;
-          var _iteratorError2 = undefined;
-
-          try {
-            for (var _iterator2 = itemIds[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-              var itemId = _step2.value;
-              result.push(this.items[itemId][0]);
-            }
-          } catch (err) {
-            _didIteratorError2 = true;
-            _iteratorError2 = err;
-          } finally {
-            try {
-              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-                _iterator2["return"]();
-              }
-            } finally {
-              if (_didIteratorError2) {
-                throw _iteratorError2;
-              }
-            }
-          }
-
-          return result;
-        } // getClaimEdge(id: Id, when: string = End): ClaimEdge {
-        //     // let tempClaimEdge = this.rsData.claimEdges.find(e =>
-        //     //     e.id == id &&
-        //     //     e.end >= End);
-        //     // return tempClaimEdge ? tempClaimEdge : new ClaimEdge();
-        //     return new ClaimEdge();
-        // }
-
-      }, {
-        key: "getClaimEdgesByParentId",
-        value: function getClaimEdgesByParentId(parentId) {
-          return this.getItemsForArray(this.indexes.claimEdgesByParentId[parentId.toString()]);
-        } // getScore(id: Id, when: string = End): Score {
-        //     // let tempScore = this.rsData.scores.find(e =>
-        //     //     e.id == id &&
-        //     //     e.end >= End);
-        //     // return tempScore ? tempScore : new Score();
-        //     return new Score();
-        // }
-
-      }, {
-        key: "getScoresByClaimId",
-        value: function getScoresByClaimId(claimId) {
-          var scores = this.indexes.scoresByClaimId[claimId.toString()];
-
-          if (scores) {
-            return this.getItemsForArray(scores);
-          } else {
-            return [];
-          }
-        }
-        /** Will create a new score if it does not already exist */
-
-      }, {
-        key: "getScoreByClaimIdAndScope",
-        value: function getScoreByClaimIdAndScope(claimId, scopeId) {
-          var when = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : End$1;
-          var scores = this.getScoresByClaimId(claimId, when);
-          var score = scores.find(function (s) {
-            return s.scopeId == scopeId;
+          var claimseEdges = this.repo.getClaimEdgesByParentId(parentId);
+          claimseEdges.forEach(function (c) {
+            scoreAndClaimEdges.push(new ScoreAndClaimEdge(_this2.repo.getScoreBySourceClaimId(c.childId), c));
           });
-
-          if (score) {
-            return score;
-          } else {
-            return new Score();
-          }
-        } // getClaim(id: Id, when: string = End): Claim {
-        //     // let tempClaim = this.rsData.claims.find(e =>
-        //     //     e.id == id &&
-        //     //     e.end >= End);
-        //     // return tempClaim ? tempClaim : new Claim();
-        //     return new Claim();
-        // }
-
+          var newScore = calculateScore({
+            scoreAndClaimEdges: scoreAndClaimEdges,
+            sourceClaimId: parentId
+          });
+          return newScore;
+        }
       }]);
 
-      return Repository;
+      return CalculationInitator;
     }();
 
     var Messenger =
@@ -480,74 +382,39 @@ var reasonscore_core = (function (exports) {
       return Messenger;
     }();
 
-    var Change = function Change(newItem, oldItem) {
-      _classCallCheck(this, Change);
+    //Store the string for the ID
+    //Store the string for the ID
+    var RsData = function RsData() {
+      var items = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      var scoreBySourceClaimId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      var claimEdgesByParentId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+      var claimEdgesByChildId = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
-      this.newItem = newItem;
-      this.oldItem = oldItem;
+      _classCallCheck(this, RsData);
+
+      this.items = items;
+      this.scoreBySourceClaimId = scoreBySourceClaimId;
+      this.claimEdgesByParentId = claimEdgesByParentId;
+      this.claimEdgesByChildId = claimEdgesByChildId;
     };
 
-    /**
-     * Stores a score and it's edge in one inseparable unit to reduce future searching
-     */
-    var ScoreAndClaimEdge = function ScoreAndClaimEdge(score, claimEdge) {
-      _classCallCheck(this, ScoreAndClaimEdge);
-
-      this.score = score;
-      this.claimEdge = claimEdge;
-    };
-
-    //  | undefined }
-    //  | undefined }
-    function FindScopes(scoreAndClaimEdges) {
-      var scoreAndClaimEdgesByScoreScopeIds = {};
-      scoreAndClaimEdges.forEach(function (claimEdgeScore) {
-        var score = claimEdgeScore.score;
-        var idString;
-
-        if (score.scopeId != undefined && score.scopeId != score.sourceClaimId //If the scope ID is the same then that score ID it should not propogate up the hierarchy any further.
-        ) {
-            idString = score.scopeId.toString();
-          } else {
-          //idString = claimEdgeScore.claimEdge.parentId.toString();
-          idString = claimEdgeScore.claimEdge.scopeId.toString();
-        }
-
-        if (scoreAndClaimEdgesByScoreScopeIds[idString] === undefined) {
-          scoreAndClaimEdgesByScoreScopeIds[idString] = [];
-        }
-      });
-      return scoreAndClaimEdgesByScoreScopeIds;
-    }
-
-    var CalculationLooper =
+    var Repository =
     /*#__PURE__*/
     function () {
-      function CalculationLooper(repo, messenger) {
-        _classCallCheck(this, CalculationLooper);
+      function Repository() {
+        _classCallCheck(this, Repository);
 
-        _defineProperty(this, "messenger", void 0);
+        _defineProperty(this, "rsData", new RsData());
 
-        _defineProperty(this, "repo", void 0);
-
-        this.repo = repo;
-
-        if (messenger) {
-          this.messenger = messenger;
-        }
+        _defineProperty(this, "log", []);
       }
-      /** this function can be called by outside code to notfy this repository of changes */
 
-
-      _createClass(CalculationLooper, [{
+      _createClass(Repository, [{
         key: "notify",
+
+        /** this function can be called by outside code to notfy this repository of changes */
         value: function notify(changes) {
-          this.repo.notify(changes);
-          this.calcLoop(changes);
-        }
-      }, {
-        key: "calcLoop",
-        value: function calcLoop(changes) {
+          this.log.unshift(changes);
           var _iteratorNormalCompletion = true;
           var _didIteratorError = false;
           var _iteratorError = undefined;
@@ -555,14 +422,29 @@ var reasonscore_core = (function (exports) {
           try {
             for (var _iterator = changes[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
               var change = _step.value;
+              var newItem = change.newItem;
+              var idString = newItem.id.toString(); //Change the end date on the previous version of this item to now
+
+              var oldItems = this.rsData.items[idString];
+
+              if (oldItems && oldItems.length > 0) {
+                oldItems[0].end = new Date().toISOString();
+              } else {
+                this.rsData.items[idString] = [];
+              } // add the new item to the list of items
+
+
+              this.rsData.items[idString].unshift(change.newItem); //Index Claim Edges
 
               if (change.newItem.type == exports.Type.claimEdge) {
-                this.calculateFromClaimEdge(change.newItem);
-              }
+                this.indexClaimEdgeByParentId(change.newItem);
+                this.indexClaimEdgeByChildId(change.newItem);
+              } //Index score by source Id
 
-              if (change.newItem.type == exports.Type.claim) {
-                var claim = change.newItem;
-                this.repo.notify([new Change(new Score(undefined, undefined, undefined, claim.id, claim.id))]);
+
+              if (newItem.type == exports.Type.score) {
+                var score = newItem;
+                this.rsData.scoreBySourceClaimId[score.sourceClaimId.toString()] = idString;
               }
             }
           } catch (err) {
@@ -581,64 +463,110 @@ var reasonscore_core = (function (exports) {
           }
         }
       }, {
-        key: "calculateFromClaimEdge",
-        value: function calculateFromClaimEdge(sourceClaimEdge) {
-          var _this = this;
+        key: "indexClaimEdgeByParentId",
+        value: function indexClaimEdgeByParentId(claimEdge) {
+          var destination = this.rsData.claimEdgesByParentId[claimEdge.parentId.toString()];
 
-          debugger;
-          var claimEdges = this.repo.getClaimEdgesByParentId(sourceClaimEdge.parentId);
-          var scoreAndClaimEdges = []; //get scores for claimedges
-
-          claimEdges.forEach(function (claimEdge) {
-            var claimEdgeScores = _this.repo.getScoresByClaimId(claimEdge.childId);
-
-            claimEdgeScores.forEach(function (score) {
-              scoreAndClaimEdges.push(new ScoreAndClaimEdge(score, claimEdge));
-            });
-          });
-          var scoreAndClaimEdgesByScoreScopeIds = FindScopes(scoreAndClaimEdges); //Check each Scope and ClaimEdge and create any missing scores
-
-          Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(function (_ref) {
-            var _ref2 = _slicedToArray(_ref, 1),
-                scopeIdString = _ref2[0];
-
-            claimEdges.forEach(function (claimEdge) {
-              if (scoreAndClaimEdgesByScoreScopeIds[scopeIdString].find(function (sce) {
-                return sce.claimEdge == claimEdge;
-              }) == undefined) {
-                //Look for already existing scores
-                var foundScore = _this.repo.getScoreByClaimIdAndScope(claimEdge.childId, ID(scopeIdString));
-
-                scoreAndClaimEdgesByScoreScopeIds[scopeIdString].push(new ScoreAndClaimEdge(foundScore, claimEdge));
-              }
-            });
-          }); //For each scope, loop through and create a score
-
-          Object.entries(scoreAndClaimEdgesByScoreScopeIds).forEach(function (_ref3) {
-            var _ref4 = _slicedToArray(_ref3, 2),
-                scopeIdString = _ref4[0],
-                scoreAndClaimEdges = _ref4[1];
-
-            var newScore = calculateScore(scoreAndClaimEdges);
-            newScore.scopeId = ID(scopeIdString);
-            newScore.sourceClaimId = scoreAndClaimEdges[0].claimEdge.parentId; //ToDo: Is there a better way to get this?
-
-            var oldScore = _this.repo.getScoreByClaimIdAndScope(newScore.sourceClaimId, newScore.scopeId);
-
-            if (oldScore) {
-              newScore.id = oldScore.id;
-            }
-
-            _this.repo.notify([new Change(newScore)]);
-          }); //If there are no edges below it then create a base score
-
-          if (claimEdges.length === 0) {
-            this.repo.notify([new Change(new Score(undefined, undefined, undefined, sourceClaimEdge.parentId, sourceClaimEdge.scopeId))]);
+          if (!destination) {
+            destination = [];
+            this.rsData.claimEdgesByParentId[claimEdge.parentId.toString()] = destination;
           }
+
+          if (!destination.includes(claimEdge.id.toString())) {
+            destination.push(claimEdge.id.toString());
+          }
+        }
+      }, {
+        key: "indexClaimEdgeByChildId",
+        value: function indexClaimEdgeByChildId(claimEdge) {
+          var destination = this.rsData.claimEdgesByChildId[claimEdge.childId.toString()];
+
+          if (!destination) {
+            destination = [];
+            this.rsData.claimEdgesByChildId[claimEdge.childId.toString()] = destination;
+          }
+
+          if (!destination.includes(claimEdge.id.toString())) {
+            destination.push(claimEdge.id.toString());
+          }
+        }
+      }, {
+        key: "getItemsForArray",
+        value: function getItemsForArray(itemIds) {
+          var result = [];
+          var _iteratorNormalCompletion2 = true;
+          var _didIteratorError2 = false;
+          var _iteratorError2 = undefined;
+
+          try {
+            for (var _iterator2 = itemIds[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+              var itemId = _step2.value;
+              result.push(this.rsData.items[itemId][0]);
+            }
+          } catch (err) {
+            _didIteratorError2 = true;
+            _iteratorError2 = err;
+          } finally {
+            try {
+              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+                _iterator2["return"]();
+              }
+            } finally {
+              if (_didIteratorError2) {
+                throw _iteratorError2;
+              }
+            }
+          }
+
+          return result;
+        }
+      }, {
+        key: "getItem",
+        value: function getItem(ItemId) {
+          return this.rsData.items[ItemId.toString()].find(function (e) {
+            return e.end >= End;
+          });
+        }
+      }, {
+        key: "getClaimEdgesByParentId",
+        value: function getClaimEdgesByParentId(parentId) {
+          var claimEdgeIds = this.rsData.claimEdgesByParentId[parentId.toString()];
+
+          if (claimEdgeIds) {
+            return this.getItemsForArray(claimEdgeIds);
+          } else {
+            return [];
+          }
+        }
+      }, {
+        key: "getClaimEdgesByChildId",
+        value: function getClaimEdgesByChildId(childId) {
+          var claimEdgeIds = this.rsData.claimEdgesByChildId[childId.toString()];
+
+          if (claimEdgeIds) {
+            return this.getItemsForArray(claimEdgeIds);
+          } else {
+            return [];
+          }
+        }
+      }, {
+        key: "getScoreBySourceClaimId",
+        value: function getScoreBySourceClaimId(sourceClaimId) {
+          var scoreIdString = this.rsData.scoreBySourceClaimId[sourceClaimId.toString()];
+
+          if (scoreIdString) {
+            var score = this.getItem(ID(scoreIdString));
+
+            if (score) {
+              return score;
+            }
+          }
+
+          return new Score();
         }
       }]);
 
-      return CalculationLooper;
+      return Repository;
     }();
 
     var Claim = function Claim() {
@@ -662,7 +590,7 @@ var reasonscore_core = (function (exports) {
     };
 
     /**
-     * Stores the relationship between two claims in a specific scope.
+     * Stores the relationship between two claims.
      * This is directional as the edge points from one claim to another.
      * This is just a data transfer object so it should have no logic in it
      * and only JSON compatible types string, number, object, array, boolean
@@ -671,19 +599,17 @@ var reasonscore_core = (function (exports) {
     var ClaimEdge = function ClaimEdge() {
       var parentId = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : ID("");
       var childId = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : ID("");
-      var scopeId = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : ID("");
-      var affects = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : exports.Affects.Confidence;
-      var pro = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : true;
-      var id = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : newId();
-      var version = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : newId();
-      var start = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : new Date().toISOString();
-      var end = arguments.length > 8 && arguments[8] !== undefined ? arguments[8] : End;
+      var affects = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : exports.Affects.Confidence;
+      var pro = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
+      var id = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : newId();
+      var version = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : newId();
+      var start = arguments.length > 6 && arguments[6] !== undefined ? arguments[6] : new Date().toISOString();
+      var end = arguments.length > 7 && arguments[7] !== undefined ? arguments[7] : End;
 
       _classCallCheck(this, ClaimEdge);
 
       this.parentId = parentId;
       this.childId = childId;
-      this.scopeId = scopeId;
       this.affects = affects;
       this.pro = pro;
       this.id = id;
@@ -696,17 +622,18 @@ var reasonscore_core = (function (exports) {
     /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
     //public reversable: boolean = false,
 
-    exports.CalculationLooper = CalculationLooper;
+    exports.CalculationInitator = CalculationInitator;
     exports.Change = Change;
     exports.Claim = Claim;
     exports.ClaimEdge = ClaimEdge;
     exports.ID = ID;
-    exports.Indexes = Indexes;
     exports.Messenger = Messenger;
     exports.Repository = Repository;
     exports.Score = Score;
     exports.ScoreAndClaimEdge = ScoreAndClaimEdge;
     exports.calculateScore = calculateScore;
+    exports.differentScores = differentScores;
+    exports.newId = newId;
 
     return exports;
 

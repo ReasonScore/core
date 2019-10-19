@@ -1,8 +1,3 @@
-import { Claim } from "./Claim";
-import { ClaimEdge } from "./ClaimEdge";
-import { Score } from "./Score";
-import { View } from "./View";
-import { ViewEdge } from "./viewEdge";
 import { Item } from "./Item";
 
 export interface ItemDictionary { [idString: string]: Item[]; }

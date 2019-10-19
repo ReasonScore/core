@@ -83,7 +83,12 @@ export class Repository {
     }
 
     getClaimEdgesByParentId(parentId: Id, when: string = End): ClaimEdge[] {
-        return <ClaimEdge[]>this.getItemsForArray(this.rsData.claimEdgesByParentId[parentId.toString()])
+        const claimEdgeIds = this.rsData.claimEdgesByParentId[parentId.toString()];
+        if (claimEdgeIds) {
+            return <ClaimEdge[]>this.getItemsForArray(claimEdgeIds)
+        } else {
+            return [];
+        }
     }
 
     getClaimEdgesByChildId(childId: Id, when: string = End): ClaimEdge[] {
@@ -97,12 +102,13 @@ export class Repository {
 
     getScoreBySourceClaimId(sourceClaimId: Id, when: string = End): Score {
         const scoreIdString = this.rsData.scoreBySourceClaimId[sourceClaimId.toString()];
-        const score = <Score>this.getItem(ID(scoreIdString));
-        if (score) {
-            return score;
-        } else {
-            return new Score();
+        if (scoreIdString) {
+            const score = <Score>this.getItem(ID(scoreIdString));
+            if (score) {
+                return score;
+            }
         }
+        return new Score();
     }
 
 }
