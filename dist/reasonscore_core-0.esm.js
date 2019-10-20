@@ -151,14 +151,19 @@ function calculateScore() {
 
     // Loop through the child scores and determine the score of the parent.
     if (claimEdge.affects === Affects.Confidence) {
-      // Process edges that affect confidence
-      if (claimEdge.pro) {
-        childrenConfidence += score.confidence * score.relevance; // Add up all the strength of the children
+      //calculate the reduction of the relevance bease on the distance of the confidence from zero
+      //ToDO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
+      //Like "This claim should require supporting evidence"
+      var confidenceRelevanceAdjustment = 1;
+      confidenceRelevanceAdjustment = Math.abs(score.confidence); // Process edges that affect confidence
 
-        childrenRelevance += score.relevance; //Add up the relevance separately so we can do a weighted agerage later
+      if (claimEdge.pro) {
+        childrenConfidence += score.confidence * score.relevance * confidenceRelevanceAdjustment; // Add up all the strength of the children
+
+        childrenRelevance += score.relevance * confidenceRelevanceAdjustment; //Add up the relevance separately so we can do a weighted agerage later
       } else {
-        childrenConfidence -= score.confidence * score.relevance;
-        childrenRelevance += score.relevance;
+        childrenConfidence -= score.confidence * score.relevance * confidenceRelevanceAdjustment;
+        childrenRelevance += score.relevance * confidenceRelevanceAdjustment;
       }
     }
 
@@ -313,7 +318,16 @@ function () {
     value: function CalculateByClaimId(parentId) {
       var _this2 = this;
 
-      var scoreAndClaimEdges = []; //Get all the claims for the parent to calculate the score
+      var scoreAndClaimEdges = []; //Is parent reversable?
+
+      var reversable = false;
+      var parentItem = this.repo.getItem(parentId);
+
+      if (parentItem) {
+        var parentClaim = parentItem;
+        reversable = parentClaim.reversable;
+      } //Get all the claims for the parent to calculate the score
+
 
       var claimseEdges = this.repo.getClaimEdgesByParentId(parentId);
       claimseEdges.forEach(function (c) {
@@ -321,6 +335,7 @@ function () {
       });
       var newScore = calculateScore({
         scoreAndClaimEdges: scoreAndClaimEdges,
+        reversable: reversable,
         sourceClaimId: parentId
       });
       return newScore;
@@ -574,7 +589,7 @@ var Claim = function Claim() {
   var version = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : newId();
   var start = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : new Date().toISOString();
   var end = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : End;
-  var reversable = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : true;
+  var reversable = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
 
   _classCallCheck(this, Claim);
 

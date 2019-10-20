@@ -35,12 +35,12 @@ export class CalculationInitator {
                 if (oldScore) {
                     if (differentScores(oldScore, newScore)) {
                         newScore.id = oldScore.id;
-                        this.notify([new Change(newScore,oldScore)]);
+                        this.notify([new Change(newScore, oldScore)]);
                     }
                 } else {
                     this.notify([new Change(newScore)]);
                 }
-            this.notify([new Change(newScore, oldScore)]);
+                this.notify([new Change(newScore, oldScore)]);
             }
 
             // Initiate calculations from a canged/new claim
@@ -62,7 +62,7 @@ export class CalculationInitator {
                     if (oldScore) {
                         if (differentScores(oldScore, newScore)) {
                             newScore.id = oldScore.id;
-                            this.notify([new Change(newScore,oldScore)]);
+                            this.notify([new Change(newScore, oldScore)]);
                         }
                     } else {
                         this.notify([new Change(newScore)]);
@@ -75,6 +75,15 @@ export class CalculationInitator {
 
     private CalculateByClaimId(parentId: Id) {
         const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
+
+        //Is parent reversable?
+        let reversable = false;
+        const parentItem = this.repo.getItem(parentId);
+        if (parentItem) {
+            const parentClaim = <Claim>parentItem;
+            reversable = parentClaim.reversable;
+        }
+
         //Get all the claims for the parent to calculate the score
         const claimseEdges = this.repo.getClaimEdgesByParentId(parentId);
         claimseEdges.forEach(c => {
@@ -82,10 +91,13 @@ export class CalculationInitator {
                 new ScoreAndClaimEdge(<Score>this.repo.getScoreBySourceClaimId(c.childId), c)
             );
         });
+
         const newScore = calculateScore({
             scoreAndClaimEdges: scoreAndClaimEdges,
+            reversable: reversable,
             sourceClaimId: parentId
         });
+        
         return newScore;
     }
 }

@@ -13,7 +13,7 @@ export class Claim implements Item {
         public version: Id = newId(),
         public start: string = new Date().toISOString(),
         public end: string = End,
-        public reversable: boolean = true,
+        public reversable: boolean = false,
     ) {
     }
 }

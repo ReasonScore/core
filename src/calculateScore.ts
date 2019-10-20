@@ -29,13 +29,20 @@ export function calculateScore({ scoreAndClaimEdges = [], reversable = true, sou
     scoreAndClaimEdges.forEach(({score, claimEdge}) => {
         // Loop through the child scores and determine the score of the parent.
         if (claimEdge.affects === Affects.Confidence) {
+
+            //calculate the reduction of the relevance bease on the distance of the confidence from zero
+            //ToDO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
+            //Like "This claim should require supporting evidence"
+            let confidenceRelevanceAdjustment = 1
+            confidenceRelevanceAdjustment = Math.abs(score.confidence)
+
             // Process edges that affect confidence
             if (claimEdge.pro) {
-                childrenConfidence += score.confidence * score.relevance; // Add up all the strength of the children
-                childrenRelevance += score.relevance; //Add up the relevance separately so we can do a weighted agerage later
+                childrenConfidence += score.confidence * score.relevance * confidenceRelevanceAdjustment; // Add up all the strength of the children
+                childrenRelevance += score.relevance * confidenceRelevanceAdjustment; //Add up the relevance separately so we can do a weighted agerage later
             } else {
-                childrenConfidence -= score.confidence * score.relevance;
-                childrenRelevance += score.relevance;
+                childrenConfidence -= score.confidence * score.relevance * confidenceRelevanceAdjustment;
+                childrenRelevance += score.relevance * confidenceRelevanceAdjustment;
             }
         }
 

@@ -38,10 +38,14 @@ describe.each`
     });
 });
 
+
+
+
 describe.each`
     id       | expScore  | expRel   | reversable | affects1        | polarity1 | confidence1 | relevance1 | affects2        | polarity2 | confidence2 | relevance2
     ${'_12'} | ${+1.00}  | ${+1.00} | ${false}   | ${'confidence'} | ${'pro'}  | ${+1.00}    | ${+1.00}   | ${'confidence'} | ${'pro'}  | ${+1.00}    | ${+1.00}
     ${'_13'} | ${+0.00}  | ${+1.00} | ${false}   | ${'confidence'} | ${'pro'}  | ${+1.00}    | ${+1.00}   | ${'confidence'} | ${'pro'}  | ${-1.00}    | ${+1.00} 
+    ${'_14'} | ${+1.00}  | ${+1.00} | ${false}   | ${'confidence'} | ${'pro'}  | ${+1.00}    | ${+1.00}   | ${'confidence'} | ${'con'}  | ${+0.00}    | ${+1.00} 
 `('', ({ id, expScore, expRel, reversable, affects1, polarity1, confidence1, relevance1, affects2, polarity2, confidence2, relevance2 }) => {
     const scoreAndClaimEdges = [
         new ScoreAndClaimEdge(
