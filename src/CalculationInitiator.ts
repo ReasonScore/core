@@ -9,17 +9,17 @@ import { Claim } from "./dataModels/Claim";
 import { Id } from "./dataModels/Id";
 
 export class CalculationInitator {
-    private repo: Repository;
 
     constructor(
-        repo: Repository,
+        public repo: Repository,
+        public subscriber: (changes: Change[]) => void | undefined
     ) {
-        this.repo = repo;
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
     notify(changes: Change[]) {
         this.repo.notify(changes);
+        this.subscriber(changes);
         this.CalculationInitiator(changes);
     }
 
