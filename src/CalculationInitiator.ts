@@ -12,14 +12,16 @@ export class CalculationInitator {
 
     constructor(
         public repo: Repository,
-        public subscriber: (changes: Change[]) => void | undefined
+        public subscriber: ((changes: Change[]) => void) | undefined = undefined
     ) {
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
     notify(changes: Change[]) {
         this.repo.notify(changes);
-        this.subscriber(changes);
+        if (this.subscriber) {
+            this.subscriber(changes);
+        }
         this.CalculationInitiator(changes);
     }
 
@@ -97,7 +99,7 @@ export class CalculationInitator {
             reversable: reversable,
             sourceClaimId: parentId
         });
-        
+
         return newScore;
     }
 }

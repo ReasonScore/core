@@ -223,11 +223,12 @@ var CalculationInitator =
 /*#__PURE__*/
 function () {
   function CalculationInitator(repo) {
+    var subscriber = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
+
     _classCallCheck(this, CalculationInitator);
 
-    _defineProperty(this, "repo", void 0);
-
     this.repo = repo;
+    this.subscriber = subscriber;
   }
   /** this function can be called by outside code to notfy this repository of changes */
 
@@ -236,6 +237,11 @@ function () {
     key: "notify",
     value: function notify(changes) {
       this.repo.notify(changes);
+
+      if (this.subscriber) {
+        this.subscriber(changes);
+      }
+
       this.CalculationInitiator(changes);
     }
   }, {
