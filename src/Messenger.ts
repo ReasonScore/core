@@ -9,7 +9,7 @@ export class Messenger {
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify(changes: Change[]) {
+    notify = (changes: Change[]) => {
         this.log.push(changes);
         for (const subscriber of this.subscribers) {
             subscriber(changes);

@@ -1,7 +1,7 @@
 {
   "name": "@reasonscore/core",
   "main": "lib/index.js",
-  "version": "0.1.13",
+  "version": "0.1.15",
   "description": "Core code for Reason Score http://ReasonScore.com",
   "scripts": {
     "type-check": "tsc --noEmit",
@@ -33,15 +33,15 @@
     "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
     "@babel/preset-env": "^7.6.3",
     "@babel/preset-typescript": "^7.6.0",
-    "@types/jest": "^24.0.19",
+    "@types/jest": "^24.0.21",
     "jest": "^24.9.0",
-    "rollup": "^1.23.1",
+    "mixin-deep": ">=1.3.2",
+    "rollup": "^1.26.3",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "ts-jest": "^24.1.0",
-    "typescript": "^3.6.4",
     "set-value": ">=2.0.1",
-    "mixin-deep": ">=1.3.2"
+    "ts-jest": "^24.1.0",
+    "typescript": "^3.6.4"
   }
 }

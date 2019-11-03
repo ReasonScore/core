@@ -17,7 +17,7 @@ export class CalculationInitator {
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify(changes: Change[]) {
+    notify =(changes: Change[]) => {
         this.repo.notify(changes);
         if (this.subscriber) {
             this.subscriber(changes);
@@ -31,7 +31,7 @@ export class CalculationInitator {
 
             // Initiate calculations from a changed/new claim Edge
             if (newItem.type == Type.claimEdge) {
-                const claimEdge = <ClaimEdge>newItem;
+                const claimEdge = newItem as ClaimEdge;
                 const newScore = this.CalculateByClaimId(claimEdge.parentId);
                 const oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
                 if (oldScore) {

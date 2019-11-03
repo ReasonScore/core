@@ -223,31 +223,32 @@ var CalculationInitator =
 /*#__PURE__*/
 function () {
   function CalculationInitator(repo) {
+    var _this = this;
+
     var subscriber = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : undefined;
 
     _classCallCheck(this, CalculationInitator);
 
     this.repo = repo;
     this.subscriber = subscriber;
+
+    _defineProperty(this, "notify", function (changes) {
+      _this.repo.notify(changes);
+
+      if (_this.subscriber) {
+        _this.subscriber(changes);
+      }
+
+      _this.CalculationInitiator(changes);
+    });
   }
   /** this function can be called by outside code to notfy this repository of changes */
 
 
   _createClass(CalculationInitator, [{
-    key: "notify",
-    value: function notify(changes) {
-      this.repo.notify(changes);
-
-      if (this.subscriber) {
-        this.subscriber(changes);
-      }
-
-      this.CalculationInitiator(changes);
-    }
-  }, {
     key: "CalculationInitiator",
     value: function CalculationInitiator(changes) {
-      var _this = this;
+      var _this2 = this;
 
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
@@ -288,18 +289,18 @@ function () {
 
             var claimseEdges = this.repo.getClaimEdgesByChildId(score.sourceClaimId);
             claimseEdges.forEach(function (claimEdge) {
-              var newScore = _this.CalculateByClaimId(claimEdge.parentId);
+              var newScore = _this2.CalculateByClaimId(claimEdge.parentId);
 
-              var oldScore = _this.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
+              var oldScore = _this2.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
 
               if (oldScore) {
                 if (differentScores(oldScore, newScore)) {
                   newScore.id = oldScore.id;
 
-                  _this.notify([new Change(newScore, oldScore)]);
+                  _this2.notify([new Change(newScore, oldScore)]);
                 }
               } else {
-                _this.notify([new Change(newScore)]);
+                _this2.notify([new Change(newScore)]);
               }
             });
           }
@@ -322,7 +323,7 @@ function () {
   }, {
     key: "CalculateByClaimId",
     value: function CalculateByClaimId(parentId) {
-      var _this2 = this;
+      var _this3 = this;
 
       var scoreAndClaimEdges = []; //Is parent reversable?
 
@@ -337,7 +338,7 @@ function () {
 
       var claimseEdges = this.repo.getClaimEdgesByParentId(parentId);
       claimseEdges.forEach(function (c) {
-        scoreAndClaimEdges.push(new ScoreAndClaimEdge(_this2.repo.getScoreBySourceClaimId(c.childId), c));
+        scoreAndClaimEdges.push(new ScoreAndClaimEdge(_this3.repo.getScoreBySourceClaimId(c.childId), c));
       });
       var newScore = calculateScore({
         scoreAndClaimEdges: scoreAndClaimEdges,
@@ -355,30 +356,23 @@ var Messenger =
 /*#__PURE__*/
 function () {
   function Messenger() {
+    var _this = this;
+
     _classCallCheck(this, Messenger);
 
     _defineProperty(this, "subscribers", []);
 
     _defineProperty(this, "log", []);
-  }
 
-  _createClass(Messenger, [{
-    key: "subscribe",
-    value: function subscribe(callback) {
-      this.subscribers.push(callback);
-    }
-    /** this function can be called by outside code to notfy this repository of changes */
+    _defineProperty(this, "notify", function (changes) {
+      _this.log.push(changes);
 
-  }, {
-    key: "notify",
-    value: function notify(changes) {
-      this.log.push(changes);
       var _iteratorNormalCompletion = true;
       var _didIteratorError = false;
       var _iteratorError = undefined;
 
       try {
-        for (var _iterator = this.subscribers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        for (var _iterator = _this.subscribers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
           var subscriber = _step.value;
           subscriber(changes);
         }
@@ -396,7 +390,16 @@ function () {
           }
         }
       }
+    });
+  }
+
+  _createClass(Messenger, [{
+    key: "subscribe",
+    value: function subscribe(callback) {
+      this.subscribers.push(callback);
     }
+    /** this function can be called by outside code to notfy this repository of changes */
+
   }]);
 
   return Messenger;
