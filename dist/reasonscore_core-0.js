@@ -390,7 +390,6 @@ var reasonscore_core = (function (exports) {
           delete this.subscribers[this.subscribers.findIndex(function (item) {
             return item == callback;
           })];
-          this.subscribers.push(callback);
         }
         /** this function can be called by outside code to notfy this repository of changes */
 

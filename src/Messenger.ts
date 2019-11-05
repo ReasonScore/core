@@ -10,7 +10,6 @@ export class Messenger {
 
     unsubscribe(callback: (changes: Change[]) => void): void {
         delete this.subscribers[this.subscribers.findIndex(item => item == callback)];
-        this.subscribers.push(callback)
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
