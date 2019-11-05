@@ -385,6 +385,14 @@ function () {
     value: function subscribe(callback) {
       this.subscribers.push(callback);
     }
+  }, {
+    key: "unsubscribe",
+    value: function unsubscribe(callback) {
+      delete this.subscribers[this.subscribers.findIndex(function (item) {
+        return item == callback;
+      })];
+      this.subscribers.push(callback);
+    }
     /** this function can be called by outside code to notfy this repository of changes */
 
   }]);
