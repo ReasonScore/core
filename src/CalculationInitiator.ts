@@ -17,7 +17,7 @@ export class CalculationInitator {
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify =(changes: Change[]) => {
+    notify = (changes: Change[]) => {
         this.repo.notify(changes);
         if (this.subscriber) {
             this.subscriber(changes);
@@ -32,25 +32,14 @@ export class CalculationInitator {
             // Initiate calculations from a changed/new claim Edge
             if (newItem.type == Type.claimEdge) {
                 const claimEdge = newItem as ClaimEdge;
-                const newScore = this.CalculateByClaimId(claimEdge.parentId);
-                const oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
-                if (oldScore) {
-                    if (differentScores(oldScore, newScore)) {
-                        newScore.id = oldScore.id;
-                        this.notify([new Change(newScore, oldScore)]);
-                    }
-                } else {
-                    this.notify([new Change(newScore)]);
-                }
-                this.notify([new Change(newScore, oldScore)]);
+                this.CalculateByClaimId(claimEdge.parentId);
+
             }
 
             // Initiate calculations from a canged/new claim
             if (newItem.type == Type.claim) {
                 const claim = <Claim>newItem;
-                this.notify([new Change(
-                    new Score(undefined, undefined, undefined, claim.id)
-                )]);
+                this.CalculateByClaimId(claim.id);
             }
 
             // Initiate calculations from a canged/new score
@@ -59,23 +48,13 @@ export class CalculationInitator {
                 // Get all the claimEdges that have this score's SourceClaimId as the child and re calculate them
                 const claimseEdges = this.repo.getClaimEdgesByChildId(score.sourceClaimId);
                 claimseEdges.forEach(claimEdge => {
-                    const newScore = this.CalculateByClaimId(claimEdge.parentId);
-                    const oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
-                    if (oldScore) {
-                        if (differentScores(oldScore, newScore)) {
-                            newScore.id = oldScore.id;
-                            this.notify([new Change(newScore, oldScore)]);
-                        }
-                    } else {
-                        this.notify([new Change(newScore)]);
-                    }
+                    this.CalculateByClaimId(claimEdge.parentId);
                 })
             }
         }
     }
 
-
-    private CalculateByClaimId(parentId: Id) {
+    private CalculateByClaimId(parentId: Id): void {
         const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
 
         //Is parent reversable?
@@ -100,6 +79,15 @@ export class CalculationInitator {
             sourceClaimId: parentId
         });
 
-        return newScore;
+        const oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
+        if (oldScore) {
+            if (differentScores(oldScore, newScore)) {
+                newScore.id = oldScore.id;
+                this.notify([new Change(newScore, oldScore)]);
+            }
+        } else {
+            this.notify([new Change(newScore)]);
+        }
     }
+
 }

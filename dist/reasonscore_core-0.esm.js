@@ -262,25 +262,13 @@ function () {
 
           if (newItem.type == Type.claimEdge) {
             var claimEdge = newItem;
-            var newScore = this.CalculateByClaimId(claimEdge.parentId);
-            var oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
-
-            if (oldScore) {
-              if (differentScores(oldScore, newScore)) {
-                newScore.id = oldScore.id;
-                this.notify([new Change(newScore, oldScore)]);
-              }
-            } else {
-              this.notify([new Change(newScore)]);
-            }
-
-            this.notify([new Change(newScore, oldScore)]);
+            this.CalculateByClaimId(claimEdge.parentId);
           } // Initiate calculations from a canged/new claim
 
 
           if (newItem.type == Type.claim) {
             var claim = newItem;
-            this.notify([new Change(new Score(undefined, undefined, undefined, claim.id))]);
+            this.CalculateByClaimId(claim.id);
           } // Initiate calculations from a canged/new score
 
 
@@ -289,19 +277,7 @@ function () {
 
             var claimseEdges = this.repo.getClaimEdgesByChildId(score.sourceClaimId);
             claimseEdges.forEach(function (claimEdge) {
-              var newScore = _this2.CalculateByClaimId(claimEdge.parentId);
-
-              var oldScore = _this2.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
-
-              if (oldScore) {
-                if (differentScores(oldScore, newScore)) {
-                  newScore.id = oldScore.id;
-
-                  _this2.notify([new Change(newScore, oldScore)]);
-                }
-              } else {
-                _this2.notify([new Change(newScore)]);
-              }
+              _this2.CalculateByClaimId(claimEdge.parentId);
             });
           }
         }
@@ -345,7 +321,16 @@ function () {
         reversable: reversable,
         sourceClaimId: parentId
       });
-      return newScore;
+      var oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
+
+      if (oldScore) {
+        if (differentScores(oldScore, newScore)) {
+          newScore.id = oldScore.id;
+          this.notify([new Change(newScore, oldScore)]);
+        }
+      } else {
+        this.notify([new Change(newScore)]);
+      }
     }
   }]);
 
@@ -585,7 +570,7 @@ function () {
         }
       }
 
-      return new Score();
+      return new Score(undefined, undefined, undefined, sourceClaimId);
     }
   }]);
 

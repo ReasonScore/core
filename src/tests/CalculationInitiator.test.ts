@@ -5,6 +5,7 @@ import { ID } from "../dataModels/Id";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
 import { Repository } from "../Repository";
 import { Affects } from "../dataModels/Affects";
+import { newId, Messenger } from "..";
 
 
 test('claim without any edges should have score of 1', () => {
@@ -96,4 +97,48 @@ test('Reversable', () => {
         new Change(new ClaimEdge(measuredClaim.id, childClaim1.id, Affects.Confidence, false)),
     ]);
     expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(-1);
+});
+
+test('Weird test case', () => {
+    const repo = new Repository();
+    const messenger = new Messenger();
+    const calcInitator = new CalculationInitator(repo, messenger.notify);
+    const topClaim = new Claim("Fiction City should convert Elm Street to only pedestrian traffic?", ID("1"));
+    const increaseBusiness = new Claim("The planning commission estimates this will increase foot traffic to local shops by 12% during peak hours.", ID("2"));
+    const increaseTraffic = new Claim("This will result in traffic being diverted down residential streets.", ID("Traffic"));
+    const childSafety = new Claim("Children safety is more important than profit for local shops.");
+    const newStreet = new Claim("A set of railroad tracks are no longer in use and the City can convert that to a new street.");
+    const costs = new Claim("The conversion will cost 2 Million dollars.");
+    const payoff = new Claim("The increase in revenue is expected to pay off the expense in under 2 years meeting the cities investment requirements.");
+
+    const testEdgeId = ID("TestEdge")
+
+    calcInitator.notify([
+        new Change(topClaim),
+        new Change(increaseBusiness),
+        new Change(new ClaimEdge(topClaim.id, increaseBusiness.id, Affects.Confidence, true)),
+        new Change(increaseTraffic),
+        new Change(new ClaimEdge(topClaim.id, increaseTraffic.id, Affects.Confidence, false, testEdgeId)),
+        new Change(childSafety),
+        new Change(new ClaimEdge(increaseTraffic.id, childSafety.id, Affects.Relevance, true)),
+        new Change(newStreet),
+        new Change(new ClaimEdge(increaseTraffic.id, newStreet.id, Affects.Confidence, false)),
+        new Change(costs),
+        new Change(new ClaimEdge(topClaim.id, costs.id, Affects.Confidence, false)),
+        new Change(payoff),
+        new Change(new ClaimEdge(increaseBusiness.id, payoff.id, Affects.Relevance, true)),
+    ]);
+    expect(repo.getScoreBySourceClaimId(topClaim.id).confidence).toBe(0.3333333333333333);
+
+    calcInitator.notify([
+        new Change(increaseTraffic),// Sending in a claim resets it's score to 1 incorrectly
+        new Change(new ClaimEdge(topClaim.id, increaseTraffic.id, Affects.Confidence, true, testEdgeId)),
+    ]);
+    expect(repo.getScoreBySourceClaimId(topClaim.id).confidence).toBe(0.3333333333333333);
+
+    calcInitator.notify([
+        new Change(new ClaimEdge(topClaim.id, increaseTraffic.id, Affects.Confidence, false, testEdgeId)),
+    ]);
+    expect(repo.getScoreBySourceClaimId(topClaim.id).confidence).toBe(0.3333333333333333);
+
 });

@@ -108,7 +108,7 @@ export class Repository {
                 return score;
             }
         }
-        return new Score();
+        return new Score(undefined,undefined,undefined,sourceClaimId);
     }
 
 }
