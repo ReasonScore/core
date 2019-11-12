@@ -388,9 +388,11 @@ function () {
   }, {
     key: "unsubscribe",
     value: function unsubscribe(callback) {
-      delete this.subscribers[this.subscribers.findIndex(function (item) {
-        return item == callback;
-      })];
+      var index = this.subscribers.indexOf(callback, 0);
+
+      if (index > -1) {
+        this.subscribers.splice(index, 1);
+      }
     }
     /** this function can be called by outside code to notfy this repository of changes */
 

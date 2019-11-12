@@ -9,7 +9,10 @@ export class Messenger {
     }
 
     unsubscribe(callback: (changes: Change[]) => void): void {
-        delete this.subscribers[this.subscribers.findIndex(item => item == callback)];
+        const index = this.subscribers.indexOf(callback, 0);
+        if (index > -1) {
+            this.subscribers.splice(index, 1);
+        }
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
@@ -20,5 +23,5 @@ export class Messenger {
         }
     }
 
- }
+}
 
