@@ -308,7 +308,7 @@ function () {
 
       if (parentItem) {
         var parentClaim = parentItem;
-        reversable = parentClaim.reversable;
+        reversable = parentClaim.reversible;
       } //Get all the claims for the parent to calculate the score
 
 
@@ -595,7 +595,7 @@ var Claim = function Claim() {
   var version = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : newId();
   var start = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : new Date().toISOString();
   var end = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : End;
-  var reversable = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
+  var reversible = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : false;
 
   _classCallCheck(this, Claim);
 
@@ -604,7 +604,7 @@ var Claim = function Claim() {
   this.version = version;
   this.start = start;
   this.end = end;
-  this.reversable = reversable;
+  this.reversible = reversible;
 
   _defineProperty(this, "type", Type.claim);
 };

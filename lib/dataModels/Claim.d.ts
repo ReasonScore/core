@@ -7,7 +7,7 @@ export declare class Claim implements Item {
     version: Id;
     start: string;
     end: string;
-    reversable: boolean;
+    reversible: boolean;
     type: Type;
-    constructor(content?: string, id?: Id, version?: Id, start?: string, end?: string, reversable?: boolean);
+    constructor(content?: string, id?: Id, version?: Id, start?: string, end?: string, reversible?: boolean);
 }

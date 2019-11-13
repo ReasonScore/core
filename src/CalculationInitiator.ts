@@ -7,11 +7,12 @@ import { calculateScore } from "./calculateScore";
 import { Score, differentScores } from "./dataModels/Score";
 import { Claim } from "./dataModels/Claim";
 import { Id } from "./dataModels/Id";
+import { iRepository } from "./dataModels/iRepository";
 
 export class CalculationInitator {
 
     constructor(
-        public repo: Repository,
+        public repo: iRepository,
         public subscriber: ((changes: Change[]) => void) | undefined = undefined
     ) {
     }
@@ -61,7 +62,7 @@ export class CalculationInitator {
         const parentItem = this.repo.getItem(parentId);
         if (parentItem) {
             const parentClaim = <Claim>parentItem;
-            reversable = parentClaim.reversable;
+            reversable = parentClaim.reversible;
         }
 
         //Get all the claims for the parent to calculate the score

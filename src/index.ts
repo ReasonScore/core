@@ -14,3 +14,4 @@ export * from "./dataModels/Id";
 export * from "./dataModels/Score";
 export * from "./dataModels/ScoreAndClaimEdge";
 export * from "./dataModels/Type";
+export * from "./dataModels/iRepository";

@@ -6,14 +6,15 @@ import { Score } from "./dataModels/Score";
 import { Id, ID } from "./dataModels/Id";
 import { Item } from "./dataModels/Item";
 import { RsData } from "./dataModels/RsData";
+import { iRepository } from "./dataModels/iRepository";
 
 
-export class Repository {
+export class Repository implements iRepository {
     public readonly rsData: RsData = new RsData();
     public readonly log: Change[][] = [];
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify(changes: Change[]) {
+    notify(changes: Change[]) : void {
         this.log.unshift(changes);
         for (const change of changes) {
             const newItem = change.newItem;
