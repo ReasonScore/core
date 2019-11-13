@@ -38,7 +38,6 @@ export class CalculationInitator {
             // Initiate calculations from a canged/new claim
             if (newItem.type == Type.claim) {
                 const claim = <Claim>newItem;
-                debugger;
                 this.CalculateByClaimId(claim.id);
             }
 

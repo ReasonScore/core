@@ -270,7 +270,6 @@ function () {
 
           if (newItem.type == exports.Type.claim) {
             var claim = newItem;
-            debugger;
             this.CalculateByClaimId(claim.id);
           } // Initiate calculations from a canged/new score
 
