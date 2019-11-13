@@ -31,4 +31,4 @@ export class ClaimEdge implements Item {
 }
 
         /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
-        //public reversable: boolean = false,
+        //public reversible: boolean = false,

@@ -128,8 +128,8 @@ var reasonscore_core = (function (exports) {
       var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
           _ref$scoreAndClaimEdg = _ref.scoreAndClaimEdges,
           scoreAndClaimEdges = _ref$scoreAndClaimEdg === void 0 ? [] : _ref$scoreAndClaimEdg,
-          _ref$reversable = _ref.reversable,
-          reversable = _ref$reversable === void 0 ? true : _ref$reversable,
+          _ref$reversible = _ref.reversible,
+          reversible = _ref$reversible === void 0 ? true : _ref$reversible,
           _ref$sourceClaimId = _ref.sourceClaimId,
           sourceClaimId = _ref$sourceClaimId === void 0 ? ID("") : _ref$sourceClaimId;
 
@@ -186,8 +186,8 @@ var reasonscore_core = (function (exports) {
         newScore.confidence = childrenConfidence / childrenRelevance;
       }
 
-      if (!reversable && newScore.confidence < 0) {
-        // If it is not reversable then do not let it go negative
+      if (!reversible && newScore.confidence < 0) {
+        // If it is not reversible then do not let it go negative
         newScore.confidence = 0;
       }
 
@@ -302,14 +302,14 @@ var reasonscore_core = (function (exports) {
         value: function CalculateByClaimId(parentId) {
           var _this3 = this;
 
-          var scoreAndClaimEdges = []; //Is parent reversable?
+          var scoreAndClaimEdges = []; //Is parent reversible?
 
-          var reversable = false;
+          var reversible = false;
           var parentItem = this.repo.getItem(parentId);
 
           if (parentItem) {
             var parentClaim = parentItem;
-            reversable = parentClaim.reversible;
+            reversible = parentClaim.reversible;
           } //Get all the claims for the parent to calculate the score
 
 
@@ -319,7 +319,7 @@ var reasonscore_core = (function (exports) {
           });
           var newScore = calculateScore({
             scoreAndClaimEdges: scoreAndClaimEdges,
-            reversable: reversable,
+            reversible: reversible,
             sourceClaimId: parentId
           });
           var oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
@@ -641,7 +641,7 @@ var reasonscore_core = (function (exports) {
       _defineProperty(this, "type", exports.Type.claimEdge);
     };
     /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
-    //public reversable: boolean = false,
+    //public reversible: boolean = false,
 
     exports.CalculationInitator = CalculationInitator;
     exports.Change = Change;

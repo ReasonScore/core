@@ -6,11 +6,11 @@ import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 /**
  * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for.
  */
-export function calculateScore({ scoreAndClaimEdges = [], reversable = true, sourceClaimId = ID("") }: {
+export function calculateScore({ scoreAndClaimEdges = [], reversible = true, sourceClaimId = ID("") }: {
     /** An array of grouped edges and claims*/
     scoreAndClaimEdges?: ScoreAndClaimEdge[];
     /** Can this score fall below a 0 confidence (have a negative confidence) */
-    reversable?: boolean;
+    reversible?: boolean;
     /** The ID of the claim we are creating a score for */
     sourceClaimId?: Id;
 } = {},
@@ -64,8 +64,8 @@ export function calculateScore({ scoreAndClaimEdges = [], reversable = true, sou
         newScore.confidence = childrenConfidence / childrenRelevance;
     }
 
-    if (!reversable && newScore.confidence < 0) {
-        // If it is not reversable then do not let it go negative
+    if (!reversible && newScore.confidence < 0) {
+        // If it is not reversible then do not let it go negative
         newScore.confidence = 0
     }
 

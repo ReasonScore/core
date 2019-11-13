@@ -74,7 +74,7 @@ test('Multiple children calculation', () => {
     expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(0);
 });
 
-test('Default Not Reversable', () => {
+test('Default Not Reversible', () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
@@ -87,7 +87,7 @@ test('Default Not Reversable', () => {
     expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(0);
 });
 
-test('Reversable', () => {
+test('Reversible', () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"), undefined, undefined, undefined, true);

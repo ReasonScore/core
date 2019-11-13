@@ -10,7 +10,7 @@ class TestData {
         public testDescription: string = "Test",
         public scoreAndClaimEdges: ScoreAndClaimEdge[] = [],
         public expectedScore: Score = new Score(),
-        public reversable: boolean = false,
+        public reversible: boolean = false,
     ) {
     }
 }
@@ -41,7 +41,7 @@ describe.each(JsonTestData)(
     (testJson) => {
         const t: TestData = JSON.parse(testJson);
         test(t.testDescription + ' Confidence', () => {
-            const result = calculateScore({ scoreAndClaimEdges: t.scoreAndClaimEdges, reversable: t.reversable });
+            const result = calculateScore({ scoreAndClaimEdges: t.scoreAndClaimEdges, reversible: t.reversible });
             expect(result.confidence).toBe(t.expectedScore.confidence)
         });
 

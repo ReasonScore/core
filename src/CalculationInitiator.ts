@@ -57,12 +57,12 @@ export class CalculationInitator {
     private CalculateByClaimId(parentId: Id): void {
         const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
 
-        //Is parent reversable?
-        let reversable = false;
+        //Is parent reversible?
+        let reversible = false;
         const parentItem = this.repo.getItem(parentId);
         if (parentItem) {
             const parentClaim = <Claim>parentItem;
-            reversable = parentClaim.reversible;
+            reversible = parentClaim.reversible;
         }
 
         //Get all the claims for the parent to calculate the score
@@ -75,7 +75,7 @@ export class CalculationInitator {
 
         const newScore = calculateScore({
             scoreAndClaimEdges: scoreAndClaimEdges,
-            reversable: reversable,
+            reversible: reversible,
             sourceClaimId: parentId
         });
 
