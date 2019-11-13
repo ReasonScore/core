@@ -1,7 +1,7 @@
 import { Affects } from "./Affects"
 import { Item } from "./Item";
 import { Type } from "./Type";
-import { newId } from "../newId";
+import { newId } from "../newId2";
 import End from "./End";
 import { Id } from "./Id";
 /**
