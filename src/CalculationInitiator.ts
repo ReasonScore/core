@@ -33,12 +33,12 @@ export class CalculationInitator {
             if (newItem.type == Type.claimEdge) {
                 const claimEdge = newItem as ClaimEdge;
                 this.CalculateByClaimId(claimEdge.parentId);
-
             }
 
             // Initiate calculations from a canged/new claim
             if (newItem.type == Type.claim) {
                 const claim = <Claim>newItem;
+                debugger;
                 this.CalculateByClaimId(claim.id);
             }
 

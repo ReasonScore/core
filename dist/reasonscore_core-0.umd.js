@@ -270,6 +270,7 @@ function () {
 
           if (newItem.type == exports.Type.claim) {
             var claim = newItem;
+            debugger;
             this.CalculateByClaimId(claim.id);
           } // Initiate calculations from a canged/new score
 
@@ -579,9 +580,12 @@ function () {
         if (score) {
           return score;
         }
-      }
+      } //If there is not an existing score then create it
 
-      return new Score(undefined, undefined, undefined, sourceClaimId);
+
+      var newScore = new Score(undefined, undefined, undefined, sourceClaimId);
+      this.notify([new Change(newScore)]);
+      return newScore;
     }
   }]);
 

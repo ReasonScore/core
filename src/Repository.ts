@@ -108,7 +108,11 @@ export class Repository {
                 return score;
             }
         }
-        return new Score(undefined,undefined,undefined,sourceClaimId);
+
+        //If there is not an existing score then create it
+        const newScore = new Score(undefined,undefined,undefined,sourceClaimId);
+        this.notify([new Change(newScore)]);
+        return newScore;
     }
 
 }

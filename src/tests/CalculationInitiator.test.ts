@@ -17,6 +17,7 @@ test('claim without any edges should have score of 1', () => {
     ]);
     expect(repo.getScoreBySourceClaimId(claim.id).sourceClaimId).toBe(claim.id);
     expect(repo.getScoreBySourceClaimId(claim.id).confidence).toBe(1);
+    expect(repo.log.length).toBe(2);
 
 });
 
