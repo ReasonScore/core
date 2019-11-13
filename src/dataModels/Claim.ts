@@ -1,6 +1,6 @@
 import { Item } from "./Item";
 import { Type } from "./Type";
-import { newId } from "../newId2";
+import { newId } from "../newId";
 import End from "./End";
 import { Id } from "./Id";
 

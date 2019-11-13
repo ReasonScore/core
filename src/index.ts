@@ -1,7 +1,7 @@
 export * from "./calculateScore";
 export * from "./CalculationInitiator";
 export * from "./Messenger";
-export * from "./newId2";
+export * from "./newId";
 export * from "./Repository";
 
 // Data Models

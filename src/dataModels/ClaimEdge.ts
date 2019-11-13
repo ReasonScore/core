@@ -2,7 +2,7 @@ import { Affects } from "./Affects"
 import { Item } from "./Item";
 import { Type } from "./Type";
 import End from "./End"
-import { newId } from "../newId2";
+import { newId } from "../newId";
 import { Id, ID } from "./Id";
 /**
  * Stores the relationship between two claims.
