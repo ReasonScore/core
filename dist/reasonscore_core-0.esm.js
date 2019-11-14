@@ -642,4 +642,4 @@ var ClaimEdge = function ClaimEdge() {
 /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
 //public reversible: boolean = false,
 
-export { Affects, CalculationInitator, Change, Claim, ClaimEdge, ID, Messenger, Repository, Score, ScoreAndClaimEdge, Type, calculateScore, differentScores, newId };
+export { Affects, CalculationInitator, Change, Claim, ClaimEdge, ID, Messenger, Repository, RsData, Score, ScoreAndClaimEdge, Type, calculateScore, differentScores, newId };

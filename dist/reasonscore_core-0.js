@@ -650,6 +650,7 @@ var reasonscore_core = (function (exports) {
     exports.ID = ID;
     exports.Messenger = Messenger;
     exports.Repository = Repository;
+    exports.RsData = RsData;
     exports.Score = Score;
     exports.ScoreAndClaimEdge = ScoreAndClaimEdge;
     exports.calculateScore = calculateScore;
