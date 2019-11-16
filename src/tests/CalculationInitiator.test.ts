@@ -8,36 +8,37 @@ import { Affects } from "../dataModels/Affects";
 import { newId, Messenger } from "..";
 
 
-test('claim without any edges should have score of 1', () => {
+test('claim without any edges should have score of 1', async () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const claim = new Claim("Measured Claim", ID("0"));
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(claim),
     ]);
-    expect(repo.getScoreBySourceClaimId(claim.id).sourceClaimId).toBe(claim.id);
-    expect(repo.getScoreBySourceClaimId(claim.id).confidence).toBe(1);
+    expect((await repo.getScoreBySourceClaimId(claim.id)).sourceClaimId).toBe(claim.id);
+    expect((await repo.getScoreBySourceClaimId(claim.id)).confidence).toBe(1);
     expect(repo.log.length).toBe(2);
 
 });
 
-test('claim with two con descendants should have a confidence of 0', () => {
+test.only('claim with two con descendants should have a confidence of 0', async () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
     const childClaim1 = new Claim("Child Claim 1", ID("childClaim1"));
     const descendantClaim = new Claim("Descendant Claim", ID("descendantClaim"));
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(measuredClaim),
         new Change(childClaim1),
         new Change(descendantClaim),
         new Change(new ClaimEdge(measuredClaim.id, childClaim1.id, Affects.Confidence, false)),
         new Change(new ClaimEdge(childClaim1.id, descendantClaim.id, Affects.Confidence, false)),
     ]);
-    expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(0);
+    debugger;
+    expect((await repo.getScoreBySourceClaimId(measuredClaim.id)).confidence).toBe(0);
 });
 
-test('claim with two con descendants and other children should have a confidence of 1', () => {
+test('claim with two con descendants and other children should have a confidence of 1', async () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
@@ -52,10 +53,10 @@ test('claim with two con descendants and other children should have a confidence
         new Change(new ClaimEdge(measuredClaim.id, childClaim2.id, Affects.Confidence, true)),
         new Change(new ClaimEdge(childClaim1.id, descendantClaim.id, Affects.Confidence, false)),
     ]);
-    expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(1);
+    expect((await repo.getScoreBySourceClaimId(measuredClaim.id)).confidence).toBe(1);
 });
 
-test('Multiple children calculation', () => {
+test('Multiple children calculation', async () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
@@ -71,10 +72,10 @@ test('Multiple children calculation', () => {
         new Change(new ClaimEdge(measuredClaim.id, childClaim2.id, Affects.Confidence, false)),
         new Change(new ClaimEdge(childClaim1.id, descendantClaim.id, Affects.Confidence, false)),
     ]);
-    expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(0);
+    expect((await repo.getScoreBySourceClaimId(measuredClaim.id)).confidence).toBe(0);
 });
 
-test('Default Not Reversible', () => {
+test('Default Not Reversible', async () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
@@ -84,10 +85,10 @@ test('Default Not Reversible', () => {
         new Change(childClaim1),
         new Change(new ClaimEdge(measuredClaim.id, childClaim1.id, Affects.Confidence, false)),
     ]);
-    expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(0);
+    expect((await repo.getScoreBySourceClaimId(measuredClaim.id)).confidence).toBe(0);
 });
 
-test('Reversible', () => {
+test('Reversible', async () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"), undefined, undefined, undefined, true);
@@ -97,10 +98,10 @@ test('Reversible', () => {
         new Change(childClaim1),
         new Change(new ClaimEdge(measuredClaim.id, childClaim1.id, Affects.Confidence, false)),
     ]);
-    expect(repo.getScoreBySourceClaimId(measuredClaim.id).confidence).toBe(-1);
+    expect((await repo.getScoreBySourceClaimId(measuredClaim.id)).confidence).toBe(-1);
 });
 
-test('Weird test case', () => {
+test('Weird test case', async () => {
     const repo = new Repository();
     const messenger = new Messenger();
     const calcInitator = new CalculationInitator(repo, messenger.notify);
@@ -129,17 +130,17 @@ test('Weird test case', () => {
         new Change(payoff),
         new Change(new ClaimEdge(increaseBusiness.id, payoff.id, Affects.Relevance, true)),
     ]);
-    expect(repo.getScoreBySourceClaimId(topClaim.id).confidence).toBe(0.3333333333333333);
+    expect((await repo.getScoreBySourceClaimId(topClaim.id)).confidence).toBe(0.3333333333333333);
 
     calcInitator.notify([
         new Change(increaseTraffic),// Sending in a claim resets it's score to 1 incorrectly
         new Change(new ClaimEdge(topClaim.id, increaseTraffic.id, Affects.Confidence, true, testEdgeId)),
     ]);
-    expect(repo.getScoreBySourceClaimId(topClaim.id).confidence).toBe(0.3333333333333333);
+    expect((await repo.getScoreBySourceClaimId(topClaim.id)).confidence).toBe(0.3333333333333333);
 
     calcInitator.notify([
         new Change(new ClaimEdge(topClaim.id, increaseTraffic.id, Affects.Confidence, false, testEdgeId)),
     ]);
-    expect(repo.getScoreBySourceClaimId(topClaim.id).confidence).toBe(0.3333333333333333);
+    expect((await repo.getScoreBySourceClaimId(topClaim.id)).confidence).toBe(0.3333333333333333);
 
 });
