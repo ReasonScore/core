@@ -5,31 +5,39 @@ import { Change } from "./dataModels/Change";
 import { Score } from "./dataModels/Score";
 import { Id, ID } from "./dataModels/Id";
 import { Item } from "./dataModels/Item";
-import { RsData } from "./dataModels/RsData";
+import { RsData, VersionDate } from "./dataModels/RsData";
 import { iRepository } from "./dataModels/iRepository";
 
 
 export class Repository implements iRepository {
-    public readonly rsData: RsData = new RsData();
+    public rsData: RsData = new RsData();
     public readonly log: Change[][] = [];
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify(changes: Change[]) : void {
+    notify(changes: Change[]): void {
         this.log.unshift(changes);
         for (const change of changes) {
             const newItem = change.newItem;
             const idString = newItem.id.toString();
+            const currentWhen = new Date().toISOString();
 
             //Change the end date on the previous version of this item to now
-            const oldItems = this.rsData.items[idString]
+            const oldItems = this.rsData.versionIdByItemId[idString]
             if (oldItems && oldItems.length > 0) {
-                oldItems[0].end = new Date().toISOString();
+                oldItems[0].end = currentWhen;
+                const oldItem = this.rsData.versions[oldItems[0].ItemIdString]
+                if (oldItem) {
+                    oldItem.end = oldItems[0].end;
+                }
             } else {
-                this.rsData.items[idString] = [];
+                this.rsData.versionIdByItemId[idString] = [];
             }
 
             // add the new item to the list of items
-            this.rsData.items[idString].unshift(change.newItem);
+            this.rsData.versions[newItem.version.toString()] = newItem;
+            this.rsData.versionIdByItemId[idString].unshift(
+                new VersionDate(newItem.version.toString(), newItem.start, newItem.end)
+                );
 
             //Index Claim Edges
             if (change.newItem.type == Type.claimEdge) {
@@ -73,14 +81,20 @@ export class Repository implements iRepository {
     private getItemsForArray(itemIds: string[]): Item[] {
         const result: Item[] = [];
         for (const itemId of itemIds) {
-            result.push(this.rsData.items[itemId][0]);
+            const item = this.getItem(ID(itemId));
+            if (item) {
+                result.push(item);
+            }
         }
         return result;
     }
 
     getItem(ItemId: Id, when: string = End): Item | undefined {
-        return this.rsData.items[ItemId.toString()].find(e =>
+        const VersionDate = this.rsData.versionIdByItemId[ItemId.toString()].find(e =>
             e.end >= End);
+        if (VersionDate) {
+            return this.rsData.versions[VersionDate.ItemIdString];
+        }
     }
 
     getClaimEdgesByParentId(parentId: Id, when: string = End): ClaimEdge[] {
@@ -111,7 +125,7 @@ export class Repository implements iRepository {
         }
 
         //If there is not an existing score then create it
-        const newScore = new Score(undefined,undefined,undefined,sourceClaimId);
+        const newScore = new Score(undefined, undefined, undefined, sourceClaimId);
         this.notify([new Change(newScore)]);
         return newScore;
     }

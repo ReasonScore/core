@@ -6,7 +6,7 @@ import { Item } from "./dataModels/Item";
 import { RsData } from "./dataModels/RsData";
 import { iRepository } from "./dataModels/iRepository";
 export declare class Repository implements iRepository {
-    readonly rsData: RsData;
+    rsData: RsData;
     readonly log: Change[][];
     /** this function can be called by outside code to notfy this repository of changes */
     notify(changes: Change[]): void;
