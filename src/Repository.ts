@@ -78,10 +78,10 @@ export class Repository implements iRepository {
     }
 
 
-    private getItemsForArray(itemIds: string[]): Item[] {
+    private async getItemsForArray(itemIds: string[]) {
         const result: Item[] = [];
         for (const itemId of itemIds) {
-            const item = this.getItem(ID(itemId));
+            const item = await this.getItem(ID(itemId));
             if (item) {
                 result.push(item);
             }
@@ -100,7 +100,7 @@ export class Repository implements iRepository {
     async getClaimEdgesByParentId(parentId: Id, when: string = End): Promise<ClaimEdge[]> {
         const claimEdgeIds = this.rsData.claimEdgesByParentId[parentId.toString()];
         if (claimEdgeIds) {
-            return <ClaimEdge[]>this.getItemsForArray(claimEdgeIds)
+            return <ClaimEdge[]> await this.getItemsForArray(claimEdgeIds)
         } else {
             return [];
         }
@@ -109,7 +109,7 @@ export class Repository implements iRepository {
     async getClaimEdgesByChildId(childId: Id, when: string = End): Promise<ClaimEdge[]> {
         const claimEdgeIds = this.rsData.claimEdgesByChildId[childId.toString()];
         if (claimEdgeIds) {
-            return <ClaimEdge[]>this.getItemsForArray(claimEdgeIds)
+            return <ClaimEdge[]> await this.getItemsForArray(claimEdgeIds)
         } else {
             return [];
         }
@@ -118,7 +118,7 @@ export class Repository implements iRepository {
     async getScoreBySourceClaimId(sourceClaimId: Id, when: string = End): Promise<Score> {
         const scoreIdString = this.rsData.scoreBySourceClaimId[sourceClaimId.toString()];
         if (scoreIdString) {
-            const score = <Score>await this.getItem(ID(scoreIdString));
+            const score = <Score> await this.getItem(ID(scoreIdString));
             if (score) {
                 return score;
             }
