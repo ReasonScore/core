@@ -47,16 +47,16 @@ export class CalculationInitator {
                 const score = <Score>newItem;
                 // Get all the claimEdges that have this score's SourceClaimId as the child and re calculate them
                 const claimseEdges = await this.repo.getClaimEdgesByChildId(score.sourceClaimId);
-                claimseEdges.forEach(async claimEdge => {
+                if(score.sourceClaimId.toString() == "measuredClaim") debugger;
+                for (const claimEdge of claimseEdges) {
                     await this.CalculateByClaimId(claimEdge.parentId);
-                })
+                }
             }
         }
     }
 
     private async CalculateByClaimId(parentId: Id) {
         const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
-debugger
         //Is parent reversible?
         let reversible = false;
         const parentItem = await this.repo.getItem(parentId);
@@ -67,11 +67,12 @@ debugger
 
         //Get all the claims for the parent to calculate the score
         const claimseEdges = await this.repo.getClaimEdgesByParentId(parentId);
-        claimseEdges.forEach(async c => {
+        for (const claimseEdge of claimseEdges) {
+            const scoreItem = await this.repo.getScoreBySourceClaimId(claimseEdge.childId)
             scoreAndClaimEdges.push(
-                new ScoreAndClaimEdge(<Score>await this.repo.getScoreBySourceClaimId(c.childId), c)
+                new ScoreAndClaimEdge(<Score>scoreItem, claimseEdge)
             );
-        });
+        }
 
         const newScore = calculateScore({
             scoreAndClaimEdges: scoreAndClaimEdges,
@@ -86,6 +87,7 @@ debugger
                 await this.notify([new Change(newScore, oldScore)]);
             }
         } else {
+
             await this.notify([new Change(newScore)]);
         }
     }

@@ -21,7 +21,7 @@ test('claim without any edges should have score of 1', async () => {
 
 });
 
-test.only('claim with two con descendants should have a confidence of 0', async () => {
+test('claim with two con descendants should have a confidence of 0', async () => {
     const repo = new Repository();
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
@@ -63,7 +63,7 @@ test('Multiple children calculation', async () => {
     const childClaim1 = new Claim("Child Claim 1", ID("childClaim1"));
     const childClaim2 = new Claim("Child Claim 2", ID("childClaim2"));
     const descendantClaim = new Claim("Descendant Claim", ID("descendantClaim"));
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(measuredClaim),
         new Change(childClaim1),
         new Change(childClaim2),
@@ -80,7 +80,7 @@ test('Default Not Reversible', async () => {
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"));
     const childClaim1 = new Claim("Child Claim 1", ID("childClaim1"));
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(measuredClaim),
         new Change(childClaim1),
         new Change(new ClaimEdge(measuredClaim.id, childClaim1.id, Affects.Confidence, false)),
@@ -93,7 +93,7 @@ test('Reversible', async () => {
     const calcInitator = new CalculationInitator(repo);
     const measuredClaim = new Claim("Measured Claim", ID("measuredClaim"), undefined, undefined, undefined, true);
     const childClaim1 = new Claim("Child Claim 1", ID("childClaim1"));
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(measuredClaim),
         new Change(childClaim1),
         new Change(new ClaimEdge(measuredClaim.id, childClaim1.id, Affects.Confidence, false)),
@@ -115,7 +115,7 @@ test('Weird test case', async () => {
 
     const testEdgeId = ID("TestEdge")
 
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(topClaim),
         new Change(increaseBusiness),
         new Change(new ClaimEdge(topClaim.id, increaseBusiness.id, Affects.Confidence, true)),
@@ -132,13 +132,13 @@ test('Weird test case', async () => {
     ]);
     expect((await repo.getScoreBySourceClaimId(topClaim.id)).confidence).toBe(0.3333333333333333);
 
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(increaseTraffic),// Sending in a claim resets it's score to 1 incorrectly
         new Change(new ClaimEdge(topClaim.id, increaseTraffic.id, Affects.Confidence, true, testEdgeId)),
     ]);
     expect((await repo.getScoreBySourceClaimId(topClaim.id)).confidence).toBe(0.3333333333333333);
 
-    calcInitator.notify([
+    await calcInitator.notify([
         new Change(new ClaimEdge(topClaim.id, increaseTraffic.id, Affects.Confidence, false, testEdgeId)),
     ]);
     expect((await repo.getScoreBySourceClaimId(topClaim.id)).confidence).toBe(0.3333333333333333);
