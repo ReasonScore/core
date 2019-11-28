@@ -3,8 +3,8 @@ import { Item } from "./Item";
 
 export interface iRepository {
     notify(changes: Change[]): void
-    getItem(ItemId: Id, when?: string): Item | undefined
-    getClaimEdgesByParentId(parentId: Id, when?: string): ClaimEdge[]
-    getClaimEdgesByChildId(childId: Id, when?: string): ClaimEdge[]
-    getScoreBySourceClaimId(sourceClaimId: Id, when?: string): Score
+    getItem(ItemId: Id, when?: string): Promise<Item | undefined>
+    getClaimEdgesByParentId(parentId: Id, when?: string): Promise<ClaimEdge[]>
+    getClaimEdgesByChildId(childId: Id, when?: string): Promise<ClaimEdge[]>
+    getScoreBySourceClaimId(sourceClaimId: Id, when?: string): Promise<Score>
 }

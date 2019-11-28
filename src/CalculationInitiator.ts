@@ -18,60 +18,61 @@ export class CalculationInitator {
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify = (changes: Change[]) => {
-        this.repo.notify(changes);
+    async notify(changes: Change[]) {
+        await this.repo.notify(changes);
         if (this.subscriber) {
             this.subscriber(changes);
         }
-        this.CalculationInitiator(changes);
+        await this.CalculationInitiator(changes);
     }
 
-    private CalculationInitiator(changes: Change[]): void {
+    private async CalculationInitiator(changes: Change[]) {
         for (const change of changes) {
             const { newItem, oldItem } = change;
 
             // Initiate calculations from a changed/new claim Edge
             if (newItem.type == Type.claimEdge) {
                 const claimEdge = newItem as ClaimEdge;
-                this.CalculateByClaimId(claimEdge.parentId);
+                await this.CalculateByClaimId(claimEdge.parentId);
             }
 
             // Initiate calculations from a canged/new claim
             if (newItem.type == Type.claim) {
                 const claim = <Claim>newItem;
-                this.CalculateByClaimId(claim.id);
+                await this.CalculateByClaimId(claim.id);
             }
 
             // Initiate calculations from a canged/new score
             if (newItem.type == Type.score) {
                 const score = <Score>newItem;
                 // Get all the claimEdges that have this score's SourceClaimId as the child and re calculate them
-                const claimseEdges = this.repo.getClaimEdgesByChildId(score.sourceClaimId);
-                claimseEdges.forEach(claimEdge => {
-                    this.CalculateByClaimId(claimEdge.parentId);
-                })
+                const claimseEdges = await this.repo.getClaimEdgesByChildId(score.sourceClaimId);
+                if(score.sourceClaimId.toString() == "measuredClaim") debugger;
+                for (const claimEdge of claimseEdges) {
+                    await this.CalculateByClaimId(claimEdge.parentId);
+                }
             }
         }
     }
 
-    private CalculateByClaimId(parentId: Id): void {
+    private async CalculateByClaimId(parentId: Id) {
         const scoreAndClaimEdges: ScoreAndClaimEdge[] = [];
-
         //Is parent reversible?
         let reversible = false;
-        const parentItem = this.repo.getItem(parentId);
+        const parentItem = await this.repo.getItem(parentId);
         if (parentItem) {
             const parentClaim = <Claim>parentItem;
             reversible = parentClaim.reversible;
         }
 
         //Get all the claims for the parent to calculate the score
-        const claimseEdges = this.repo.getClaimEdgesByParentId(parentId);
-        claimseEdges.forEach(c => {
+        const claimseEdges = await this.repo.getClaimEdgesByParentId(parentId);
+        for (const claimseEdge of claimseEdges) {
+            const scoreItem = await this.repo.getScoreBySourceClaimId(claimseEdge.childId)
             scoreAndClaimEdges.push(
-                new ScoreAndClaimEdge(<Score>this.repo.getScoreBySourceClaimId(c.childId), c)
+                new ScoreAndClaimEdge(<Score>scoreItem, claimseEdge)
             );
-        });
+        }
 
         const newScore = calculateScore({
             scoreAndClaimEdges: scoreAndClaimEdges,
@@ -79,14 +80,15 @@ export class CalculationInitator {
             sourceClaimId: parentId
         });
 
-        const oldScore = this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
+        const oldScore = await this.repo.getScoreBySourceClaimId(newScore.sourceClaimId)
         if (oldScore) {
             if (differentScores(oldScore, newScore)) {
                 newScore.id = oldScore.id;
-                this.notify([new Change(newScore, oldScore)]);
+                await this.notify([new Change(newScore, oldScore)]);
             }
         } else {
-            this.notify([new Change(newScore)]);
+
+            await this.notify([new Change(newScore)]);
         }
     }
 

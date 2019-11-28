@@ -14,7 +14,7 @@ export class Repository implements iRepository {
     public readonly log: Change[][] = [];
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify(changes: Change[]): void {
+    async notify(changes: Change[]) {
         this.log.unshift(changes);
         for (const change of changes) {
             const newItem = change.newItem;
@@ -37,7 +37,7 @@ export class Repository implements iRepository {
             this.rsData.versions[newItem.version.toString()] = newItem;
             this.rsData.versionIdByItemId[idString].unshift(
                 new VersionDate(newItem.version.toString(), newItem.start, newItem.end)
-                );
+            );
 
             //Index Claim Edges
             if (change.newItem.type == Type.claimEdge) {
@@ -89,7 +89,7 @@ export class Repository implements iRepository {
         return result;
     }
 
-    getItem(ItemId: Id, when: string = End): Item | undefined {
+    async getItem(ItemId: Id, when: string = End): Promise<Item | undefined> {
         const VersionDate = this.rsData.versionIdByItemId[ItemId.toString()].find(e =>
             e.end >= End);
         if (VersionDate) {
@@ -97,7 +97,7 @@ export class Repository implements iRepository {
         }
     }
 
-    getClaimEdgesByParentId(parentId: Id, when: string = End): ClaimEdge[] {
+    async getClaimEdgesByParentId(parentId: Id, when: string = End): Promise<ClaimEdge[]> {
         const claimEdgeIds = this.rsData.claimEdgesByParentId[parentId.toString()];
         if (claimEdgeIds) {
             return <ClaimEdge[]>this.getItemsForArray(claimEdgeIds)
@@ -106,7 +106,7 @@ export class Repository implements iRepository {
         }
     }
 
-    getClaimEdgesByChildId(childId: Id, when: string = End): ClaimEdge[] {
+    async getClaimEdgesByChildId(childId: Id, when: string = End): Promise<ClaimEdge[]> {
         const claimEdgeIds = this.rsData.claimEdgesByChildId[childId.toString()];
         if (claimEdgeIds) {
             return <ClaimEdge[]>this.getItemsForArray(claimEdgeIds)
@@ -115,10 +115,10 @@ export class Repository implements iRepository {
         }
     }
 
-    getScoreBySourceClaimId(sourceClaimId: Id, when: string = End): Score {
+    async getScoreBySourceClaimId(sourceClaimId: Id, when: string = End): Promise<Score> {
         const scoreIdString = this.rsData.scoreBySourceClaimId[sourceClaimId.toString()];
         if (scoreIdString) {
-            const score = <Score>this.getItem(ID(scoreIdString));
+            const score = <Score>await this.getItem(ID(scoreIdString));
             if (score) {
                 return score;
             }
@@ -126,7 +126,7 @@ export class Repository implements iRepository {
 
         //If there is not an existing score then create it
         const newScore = new Score(undefined, undefined, undefined, sourceClaimId);
-        this.notify([new Change(newScore)]);
+        await this.notify([new Change(newScore)]);
         return newScore;
     }
 
