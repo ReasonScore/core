@@ -854,23 +854,32 @@ function () {
   }, {
     key: "getItem",
     value: function getItem(ItemId) {
-      var VersionDate;
+      var versionData,
+          _VersionDate;
+
       return regeneratorRuntime.async(function getItem$(_context3) {
         while (1) {
           switch (_context3.prev = _context3.next) {
             case 0:
-              VersionDate = this.rsData.versionIdByItemId[ItemId.toString()].find(function (e) {
-                return e.end >= End;
-              });
+              versionData = this.rsData.versionIdByItemId[ItemId.toString()];
 
-              if (!VersionDate) {
-                _context3.next = 4;
+              if (!versionData) {
+                _context3.next = 6;
                 break;
               }
 
-              return _context3.abrupt("return", this.rsData.versions[VersionDate.ItemIdString]);
+              _VersionDate = this.rsData.versionIdByItemId[ItemId.toString()].find(function (e) {
+                return e.end >= End;
+              });
 
-            case 4:
+              if (!_VersionDate) {
+                _context3.next = 6;
+                break;
+              }
+
+              return _context3.abrupt("return", this.rsData.versions[_VersionDate.ItemIdString]);
+
+            case 6:
             case "end":
               return _context3.stop();
           }
