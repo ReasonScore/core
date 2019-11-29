@@ -11,42 +11,6 @@ Object.defineProperty(exports, '__esModule', { value: true });
   Affects["Relevance"] = "relevance";
 })(exports.Affects || (exports.Affects = {}));
 
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
-  try {
-    var info = gen[key](arg);
-    var value = info.value;
-  } catch (error) {
-    reject(error);
-    return;
-  }
-
-  if (info.done) {
-    resolve(value);
-  } else {
-    Promise.resolve(value).then(_next, _throw);
-  }
-}
-
-function _asyncToGenerator(fn) {
-  return function () {
-    var self = this,
-        args = arguments;
-    return new Promise(function (resolve, reject) {
-      var gen = fn.apply(self, args);
-
-      function _next(value) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
-      }
-
-      function _throw(err) {
-        asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
-      }
-
-      _next(undefined);
-    });
-  };
-}
-
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -273,346 +237,316 @@ function () {
 
   _createClass(CalculationInitator, [{
     key: "notify",
-    value: function () {
-      var _notify = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee(changes) {
-        return regeneratorRuntime.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                _context.next = 2;
-                return this.repo.notify(changes);
+    value: function notify(changes) {
+      return regeneratorRuntime.async(function notify$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              _context.next = 2;
+              return regeneratorRuntime.awrap(this.repo.notify(changes));
 
-              case 2:
-                if (this.subscriber) {
-                  this.subscriber(changes);
-                }
+            case 2:
+              if (this.subscriber) {
+                this.subscriber(changes);
+              }
 
-                _context.next = 5;
-                return this.CalculationInitiator(changes);
+              _context.next = 5;
+              return regeneratorRuntime.awrap(this.CalculationInitiator(changes));
 
-              case 5:
-              case "end":
-                return _context.stop();
-            }
+            case 5:
+            case "end":
+              return _context.stop();
           }
-        }, _callee, this);
-      }));
-
-      function notify(_x) {
-        return _notify.apply(this, arguments);
-      }
-
-      return notify;
-    }()
+        }
+      }, null, this);
+    }
   }, {
     key: "CalculationInitiator",
-    value: function () {
-      var _CalculationInitiator = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee2(changes) {
-        var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, change, newItem, oldItemVersion, claimEdge, claim, score, claimseEdges, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _claimEdge;
+    value: function CalculationInitiator(changes) {
+      var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, change, newItem, oldItemVersion, claimEdge, claim, score, claimseEdges, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, _claimEdge;
 
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _iteratorNormalCompletion = true;
-                _didIteratorError = false;
-                _iteratorError = undefined;
-                _context2.prev = 3;
-                _iterator = changes[Symbol.iterator]();
+      return regeneratorRuntime.async(function CalculationInitiator$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              _iteratorNormalCompletion = true;
+              _didIteratorError = false;
+              _iteratorError = undefined;
+              _context2.prev = 3;
+              _iterator = changes[Symbol.iterator]();
 
-              case 5:
-                if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-                  _context2.next = 51;
-                  break;
-                }
+            case 5:
+              if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+                _context2.next = 51;
+                break;
+              }
 
-                change = _step.value;
-                newItem = change.newItem, oldItemVersion = change.oldItemVersion; // Initiate calculations from a changed/new claim Edge
+              change = _step.value;
+              newItem = change.newItem, oldItemVersion = change.oldItemVersion; // Initiate calculations from a changed/new claim Edge
 
-                if (!(newItem.type == exports.Type.claimEdge)) {
-                  _context2.next = 12;
-                  break;
-                }
-
-                claimEdge = newItem;
+              if (!(newItem.type == exports.Type.claimEdge)) {
                 _context2.next = 12;
-                return this.CalculateByClaimId(claimEdge.parentId);
+                break;
+              }
 
-              case 12:
-                if (!(newItem.type == exports.Type.claim)) {
-                  _context2.next = 16;
-                  break;
-                }
+              claimEdge = newItem;
+              _context2.next = 12;
+              return regeneratorRuntime.awrap(this.CalculateByClaimId(claimEdge.parentId));
 
-                claim = newItem;
+            case 12:
+              if (!(newItem.type == exports.Type.claim)) {
                 _context2.next = 16;
-                return this.CalculateByClaimId(claim.id);
-
-              case 16:
-                if (!(newItem.type == exports.Type.score)) {
-                  _context2.next = 48;
-                  break;
-                }
-
-                score = newItem; // Get all the claimEdges that have this score's SourceClaimId as the child and re calculate them
-
-                _context2.next = 20;
-                return this.repo.getClaimEdgesByChildId(score.sourceClaimId);
-
-              case 20:
-                claimseEdges = _context2.sent;
-                if (score.sourceClaimId.toString() == "measuredClaim") debugger;
-                _iteratorNormalCompletion2 = true;
-                _didIteratorError2 = false;
-                _iteratorError2 = undefined;
-                _context2.prev = 25;
-                _iterator2 = claimseEdges[Symbol.iterator]();
-
-              case 27:
-                if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-                  _context2.next = 34;
-                  break;
-                }
-
-                _claimEdge = _step2.value;
-                _context2.next = 31;
-                return this.CalculateByClaimId(_claimEdge.parentId);
-
-              case 31:
-                _iteratorNormalCompletion2 = true;
-                _context2.next = 27;
                 break;
+              }
 
-              case 34:
-                _context2.next = 40;
+              claim = newItem;
+              _context2.next = 16;
+              return regeneratorRuntime.awrap(this.CalculateByClaimId(claim.id));
+
+            case 16:
+              if (!(newItem.type == exports.Type.score)) {
+                _context2.next = 48;
                 break;
+              }
 
-              case 36:
-                _context2.prev = 36;
-                _context2.t0 = _context2["catch"](25);
-                _didIteratorError2 = true;
-                _iteratorError2 = _context2.t0;
+              score = newItem; // Get all the claimEdges that have this score's SourceClaimId as the child and re calculate them
 
-              case 40:
-                _context2.prev = 40;
-                _context2.prev = 41;
+              _context2.next = 20;
+              return regeneratorRuntime.awrap(this.repo.getClaimEdgesByChildId(score.sourceClaimId));
 
-                if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-                  _iterator2["return"]();
-                }
+            case 20:
+              claimseEdges = _context2.sent;
+              if (score.sourceClaimId.toString() == "measuredClaim") debugger;
+              _iteratorNormalCompletion2 = true;
+              _didIteratorError2 = false;
+              _iteratorError2 = undefined;
+              _context2.prev = 25;
+              _iterator2 = claimseEdges[Symbol.iterator]();
 
-              case 43:
-                _context2.prev = 43;
-
-                if (!_didIteratorError2) {
-                  _context2.next = 46;
-                  break;
-                }
-
-                throw _iteratorError2;
-
-              case 46:
-                return _context2.finish(43);
-
-              case 47:
-                return _context2.finish(40);
-
-              case 48:
-                _iteratorNormalCompletion = true;
-                _context2.next = 5;
+            case 27:
+              if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
+                _context2.next = 34;
                 break;
+              }
 
-              case 51:
-                _context2.next = 57;
+              _claimEdge = _step2.value;
+              _context2.next = 31;
+              return regeneratorRuntime.awrap(this.CalculateByClaimId(_claimEdge.parentId));
+
+            case 31:
+              _iteratorNormalCompletion2 = true;
+              _context2.next = 27;
+              break;
+
+            case 34:
+              _context2.next = 40;
+              break;
+
+            case 36:
+              _context2.prev = 36;
+              _context2.t0 = _context2["catch"](25);
+              _didIteratorError2 = true;
+              _iteratorError2 = _context2.t0;
+
+            case 40:
+              _context2.prev = 40;
+              _context2.prev = 41;
+
+              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+                _iterator2["return"]();
+              }
+
+            case 43:
+              _context2.prev = 43;
+
+              if (!_didIteratorError2) {
+                _context2.next = 46;
                 break;
+              }
 
-              case 53:
-                _context2.prev = 53;
-                _context2.t1 = _context2["catch"](3);
-                _didIteratorError = true;
-                _iteratorError = _context2.t1;
+              throw _iteratorError2;
 
-              case 57:
-                _context2.prev = 57;
-                _context2.prev = 58;
+            case 46:
+              return _context2.finish(43);
 
-                if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                  _iterator["return"]();
-                }
+            case 47:
+              return _context2.finish(40);
 
-              case 60:
-                _context2.prev = 60;
+            case 48:
+              _iteratorNormalCompletion = true;
+              _context2.next = 5;
+              break;
 
-                if (!_didIteratorError) {
-                  _context2.next = 63;
-                  break;
-                }
+            case 51:
+              _context2.next = 57;
+              break;
 
-                throw _iteratorError;
+            case 53:
+              _context2.prev = 53;
+              _context2.t1 = _context2["catch"](3);
+              _didIteratorError = true;
+              _iteratorError = _context2.t1;
 
-              case 63:
-                return _context2.finish(60);
+            case 57:
+              _context2.prev = 57;
+              _context2.prev = 58;
 
-              case 64:
-                return _context2.finish(57);
+              if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+                _iterator["return"]();
+              }
 
-              case 65:
-              case "end":
-                return _context2.stop();
-            }
+            case 60:
+              _context2.prev = 60;
+
+              if (!_didIteratorError) {
+                _context2.next = 63;
+                break;
+              }
+
+              throw _iteratorError;
+
+            case 63:
+              return _context2.finish(60);
+
+            case 64:
+              return _context2.finish(57);
+
+            case 65:
+            case "end":
+              return _context2.stop();
           }
-        }, _callee2, this, [[3, 53, 57, 65], [25, 36, 40, 48], [41,, 43, 47], [58,, 60, 64]]);
-      }));
-
-      function CalculationInitiator(_x2) {
-        return _CalculationInitiator.apply(this, arguments);
-      }
-
-      return CalculationInitiator;
-    }()
+        }
+      }, null, this, [[3, 53, 57, 65], [25, 36, 40, 48], [41,, 43, 47], [58,, 60, 64]]);
+    }
   }, {
     key: "CalculateByClaimId",
-    value: function () {
-      var _CalculateByClaimId = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee3(parentId) {
-        var scoreAndClaimEdges, reversible, parentItem, parentClaim, claimseEdges, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, claimseEdge, scoreItem, newScore, oldScore;
+    value: function CalculateByClaimId(parentId) {
+      var scoreAndClaimEdges, reversible, parentItem, parentClaim, claimseEdges, _iteratorNormalCompletion3, _didIteratorError3, _iteratorError3, _iterator3, _step3, claimseEdge, scoreItem, newScore, oldScore;
 
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                scoreAndClaimEdges = []; //Is parent reversible?
+      return regeneratorRuntime.async(function CalculateByClaimId$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              scoreAndClaimEdges = []; //Is parent reversible?
 
-                reversible = false;
-                _context3.next = 4;
-                return this.repo.getItem(parentId);
+              reversible = false;
+              _context3.next = 4;
+              return regeneratorRuntime.awrap(this.repo.getItem(parentId));
 
-              case 4:
-                parentItem = _context3.sent;
+            case 4:
+              parentItem = _context3.sent;
 
-                if (parentItem) {
-                  parentClaim = parentItem;
-                  reversible = parentClaim.reversible;
-                } //Get all the claims for the parent to calculate the score
+              if (parentItem) {
+                parentClaim = parentItem;
+                reversible = parentClaim.reversible;
+              } //Get all the claims for the parent to calculate the score
 
 
-                _context3.next = 8;
-                return this.repo.getClaimEdgesByParentId(parentId);
+              _context3.next = 8;
+              return regeneratorRuntime.awrap(this.repo.getClaimEdgesByParentId(parentId));
 
-              case 8:
-                claimseEdges = _context3.sent;
-                _iteratorNormalCompletion3 = true;
-                _didIteratorError3 = false;
-                _iteratorError3 = undefined;
-                _context3.prev = 12;
-                _iterator3 = claimseEdges[Symbol.iterator]();
+            case 8:
+              claimseEdges = _context3.sent;
+              _iteratorNormalCompletion3 = true;
+              _didIteratorError3 = false;
+              _iteratorError3 = undefined;
+              _context3.prev = 12;
+              _iterator3 = claimseEdges[Symbol.iterator]();
 
-              case 14:
-                if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
-                  _context3.next = 23;
-                  break;
-                }
-
-                claimseEdge = _step3.value;
-                _context3.next = 18;
-                return this.repo.getScoreBySourceClaimId(claimseEdge.childId);
-
-              case 18:
-                scoreItem = _context3.sent;
-                scoreAndClaimEdges.push(new ScoreAndClaimEdge(scoreItem, claimseEdge));
-
-              case 20:
-                _iteratorNormalCompletion3 = true;
-                _context3.next = 14;
+            case 14:
+              if (_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done) {
+                _context3.next = 23;
                 break;
+              }
 
-              case 23:
-                _context3.next = 29;
+              claimseEdge = _step3.value;
+              _context3.next = 18;
+              return regeneratorRuntime.awrap(this.repo.getScoreBySourceClaimId(claimseEdge.childId));
+
+            case 18:
+              scoreItem = _context3.sent;
+              scoreAndClaimEdges.push(new ScoreAndClaimEdge(scoreItem, claimseEdge));
+
+            case 20:
+              _iteratorNormalCompletion3 = true;
+              _context3.next = 14;
+              break;
+
+            case 23:
+              _context3.next = 29;
+              break;
+
+            case 25:
+              _context3.prev = 25;
+              _context3.t0 = _context3["catch"](12);
+              _didIteratorError3 = true;
+              _iteratorError3 = _context3.t0;
+
+            case 29:
+              _context3.prev = 29;
+              _context3.prev = 30;
+
+              if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
+                _iterator3["return"]();
+              }
+
+            case 32:
+              _context3.prev = 32;
+
+              if (!_didIteratorError3) {
+                _context3.next = 35;
                 break;
+              }
 
-              case 25:
-                _context3.prev = 25;
-                _context3.t0 = _context3["catch"](12);
-                _didIteratorError3 = true;
-                _iteratorError3 = _context3.t0;
+              throw _iteratorError3;
 
-              case 29:
-                _context3.prev = 29;
-                _context3.prev = 30;
+            case 35:
+              return _context3.finish(32);
 
-                if (!_iteratorNormalCompletion3 && _iterator3["return"] != null) {
-                  _iterator3["return"]();
-                }
+            case 36:
+              return _context3.finish(29);
 
-              case 32:
-                _context3.prev = 32;
+            case 37:
+              newScore = calculateScore({
+                scoreAndClaimEdges: scoreAndClaimEdges,
+                reversible: reversible,
+                sourceClaimId: parentId
+              });
+              _context3.next = 40;
+              return regeneratorRuntime.awrap(this.repo.getScoreBySourceClaimId(newScore.sourceClaimId));
 
-                if (!_didIteratorError3) {
-                  _context3.next = 35;
-                  break;
-                }
+            case 40:
+              oldScore = _context3.sent;
 
-                throw _iteratorError3;
+              if (!oldScore) {
+                _context3.next = 48;
+                break;
+              }
 
-              case 35:
-                return _context3.finish(32);
-
-              case 36:
-                return _context3.finish(29);
-
-              case 37:
-                newScore = calculateScore({
-                  scoreAndClaimEdges: scoreAndClaimEdges,
-                  reversible: reversible,
-                  sourceClaimId: parentId
-                });
-                _context3.next = 40;
-                return this.repo.getScoreBySourceClaimId(newScore.sourceClaimId);
-
-              case 40:
-                oldScore = _context3.sent;
-
-                if (!oldScore) {
-                  _context3.next = 48;
-                  break;
-                }
-
-                if (!differentScores(oldScore, newScore)) {
-                  _context3.next = 46;
-                  break;
-                }
-
-                newScore.id = oldScore.id;
+              if (!differentScores(oldScore, newScore)) {
                 _context3.next = 46;
-                return this.notify([new Change(newScore, oldScore.id)]);
-
-              case 46:
-                _context3.next = 50;
                 break;
+              }
 
-              case 48:
-                _context3.next = 50;
-                return this.notify([new Change(newScore)]);
+              newScore.id = oldScore.id;
+              _context3.next = 46;
+              return regeneratorRuntime.awrap(this.notify([new Change(newScore, oldScore.id)]));
 
-              case 50:
-              case "end":
-                return _context3.stop();
-            }
+            case 46:
+              _context3.next = 50;
+              break;
+
+            case 48:
+              _context3.next = 50;
+              return regeneratorRuntime.awrap(this.notify([new Change(newScore)]));
+
+            case 50:
+            case "end":
+              return _context3.stop();
           }
-        }, _callee3, this, [[12, 25, 29, 37], [30,, 32, 36]]);
-      }));
-
-      function CalculateByClaimId(_x3) {
-        return _CalculateByClaimId.apply(this, arguments);
-      }
-
-      return CalculateByClaimId;
-    }()
+        }
+      }, null, this, [[12, 25, 29, 37], [30,, 32, 36]]);
+    }
   }]);
 
   return CalculationInitator;
@@ -721,104 +655,94 @@ function () {
     key: "notify",
 
     /** this function can be called by outside code to notfy this repository of changes */
-    value: function () {
-      var _notify = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee(changes) {
-        var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, change, newItem, idString, currentWhen, oldItems, oldItem, score;
+    value: function notify(changes) {
+      var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, change, newItem, idString, currentWhen, oldItems, oldItem, score;
 
-        return regeneratorRuntime.wrap(function _callee$(_context) {
-          while (1) {
-            switch (_context.prev = _context.next) {
-              case 0:
-                this.log.unshift(changes);
-                _iteratorNormalCompletion = true;
-                _didIteratorError = false;
-                _iteratorError = undefined;
-                _context.prev = 4;
+      return regeneratorRuntime.async(function notify$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              this.log.unshift(changes);
+              _iteratorNormalCompletion = true;
+              _didIteratorError = false;
+              _iteratorError = undefined;
+              _context.prev = 4;
 
-                for (_iterator = changes[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-                  change = _step.value;
-                  newItem = change.newItem;
-                  idString = newItem.id.toString();
-                  currentWhen = new Date().toISOString(); //Change the end date on the previous version of this item to now
+              for (_iterator = changes[Symbol.iterator](); !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                change = _step.value;
+                newItem = change.newItem;
+                idString = newItem.id.toString();
+                currentWhen = new Date().toISOString(); //Change the end date on the previous version of this item to now
 
-                  oldItems = this.rsData.versionIdByItemId[idString];
+                oldItems = this.rsData.versionIdByItemId[idString];
 
-                  if (oldItems && oldItems.length > 0 && oldItems[0].end === End) {
-                    oldItems[0].end = currentWhen;
-                    oldItem = this.rsData.versions[oldItems[0].ItemIdString];
+                if (oldItems && oldItems.length > 0 && oldItems[0].end === End) {
+                  oldItems[0].end = currentWhen;
+                  oldItem = this.rsData.versions[oldItems[0].ItemIdString];
 
-                    if (oldItem && oldItem.end === End) {
-                      oldItem.end = oldItems[0].end;
-                    }
-                  } else {
-                    this.rsData.versionIdByItemId[idString] = [];
-                  } // add the new item to the list of items
-
-
-                  this.rsData.versions[newItem.version.toString()] = newItem;
-                  this.rsData.versionIdByItemId[idString].unshift(new VersionDate(newItem.version.toString(), newItem.start, newItem.end)); //Index Claim Edges
-
-                  if (change.newItem.type == exports.Type.claimEdge) {
-                    this.indexClaimEdgeByParentId(change.newItem);
-                    this.indexClaimEdgeByChildId(change.newItem);
-                  } //Index score by source Id
-
-
-                  if (newItem.type == exports.Type.score) {
-                    score = newItem;
-                    this.rsData.scoreBySourceClaimId[score.sourceClaimId.toString()] = idString;
+                  if (oldItem && oldItem.end === End) {
+                    oldItem.end = oldItems[0].end;
                   }
-                }
+                } else {
+                  this.rsData.versionIdByItemId[idString] = [];
+                } // add the new item to the list of items
 
-                _context.next = 12;
+
+                this.rsData.versions[newItem.version.toString()] = newItem;
+                this.rsData.versionIdByItemId[idString].unshift(new VersionDate(newItem.version.toString(), newItem.start, newItem.end)); //Index Claim Edges
+
+                if (change.newItem.type == exports.Type.claimEdge) {
+                  this.indexClaimEdgeByParentId(change.newItem);
+                  this.indexClaimEdgeByChildId(change.newItem);
+                } //Index score by source Id
+
+
+                if (newItem.type == exports.Type.score) {
+                  score = newItem;
+                  this.rsData.scoreBySourceClaimId[score.sourceClaimId.toString()] = idString;
+                }
+              }
+
+              _context.next = 12;
+              break;
+
+            case 8:
+              _context.prev = 8;
+              _context.t0 = _context["catch"](4);
+              _didIteratorError = true;
+              _iteratorError = _context.t0;
+
+            case 12:
+              _context.prev = 12;
+              _context.prev = 13;
+
+              if (!_iteratorNormalCompletion && _iterator["return"] != null) {
+                _iterator["return"]();
+              }
+
+            case 15:
+              _context.prev = 15;
+
+              if (!_didIteratorError) {
+                _context.next = 18;
                 break;
+              }
 
-              case 8:
-                _context.prev = 8;
-                _context.t0 = _context["catch"](4);
-                _didIteratorError = true;
-                _iteratorError = _context.t0;
+              throw _iteratorError;
 
-              case 12:
-                _context.prev = 12;
-                _context.prev = 13;
+            case 18:
+              return _context.finish(15);
 
-                if (!_iteratorNormalCompletion && _iterator["return"] != null) {
-                  _iterator["return"]();
-                }
+            case 19:
+              return _context.finish(12);
 
-              case 15:
-                _context.prev = 15;
-
-                if (!_didIteratorError) {
-                  _context.next = 18;
-                  break;
-                }
-
-                throw _iteratorError;
-
-              case 18:
-                return _context.finish(15);
-
-              case 19:
-                return _context.finish(12);
-
-              case 20:
-              case "end":
-                return _context.stop();
-            }
+            case 20:
+            case "end":
+              return _context.stop();
           }
-        }, _callee, this, [[4, 8, 12, 20], [13,, 15, 19]]);
-      }));
-
-      function notify(_x) {
-        return _notify.apply(this, arguments);
-      }
-
-      return notify;
-    }()
+        }
+      }, null, this, [[4, 8, 12, 20], [13,, 15, 19]]);
+    }
   }, {
     key: "indexClaimEdgeByParentId",
     value: function indexClaimEdgeByParentId(claimEdge) {
@@ -849,270 +773,220 @@ function () {
     }
   }, {
     key: "getItemsForArray",
-    value: function () {
-      var _getItemsForArray = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee2(itemIds) {
-        var result, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, itemId, item;
+    value: function getItemsForArray(itemIds) {
+      var result, _iteratorNormalCompletion2, _didIteratorError2, _iteratorError2, _iterator2, _step2, itemId, item;
 
-        return regeneratorRuntime.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                result = [];
-                _iteratorNormalCompletion2 = true;
-                _didIteratorError2 = false;
-                _iteratorError2 = undefined;
-                _context2.prev = 4;
-                _iterator2 = itemIds[Symbol.iterator]();
+      return regeneratorRuntime.async(function getItemsForArray$(_context2) {
+        while (1) {
+          switch (_context2.prev = _context2.next) {
+            case 0:
+              result = [];
+              _iteratorNormalCompletion2 = true;
+              _didIteratorError2 = false;
+              _iteratorError2 = undefined;
+              _context2.prev = 4;
+              _iterator2 = itemIds[Symbol.iterator]();
 
-              case 6:
-                if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
-                  _context2.next = 15;
-                  break;
-                }
-
-                itemId = _step2.value;
-                _context2.next = 10;
-                return this.getItem(ID(itemId));
-
-              case 10:
-                item = _context2.sent;
-
-                if (item) {
-                  result.push(item);
-                }
-
-              case 12:
-                _iteratorNormalCompletion2 = true;
-                _context2.next = 6;
+            case 6:
+              if (_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done) {
+                _context2.next = 15;
                 break;
+              }
 
-              case 15:
-                _context2.next = 21;
+              itemId = _step2.value;
+              _context2.next = 10;
+              return regeneratorRuntime.awrap(this.getItem(ID(itemId)));
+
+            case 10:
+              item = _context2.sent;
+
+              if (item) {
+                result.push(item);
+              }
+
+            case 12:
+              _iteratorNormalCompletion2 = true;
+              _context2.next = 6;
+              break;
+
+            case 15:
+              _context2.next = 21;
+              break;
+
+            case 17:
+              _context2.prev = 17;
+              _context2.t0 = _context2["catch"](4);
+              _didIteratorError2 = true;
+              _iteratorError2 = _context2.t0;
+
+            case 21:
+              _context2.prev = 21;
+              _context2.prev = 22;
+
+              if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
+                _iterator2["return"]();
+              }
+
+            case 24:
+              _context2.prev = 24;
+
+              if (!_didIteratorError2) {
+                _context2.next = 27;
                 break;
+              }
 
-              case 17:
-                _context2.prev = 17;
-                _context2.t0 = _context2["catch"](4);
-                _didIteratorError2 = true;
-                _iteratorError2 = _context2.t0;
+              throw _iteratorError2;
 
-              case 21:
-                _context2.prev = 21;
-                _context2.prev = 22;
+            case 27:
+              return _context2.finish(24);
 
-                if (!_iteratorNormalCompletion2 && _iterator2["return"] != null) {
-                  _iterator2["return"]();
-                }
+            case 28:
+              return _context2.finish(21);
 
-              case 24:
-                _context2.prev = 24;
+            case 29:
+              return _context2.abrupt("return", result);
 
-                if (!_didIteratorError2) {
-                  _context2.next = 27;
-                  break;
-                }
-
-                throw _iteratorError2;
-
-              case 27:
-                return _context2.finish(24);
-
-              case 28:
-                return _context2.finish(21);
-
-              case 29:
-                return _context2.abrupt("return", result);
-
-              case 30:
-              case "end":
-                return _context2.stop();
-            }
+            case 30:
+            case "end":
+              return _context2.stop();
           }
-        }, _callee2, this, [[4, 17, 21, 29], [22,, 24, 28]]);
-      }));
-
-      function getItemsForArray(_x2) {
-        return _getItemsForArray.apply(this, arguments);
-      }
-
-      return getItemsForArray;
-    }()
+        }
+      }, null, this, [[4, 17, 21, 29], [22,, 24, 28]]);
+    }
   }, {
     key: "getItem",
-    value: function () {
-      var _getItem = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee3(ItemId) {
-        var VersionDate;
-        return regeneratorRuntime.wrap(function _callee3$(_context3) {
-          while (1) {
-            switch (_context3.prev = _context3.next) {
-              case 0:
-                VersionDate = this.rsData.versionIdByItemId[ItemId.toString()].find(function (e) {
-                  return e.end >= End;
-                });
+    value: function getItem(ItemId) {
+      var VersionDate;
+      return regeneratorRuntime.async(function getItem$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              VersionDate = this.rsData.versionIdByItemId[ItemId.toString()].find(function (e) {
+                return e.end >= End;
+              });
 
-                if (!VersionDate) {
-                  _context3.next = 4;
-                  break;
-                }
+              if (!VersionDate) {
+                _context3.next = 4;
+                break;
+              }
 
-                return _context3.abrupt("return", this.rsData.versions[VersionDate.ItemIdString]);
+              return _context3.abrupt("return", this.rsData.versions[VersionDate.ItemIdString]);
 
-              case 4:
-              case "end":
-                return _context3.stop();
-            }
+            case 4:
+            case "end":
+              return _context3.stop();
           }
-        }, _callee3, this);
-      }));
-
-      function getItem(_x3) {
-        return _getItem.apply(this, arguments);
-      }
-
-      return getItem;
-    }()
+        }
+      }, null, this);
+    }
   }, {
     key: "getClaimEdgesByParentId",
-    value: function () {
-      var _getClaimEdgesByParentId = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee4(parentId) {
-        var claimEdgeIds;
-        return regeneratorRuntime.wrap(function _callee4$(_context4) {
-          while (1) {
-            switch (_context4.prev = _context4.next) {
-              case 0:
-                claimEdgeIds = this.rsData.claimEdgesByParentId[parentId.toString()];
+    value: function getClaimEdgesByParentId(parentId) {
+      var claimEdgeIds;
+      return regeneratorRuntime.async(function getClaimEdgesByParentId$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              claimEdgeIds = this.rsData.claimEdgesByParentId[parentId.toString()];
 
-                if (!claimEdgeIds) {
-                  _context4.next = 8;
-                  break;
-                }
+              if (!claimEdgeIds) {
+                _context4.next = 8;
+                break;
+              }
 
-                _context4.next = 5;
-                return this.getItemsForArray(claimEdgeIds);
+              _context4.next = 5;
+              return regeneratorRuntime.awrap(this.getItemsForArray(claimEdgeIds));
 
-              case 5:
-                return _context4.abrupt("return", _context4.sent);
+            case 5:
+              return _context4.abrupt("return", _context4.sent);
 
-              case 8:
-                return _context4.abrupt("return", []);
+            case 8:
+              return _context4.abrupt("return", []);
 
-              case 9:
-              case "end":
-                return _context4.stop();
-            }
+            case 9:
+            case "end":
+              return _context4.stop();
           }
-        }, _callee4, this);
-      }));
-
-      function getClaimEdgesByParentId(_x4) {
-        return _getClaimEdgesByParentId.apply(this, arguments);
-      }
-
-      return getClaimEdgesByParentId;
-    }()
+        }
+      }, null, this);
+    }
   }, {
     key: "getClaimEdgesByChildId",
-    value: function () {
-      var _getClaimEdgesByChildId = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee5(childId) {
-        var claimEdgeIds;
-        return regeneratorRuntime.wrap(function _callee5$(_context5) {
-          while (1) {
-            switch (_context5.prev = _context5.next) {
-              case 0:
-                claimEdgeIds = this.rsData.claimEdgesByChildId[childId.toString()];
+    value: function getClaimEdgesByChildId(childId) {
+      var claimEdgeIds;
+      return regeneratorRuntime.async(function getClaimEdgesByChildId$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              claimEdgeIds = this.rsData.claimEdgesByChildId[childId.toString()];
 
-                if (!claimEdgeIds) {
-                  _context5.next = 8;
-                  break;
-                }
+              if (!claimEdgeIds) {
+                _context5.next = 8;
+                break;
+              }
 
-                _context5.next = 5;
-                return this.getItemsForArray(claimEdgeIds);
+              _context5.next = 5;
+              return regeneratorRuntime.awrap(this.getItemsForArray(claimEdgeIds));
 
-              case 5:
-                return _context5.abrupt("return", _context5.sent);
+            case 5:
+              return _context5.abrupt("return", _context5.sent);
 
-              case 8:
-                return _context5.abrupt("return", []);
+            case 8:
+              return _context5.abrupt("return", []);
 
-              case 9:
-              case "end":
-                return _context5.stop();
-            }
+            case 9:
+            case "end":
+              return _context5.stop();
           }
-        }, _callee5, this);
-      }));
-
-      function getClaimEdgesByChildId(_x5) {
-        return _getClaimEdgesByChildId.apply(this, arguments);
-      }
-
-      return getClaimEdgesByChildId;
-    }()
+        }
+      }, null, this);
+    }
   }, {
     key: "getScoreBySourceClaimId",
-    value: function () {
-      var _getScoreBySourceClaimId = _asyncToGenerator(
-      /*#__PURE__*/
-      regeneratorRuntime.mark(function _callee6(sourceClaimId) {
-        var scoreIdString,
-            score,
-            newScore;
-        return regeneratorRuntime.wrap(function _callee6$(_context6) {
-          while (1) {
-            switch (_context6.prev = _context6.next) {
-              case 0:
-                scoreIdString = this.rsData.scoreBySourceClaimId[sourceClaimId.toString()];
+    value: function getScoreBySourceClaimId(sourceClaimId) {
+      var scoreIdString,
+          score,
+          newScore;
+      return regeneratorRuntime.async(function getScoreBySourceClaimId$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              scoreIdString = this.rsData.scoreBySourceClaimId[sourceClaimId.toString()];
 
-                if (!scoreIdString) {
-                  _context6.next = 8;
-                  break;
-                }
+              if (!scoreIdString) {
+                _context6.next = 8;
+                break;
+              }
 
-                _context6.next = 5;
-                return this.getItem(ID(scoreIdString));
+              _context6.next = 5;
+              return regeneratorRuntime.awrap(this.getItem(ID(scoreIdString)));
 
-              case 5:
-                score = _context6.sent;
+            case 5:
+              score = _context6.sent;
 
-                if (!score) {
-                  _context6.next = 8;
-                  break;
-                }
+              if (!score) {
+                _context6.next = 8;
+                break;
+              }
 
-                return _context6.abrupt("return", score);
+              return _context6.abrupt("return", score);
 
-              case 8:
-                //If there is not an existing score then create it
-                newScore = new Score(undefined, undefined, undefined, sourceClaimId);
-                _context6.next = 11;
-                return this.notify([new Change(newScore)]);
+            case 8:
+              //If there is not an existing score then create it
+              newScore = new Score(undefined, undefined, undefined, sourceClaimId);
+              _context6.next = 11;
+              return regeneratorRuntime.awrap(this.notify([new Change(newScore)]));
 
-              case 11:
-                return _context6.abrupt("return", newScore);
+            case 11:
+              return _context6.abrupt("return", newScore);
 
-              case 12:
-              case "end":
-                return _context6.stop();
-            }
+            case 12:
+            case "end":
+              return _context6.stop();
           }
-        }, _callee6, this);
-      }));
-
-      function getScoreBySourceClaimId(_x6) {
-        return _getScoreBySourceClaimId.apply(this, arguments);
-      }
-
-      return getScoreBySourceClaimId;
-    }()
+        }
+      }, null, this);
+    }
   }]);
 
   return Repository;
