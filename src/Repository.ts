@@ -23,10 +23,10 @@ export class Repository implements iRepository {
 
             //Change the end date on the previous version of this item to now
             const oldItems = this.rsData.versionIdByItemId[idString]
-            if (oldItems && oldItems.length > 0) {
+            if (oldItems && oldItems.length > 0 && oldItems[0].end === End) {
                 oldItems[0].end = currentWhen;
                 const oldItem = this.rsData.versions[oldItems[0].ItemIdString]
-                if (oldItem) {
+                if (oldItem && oldItem.end === End) {
                     oldItem.end = oldItems[0].end;
                 }
             } else {

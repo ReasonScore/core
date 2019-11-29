@@ -1,8 +1,7 @@
-import { ClaimEdge } from "./ClaimEdge";
-import { Claim } from "./Claim";
-import { Score } from "./Score";
+import { Id } from "./Id";
+import { Item } from "./Item";
 export declare class Change {
-    newItem: (ClaimEdge | Claim | Score);
-    oldItem?: ClaimEdge | Claim | Score | undefined;
-    constructor(newItem: (ClaimEdge | Claim | Score), oldItem?: ClaimEdge | Claim | Score | undefined);
+    newItem: Item;
+    oldItemVersion?: Id | undefined;
+    constructor(newItem: Item, oldItemVersion?: Id | undefined);
 }

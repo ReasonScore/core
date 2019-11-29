@@ -4,9 +4,9 @@ import { newId } from "../newId";
 import End from "./End";
 import { Id } from "./Id";
 
-export class Claim implements Item {
+export class Claim implements iClaim, Item {
     type: Type = Type.claim
-    
+
     constructor(
         public content: string = "",
         public id: Id = newId(),
@@ -16,6 +16,15 @@ export class Claim implements Item {
         public reversible: boolean = false,
     ) {
     }
+}
+
+export interface iClaim {
+    id: Id,
+    version: Id,
+    type: Type 
+    start: string,
+    end: string,
+    reversible: boolean,
 }
 
 

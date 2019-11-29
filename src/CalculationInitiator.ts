@@ -28,7 +28,7 @@ export class CalculationInitator {
 
     private async CalculationInitiator(changes: Change[]) {
         for (const change of changes) {
-            const { newItem, oldItem } = change;
+            const { newItem, oldItemVersion } = change;
 
             // Initiate calculations from a changed/new claim Edge
             if (newItem.type == Type.claimEdge) {
@@ -84,7 +84,7 @@ export class CalculationInitator {
         if (oldScore) {
             if (differentScores(oldScore, newScore)) {
                 newScore.id = oldScore.id;
-                await this.notify([new Change(newScore, oldScore)]);
+                await this.notify([new Change(newScore, oldScore.id)]);
             }
         } else {
 

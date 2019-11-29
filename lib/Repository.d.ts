@@ -9,12 +9,12 @@ export declare class Repository implements iRepository {
     rsData: RsData;
     readonly log: Change[][];
     /** this function can be called by outside code to notfy this repository of changes */
-    notify(changes: Change[]): void;
+    notify(changes: Change[]): Promise<void>;
     private indexClaimEdgeByParentId;
     private indexClaimEdgeByChildId;
     private getItemsForArray;
-    getItem(ItemId: Id, when?: string): Item | undefined;
-    getClaimEdgesByParentId(parentId: Id, when?: string): ClaimEdge[];
-    getClaimEdgesByChildId(childId: Id, when?: string): ClaimEdge[];
-    getScoreBySourceClaimId(sourceClaimId: Id, when?: string): Score;
+    getItem(ItemId: Id, when?: string): Promise<Item | undefined>;
+    getClaimEdgesByParentId(parentId: Id, when?: string): Promise<ClaimEdge[]>;
+    getClaimEdgesByChildId(childId: Id, when?: string): Promise<ClaimEdge[]>;
+    getScoreBySourceClaimId(sourceClaimId: Id, when?: string): Promise<Score>;
 }

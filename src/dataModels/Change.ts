@@ -1,11 +1,13 @@
 import { ClaimEdge } from "./ClaimEdge";
 import { Claim } from "./Claim";
-import { Score } from "./Score";
+import { Score, iScore } from "./Score";
+import { Id } from "./Id";
+import { Item } from "./Item";
 
 export class Change {
     constructor(
-        public newItem: (ClaimEdge | Claim | Score),
-        public oldItem?: (ClaimEdge | Claim | Score),
+        public newItem: Item ,
+        public oldItemVersion?: Id,
     ) {
     }
 }
