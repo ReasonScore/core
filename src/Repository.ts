@@ -118,7 +118,7 @@ export class Repository implements iRepository {
         }
     }
 
-    async getScoreBySourceClaimId(sourceClaimId: Id, when: string = End): Promise<Score> {
+    async getScoreBySourceClaimId(sourceClaimId: Id, when: string = End): Promise<Score | undefined> {
         const scoreIdString = this.rsData.scoreBySourceClaimId[sourceClaimId.toString()];
         if (scoreIdString) {
             const score = <Score>await this.getItem(ID(scoreIdString));
@@ -126,11 +126,6 @@ export class Repository implements iRepository {
                 return score;
             }
         }
-
-        //If there is not an existing score then create it
-        const newScore = new Score(undefined, undefined, undefined, sourceClaimId);
-        await this.notify([new Change(newScore)]);
-        return newScore;
     }
 
 }
