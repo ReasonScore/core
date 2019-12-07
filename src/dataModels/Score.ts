@@ -1,27 +1,26 @@
-import { Item } from "./Item";
-import { Type } from "./Type";
 import { newId } from "../newId";
-import End from "./End";
 import { Id } from "./Id";
+import { Affects } from "./Affects";
 /**
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
- * Usually within the context of a view of the claim or another claim
  */
 export class Score implements iScore {
-    type: Type = Type.score
-
     constructor(
+        /** The claim to which this score belongs */
+        public sourceClaimId: Id,
+        /** The parent of this score in the score tree graph */
+        public parentScoreId: Id | undefined = undefined,
+        public reversible: boolean = false,
+        /** Is this score a pro of it's parent (false if it is a con) */
+        public pro: boolean = true,
         /** how confident we sould be in the claim. (AKA True) */
+        /** How the child affects the parent score */
+        public affects: Affects = "confidence",
         public confidence: number = 1,
         /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
          * A multiplier set by all the child edges that affect 'relevance'*/
         public relevance: number = 1,
         public id: Id = newId(),
-        /** The claim to which this score belongs */
-        public sourceClaimId: Id = newId(),
-        public version: Id = newId(),
-        public start: string = new Date().toISOString(),
-        public end: string = End,
     ) {
     }
 }
@@ -36,16 +35,16 @@ export function differentScores(scoreA: Score, scoreB: Score) {
     )
 }
 
-export interface iScore extends Item  {
+export interface iScore {
+    /** The claim to which this score belongs */
+    sourceClaimId: Id,
+    /** The parent of this score in the score tree graph */
+    parentScoreId: Id | undefined,
+    reversible: boolean,
     /** how confident we sould be in the claim. (AKA True) */
     confidence: number,
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number,
     id: Id,
-    /** The claim to which this score belongs */
-    sourceClaimId: Id,
-    version: Id,
-    start: string,
-    end: string,
 }

@@ -1,26 +1,29 @@
-import { Item } from "./Item";
+import { Action, Claim, ClaimEdge, Score } from "..";
 
-export interface ItemDictionary { [idString: string]: Item; }
 export interface Index { [searchIndex: string]: string; } //Store the string for the ID
 export interface IndexArray { [searchIndex: string]: string[]; } //Store the string for the ID
-export interface IndexVersionDateArray { [searchIndex: string]: VersionDate[]; } //Store the string for the ID
-
-export class VersionDate {
-    constructor(
-        public ItemIdString: string,
-        public start: string,
-        public end: string
-    ) {
-    }
-}
 
 export class RsData {
     constructor(
-        public versions: ItemDictionary = {},
-        public scoreBySourceClaimId: Index = {},
-        public claimEdgesByParentId: IndexArray = {},
-        public claimEdgesByChildId: IndexArray = {},
-        public versionIdByItemId: IndexVersionDateArray = {},
+        // Claim data
+        /** Stores all the changes for both the claims and claim edges */
+        public claimsLog: Action[][] = [],
+        /** Stores all the current claims */
+        public claims: { [idString: string]: Claim; } = {},
+        /** Stores all the current claim edges */
+        public claimEdges: { [idString: string]: ClaimEdge; } = {},
+
+        // Claim Indexes - Local
+        public claimEdgeIdsByParentId: IndexArray = {},
+        public claimEdgeIdsByChildId: IndexArray = {},
+
+        // Score Data - Local
+        /** Stores all the changes for the scores */
+        public scoresLog: Action[][] = [],
+        public scores: { [idString: string]: Score; } = {},
+        //Score Indexes - Local
+        public scoreIdsBySourceClaimId: IndexArray = {},
+        public childIdsByScoreId: IndexArray = {},
     ) {
     }
 }
