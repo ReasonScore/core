@@ -1,16 +1,15 @@
 import { Score } from "./dataModels/Score";
-import { Id, ID } from "./dataModels/Id";
 
 /**
  * Calculates a new score based on the child scores passed in.
  */
-export function calculateScore({ scores = [], reversible = true, sourceClaimId = ID('') }: {
+export function calculateScore({ scores = [], reversible = true, sourceClaimId = '' }: {
     /** An array of grouped edges and claims*/
     scores?: Score[];
     /** Can this score fall below a 0 confidence (have a negative confidence) */
     reversible?: boolean;
     /** The ID of the claim we are creating a score for */
-    sourceClaimId?: Id;
+    sourceClaimId?: string;
 } = {},
 ) {
     const newScore: Score = new Score(sourceClaimId);

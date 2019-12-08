@@ -1,6 +1,6 @@
 import { Affects } from "./Affects"
 import { Item } from "./Item";
-import { Type } from "./Type";
+import { ItemTypes } from "./ItemTypes";
 import { newId } from "../newId";
 import { Id} from "./Id";
 /**
@@ -10,7 +10,7 @@ import { Id} from "./Id";
  * and only JSON compatible types string, number, object, array, boolean
  */
 export class ClaimEdge implements Item {
-    type: Type = Type.claimEdge
+    type: ItemTypes = ItemTypes.claimEdge
 
     constructor(
         /** The ID for the parent claim this edge points to */
@@ -18,7 +18,7 @@ export class ClaimEdge implements Item {
         /** The ID for the child claim this edge points from */
         public childId: Id,
         /** How the child affects the parent score */
-        public affects: Affects = Affects.Confidence,
+        public affects: 'confidence',
         /** Is the child claim a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
         public id: Id = newId(),

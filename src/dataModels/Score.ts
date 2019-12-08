@@ -1,5 +1,4 @@
 import { newId } from "../newId";
-import { Id } from "./Id";
 import { Affects } from "./Affects";
 /**
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
@@ -7,9 +6,9 @@ import { Affects } from "./Affects";
 export class Score implements iScore {
     constructor(
         /** The claim to which this score belongs */
-        public sourceClaimId: Id,
+        public sourceClaimId: string,
         /** The parent of this score in the score tree graph */
-        public parentScoreId: Id | undefined = undefined,
+        public parentScoreId: string | undefined = undefined,
         public reversible: boolean = false,
         /** Is this score a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
@@ -20,7 +19,7 @@ export class Score implements iScore {
         /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
          * A multiplier set by all the child edges that affect 'relevance'*/
         public relevance: number = 1,
-        public id: Id = newId(),
+        public id: string = newId(),
     ) {
     }
 }
@@ -37,14 +36,14 @@ export function differentScores(scoreA: Score, scoreB: Score) {
 
 export interface iScore {
     /** The claim to which this score belongs */
-    sourceClaimId: Id,
+    sourceClaimId: string,
     /** The parent of this score in the score tree graph */
-    parentScoreId: Id | undefined,
+    parentScoreId: string | undefined,
     reversible: boolean,
     /** how confident we sould be in the claim. (AKA True) */
     confidence: number,
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number,
-    id: Id,
+    id: string,
 }

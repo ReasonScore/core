@@ -1,7 +1,7 @@
 import { Id } from "./Id";
-import { Type } from "./Type";
+import { ItemTypes } from "./ItemTypes";
 
 export interface Item {
     id: Id
-    type: Type
+    type: ItemTypes
 }

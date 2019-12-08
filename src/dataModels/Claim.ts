@@ -1,14 +1,13 @@
 import { Item } from "./Item";
-import { Type } from "./Type";
+import { ItemTypes } from "./ItemTypes";
 import { newId } from "../newId";
-import { Id } from "./Id";
 
 export class Claim implements iClaim, Item {
-    type: Type = Type.claim
+    type: ItemTypes = 'claim'
 
     constructor(
         public content: string = "",
-        public id: Id = newId(),
+        public id: string = newId(),
         public reversible: boolean = false,
     ) {
     }
