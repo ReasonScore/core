@@ -2,7 +2,7 @@ import { Action, ClaimEdge, Score, Claim } from "..";
 import { RsData } from "./RsData";
 
 export interface iRepository {
-    //rsData: RsData;
+    rsData: RsData;
     notify(actions: Action[]): void
     getClaim(id: string): Promise<Claim | undefined>
     getClaimEdge(id: string): Promise<ClaimEdge | undefined>

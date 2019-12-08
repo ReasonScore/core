@@ -1,7 +1,5 @@
 import { calculateScore } from "../calculateScore";
 import { Score } from "../dataModels/Score";
-import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { ID } from "../dataModels/Id";
 import { Affects } from "../dataModels/Affects";
 
 class TestData {
@@ -15,7 +13,7 @@ class TestData {
 }
 
 function s(confidence: number = 1, relevance: number = 1, pro: boolean = true, affects: Affects = "confidence"): Score {
-    return new Score(ID(""), undefined, undefined, pro, affects, confidence, relevance);
+    return new Score("", undefined, undefined, pro, affects, confidence, relevance);
 }
 
 function t(testDescription: string, expectedScore: Score, scores: Score[], reversible: boolean = false) {
@@ -26,10 +24,10 @@ const pro = true;
 const con = false;
 
 const testData = [
-    t("no scores = 1 ", s(1), []),
-    t("1 and 1 = 1 ", s(1), [s(1), s(1)]),
-    t(" 1 and -1 = 0", s(0), [s(1), s(-1)]),
-    t("pro and con = 0", s(0), [s(1), s(1, 1, con)]),
+    t("no scores = 1  ", s(1), []),
+    t("1 and 1 = 1    ", s(1), [s(+1), s(+1)]),
+    t("1 and -1 = 0   ", s(0), [s(+1), s(-1)]),
+    t("pro and con = 0", s(0), [s(+1), s(+1, 1, con)]),
 ]
 
 const JsonTestData: string[] = [];
