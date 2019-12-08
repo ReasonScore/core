@@ -73,7 +73,7 @@ export class CalculationInitator {
         debugger
         if (childClaimEdges.length > 0) {
             for (const childClaimEdge of childClaimEdges) {
-                // todo: Put code in here to see if this edge claim should really apply to it's parent (Scope, formula, etc..)
+                // TODO: Put code in here to see if this edge claim should really apply to it's parent (Scope, formula, etc..)
                 const childClaim = await this.repo.getClaim(childClaimEdge.childId);
                 if (childClaim) {
                     childScores.push(await this.CalculateScoreTree(scores,childClaim, newScoreId, childClaimEdge));

@@ -5,8 +5,8 @@ import { Claim } from "../dataModels/Claim"
 export function claims(state: RsData, action: Action) : RsData {
     switch (action.type) {
         case "add_claim":
-            // const claims = { ...state.claims }
-            // claims[action.dataId] = action.newData;
+            // TODO: Check if the claim exists and merge it with the previous version
+            // TODO:  add to claim indexes
             const claim = action.newData as Claim;
             return {
                 ...state,

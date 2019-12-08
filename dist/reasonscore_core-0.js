@@ -153,7 +153,7 @@ var reasonscore_core = (function (exports) {
         // Loop through the child scores and determine the score of the parent.
         if (claimEdge.affects === exports.Affects.Confidence) {
           //calculate the reduction of the relevance bease on the distance of the confidence from zero
-          //ToDO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
+          //TODO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
           //Like "This claim should require supporting evidence"
           var confidenceRelevanceAdjustment = 1;
           confidenceRelevanceAdjustment = Math.abs(score.confidence); // Process edges that affect confidence

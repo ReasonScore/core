@@ -28,7 +28,7 @@ export function calculateScore({ scores = [], reversible = true, sourceClaimId =
         if (score.affects === 'confidence') {
 
             //calculate the reduction of the relevance bease on the distance of the confidence from zero
-            //ToDO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
+            //TODO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
             //Like "This claim should require supporting evidence"
             let confidenceRelevanceAdjustment = 1
             confidenceRelevanceAdjustment = Math.abs(score.confidence)

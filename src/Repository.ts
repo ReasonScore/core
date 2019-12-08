@@ -15,16 +15,16 @@ export class Repository implements iRepository {
     }
 
     async notify(actions: Action[]) {
-        //todo: change this over to reducers and state
+        //TODO: change this over to reducers and state
         for (const action of actions) {
             // if (action.type == 'add_claim') {
             //     this.rsData.claims[action.dataId] = action.newData;
             // }
             this.rsData = claims(this.rsData, action);
             if (action.type == 'add_claimEdge') {
-                //ToDo allow partial updates
+                //TODO allow partial updates
                 this.rsData.claimEdges[action.dataId] = action.newData;
-                // // todo update indexes
+                // // TODO update indexes
                 // if (!this.rsData.claimEdgeIdsByChildId[action.dataId]){
                 //     this.rsData.claimEdgeIdsByChildId[action.dataId] = [];
                 // }
