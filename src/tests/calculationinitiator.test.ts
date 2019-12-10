@@ -86,7 +86,7 @@ describe.each(testData)(
 );
 
 // Used to generate test data
-test.skip(
+test.only(
     'Generate Data',
     async () => {
         const JsonTestData: string[] = [];

@@ -1,14 +1,14 @@
-import { Action, ClaimEdge, Score, Claim } from "..";
+import { iAction, iClaimEdge, iScore, iClaim } from "..";
 import { RsData } from "./RsData";
 
 export interface iRepository {
     rsData: RsData;
-    notify(actions: Action[]): void
-    getClaim(id: string): Promise<Claim | undefined>
-    getClaimEdge(id: string): Promise<ClaimEdge | undefined>
-    getScore(id: string): Promise<Score | undefined>
-    getClaimEdgesByParentId(parentId: string): Promise<ClaimEdge[]>
-    getClaimEdgesByChildId(childId: string): Promise<ClaimEdge[]>
-    getScoresByClaimId(sourceClaimId: string): Promise<Score[]>
-    getChildrenByScoreId(scoreId: string): Promise<Score[]>
+    notify(actions: iAction[]): void
+    getClaim(id: string): Promise<iClaim | undefined>
+    getClaimEdge(id: string): Promise<iClaimEdge | undefined>
+    getScore(id: string): Promise<iScore | undefined>
+    getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]>
+    getClaimEdgesByChildId(childId: string): Promise<iClaimEdge[]>
+    getScoresByClaimId(sourceClaimId: string): Promise<iScore[]>
+    getChildrenByScoreId(scoreId: string): Promise<iScore[]>
 }

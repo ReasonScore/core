@@ -1,9 +1,8 @@
-import { Action } from "./dataModels/Action";
-import { Repository } from "./Repository";
-import { ClaimEdge } from "./dataModels/ClaimEdge";
-import { calculateScore } from "./calculateScore";
-import { Score, differentScores } from "./dataModels/Score";
-import { Claim } from "./dataModels/Claim";
+import { iAction } from "./dataModels/Action";
+import { iClaimEdge } from "./dataModels/ClaimEdge";
+import { calculateScore } from "./calculateScore";  // TODO: change calculateScore to interface and pass in
+import { iScore, differentScores } from "./dataModels/Score";
+import { iClaim } from "./dataModels/Claim";
 import { iRepository } from "./dataModels/iRepository";
 import { newId } from "./newId";
 
@@ -11,12 +10,12 @@ export class CalculationInitator {
 
     constructor(
         public repo: iRepository,
-        public subscriber: ((actions: Action[]) => void) | undefined = undefined
+        public subscriber: ((actions: iAction[]) => void) | undefined = undefined
     ) {
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
-    async notify(actions: Action[]) {
+    async notify(actions: iAction[]) {
         await this.repo.notify(actions);
         if (this.subscriber) {
             this.subscriber(actions);
@@ -24,7 +23,7 @@ export class CalculationInitator {
         await this.CalculationInitiator(actions);
     }
 
-    private async CalculationInitiator(actions: Action[]) {
+    private async CalculationInitiator(actions: iAction[]) {
         for (const action of actions) {
 
             if (action.type == 'add_claimEdge') {
@@ -66,9 +65,9 @@ export class CalculationInitator {
         }
     }
 
-    public async CalculateScoreTree(scores: Score[], claim: Claim, parentScoreId: string | undefined, claimEdge: ClaimEdge | undefined) {
+    public async CalculateScoreTree(scores: iScore[], claim: iClaim, parentScoreId: string | undefined, claimEdge: iClaimEdge | undefined) {
         const childClaimEdges = await this.repo.getClaimEdgesByParentId(claim.id);
-        const childScores: Score[] = [];
+        const childScores: iScore[] = [];
         const newScoreId = newId();
         debugger
         if (childClaimEdges.length > 0) {
@@ -97,7 +96,7 @@ export class CalculationInitator {
         score || this.CalculateByScore(score);
     }
 
-    async CalculateByScore(score: Score) {
+    async CalculateByScore(score: iScore) {
         const childScores = await this.repo.getChildrenByScoreId(score.id)
         //const childClaimEdges = await this.repo.getClaimEdgesByParentId(score.sourceClaimId)
     }

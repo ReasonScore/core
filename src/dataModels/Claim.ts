@@ -13,6 +13,8 @@ export class Claim implements iClaim {
 }
 
 export interface iClaim {
+    type: ItemTypes,
+    id: string ,
     reversible: boolean,
 }
 

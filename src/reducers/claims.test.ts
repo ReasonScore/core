@@ -10,5 +10,7 @@ test.only('add claim to claims', () => {
     )
     //const result = calculateScore({ scores: t.scores, reversible: t.reversible });
     expect(result.claims["testClaim"].id).toBe("testClaim")
+    //Confirm that it dies not modify the state directly
+    expect(rsData.claims["testClaim"]).toBe(undefined)
 });
 

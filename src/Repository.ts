@@ -1,49 +1,40 @@
-import { ClaimEdge } from "./dataModels/ClaimEdge";
-import { Action } from "./dataModels/Action";
-import { Score } from "./dataModels/Score";
-import { RsData } from "./dataModels/RsData";
+import { iClaimEdge, ClaimEdge } from "./dataModels/ClaimEdge";
+import { iAction } from "./dataModels/Action";
+import { iScore } from "./dataModels/Score";
+import { RsData, iRsData } from "./dataModels/RsData";
 import { iRepository } from "./dataModels/iRepository";
-import { Claim } from "./dataModels/Claim";
+import { iClaim } from "./dataModels/Claim";
 import { claims } from "./reducers/claims";
+import { claimEdges } from "./reducers/claimEdges";
 
 
 export class Repository implements iRepository {
 
     constructor(
-        public rsData: RsData = new RsData()
+        public rsData: iRsData = new RsData()
     ) {
     }
 
-    async notify(actions: Action[]) {
-        //TODO: change this over to reducers and state
+    // TODO: move notify completely out of repository
+    async notify(actions: iAction[]) {
         for (const action of actions) {
-            // if (action.type == 'add_claim') {
-            //     this.rsData.claims[action.dataId] = action.newData;
-            // }
+            //TODO: add more reducers
             this.rsData = claims(this.rsData, action);
-            if (action.type == 'add_claimEdge') {
-                //TODO allow partial updates
-                this.rsData.claimEdges[action.dataId] = action.newData;
-                // // TODO update indexes
-                // if (!this.rsData.claimEdgeIdsByChildId[action.dataId]){
-                //     this.rsData.claimEdgeIdsByChildId[action.dataId] = [];
-                // }
-                // this.rsData.claimEdgeIdsByChildId[action.dataId].unshift(action.dataId)
-            }
+            this.rsData = claimEdges(this.rsData, action);
         }
     }
-    async getClaim(id: string): Promise<Claim | undefined> {
+    async getClaim(id: string): Promise<iClaim | undefined> {
         return this.rsData.claims[id];
     }
-    async getClaimEdge(id: string): Promise<ClaimEdge | undefined> {
+    async getClaimEdge(id: string): Promise<iClaimEdge | undefined> {
         return this.rsData.claimEdges[id];
     }
-    async getScore(id: string): Promise<Score | undefined> {
+    async getScore(id: string): Promise<iScore | undefined> {
         return this.rsData.scores[id];
     }
-    async getClaimEdgesByParentId(parentId: string): Promise<ClaimEdge[]> {
+    async getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]> {
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];
-        const claimEdges: ClaimEdge[] = [];
+        const claimEdges: iClaimEdge[] = [];
         if (claimEdgeIdStrings) {
             for (const claimEdgeIdString of claimEdgeIdStrings) {
                 const claimEdge = await this.getClaimEdge(claimEdgeIdString)
@@ -52,18 +43,18 @@ export class Repository implements iRepository {
         }
         return claimEdges
     }
-    async getClaimEdgesByChildId(childId: string): Promise<ClaimEdge[]> {
+    async getClaimEdgesByChildId(childId: string): Promise<iClaimEdge[]> {
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByChildId[childId];
-        const claimEdges: ClaimEdge[] = [];
+        const claimEdges: iClaimEdge[] = [];
         for (const claimEdgeIdString of claimEdgeIdStrings) {
             const claimEdge = await this.getClaimEdge(claimEdgeIdString)
             if (claimEdge) claimEdges.push(claimEdge)
         }
         return claimEdges
     }
-    async getScoresByClaimId(sourceClaimId: string): Promise<Score[]> {
+    async getScoresByClaimId(sourceClaimId: string): Promise<iScore[]> {
         const scoreIdStrings = this.rsData.scoreIdsByClaimId[sourceClaimId];
-        const scores: Score[] = [];
+        const scores: iScore[] = [];
         if (scoreIdStrings) {
             for (const scoreIdString of scoreIdStrings) {
                 const score = await this.getScore(scoreIdString)
@@ -72,9 +63,9 @@ export class Repository implements iRepository {
         }
         return scores
     }
-    async getChildrenByScoreId(parentScoreId: string): Promise<Score[]> {
+    async getChildrenByScoreId(parentScoreId: string): Promise<iScore[]> {
         const childIdStrings = this.rsData.childIdsByScoreId[parentScoreId];
-        const scores: Score[] = [];
+        const scores: iScore[] = [];
         if (childIdStrings) {
             for (const scoreIdString of childIdStrings) {
                 const score = await this.getScore(scoreIdString)

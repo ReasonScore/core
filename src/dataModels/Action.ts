@@ -1,6 +1,13 @@
 import { ActionTypes } from "./ActionTypes";
 
-export class Action {
+export interface iAction {
+        newData: any,
+        oldData: any,
+        type: ActionTypes,
+        dataId: string,
+}
+
+export class Action implements iAction {
     constructor(
         public newData: any,
         public oldData: any,

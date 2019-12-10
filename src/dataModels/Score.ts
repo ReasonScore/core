@@ -40,6 +40,11 @@ export interface iScore {
     /** The parent of this score in the score tree graph */
     parentScoreId: string | undefined,
     reversible: boolean,
+    /** Is this score a pro of it's parent (false if it is a con) */
+    pro: boolean,
+    /** how confident we sould be in the claim. (AKA True) */
+    /** How the child affects the parent score */
+    affects: Affects,
     /** how confident we sould be in the claim. (AKA True) */
     confidence: number,
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
