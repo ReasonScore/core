@@ -23,6 +23,7 @@ export class ClaimEdge implements Item {
         /** Is the child claim a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
         public id: Id = newId(),
+        public priority: string = "",
         public version: Id = newId(),
         public start: string = new Date().toISOString(),
         public end: string = End,
