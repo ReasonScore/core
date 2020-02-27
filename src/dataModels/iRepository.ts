@@ -3,7 +3,7 @@ import { RsData } from "./RsData";
 
 export interface iRepository {
     rsData: RsData;
-    notify(actions: iAction[]): void
+    notify(actions: iAction[]): void // TODO: move notify completely out of repository?
     getClaim(id: string): Promise<iClaim | undefined>
     getClaimEdge(id: string): Promise<iClaimEdge | undefined>
     getScore(id: string): Promise<iScore | undefined>

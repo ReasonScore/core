@@ -1,13 +1,12 @@
-import { Repository } from "../Repository";
+import { PureRepository } from "../PureRepository";
 import { calculateScores } from "../calculateScores";
 import { calculateScore } from "../calculateScore";
 import { Claim } from "../dataModels/Claim";
 import { Action } from "../dataModels/Action";
-import { Score } from "../dataModels/Score";
 
 
 test.only('test', async () => {
-    const repository = new Repository();
+    const repository = new PureRepository();
     const result = await calculateScores({
         actions: [
             new Action(new Claim("", "testClaim"), {}, "add_claim", "testClaim")
