@@ -1,5 +1,16 @@
 import { Score } from "./dataModels/Score";
 
+export interface iCalculateScore {
+    ({ scores , reversible , sourceClaimId }: {
+        /** An array of grouped edges and claims*/
+        scores?: Score[];
+        /** Can this score fall below a 0 confidence (have a negative confidence) */
+        reversible?: boolean;
+        /** The ID of the claim we are creating a score for */
+        sourceClaimId?: string;
+    }) : Score
+}
+
 /**
  * Calculates a new score based on the child scores passed in.
  */
@@ -11,7 +22,7 @@ export function calculateScore({ scores = [], reversible = true, sourceClaimId =
     /** The ID of the claim we are creating a score for */
     sourceClaimId?: string;
 } = {},
-) {
+) : Score {
     const newScore: Score = new Score(sourceClaimId);
     let childrenConfidence = 0
     let childrenRelevance = 0
