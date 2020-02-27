@@ -6,7 +6,7 @@ import { Affects } from "./Affects";
 export class Score implements iScore {
     constructor(
         /** The claim to which this score belongs */
-        public sourceClaimId: string,
+        public sourceClaimId: string,  //TODO: Should we change this to also be an edge so we can have a claim exist twice with the same parent?
         /** The parent of this score in the score tree graph */
         public parentScoreId: string | undefined = undefined,
         public reversible: boolean = false,
