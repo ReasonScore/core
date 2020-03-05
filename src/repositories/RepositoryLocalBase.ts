@@ -1,11 +1,11 @@
-import { iClaimEdge } from "./dataModels/ClaimEdge";
-import { iScore } from "./dataModels/Score";
-import { RsData, iRsData } from "./dataModels/RsData";
-import { iAction } from "./dataModels/Action";
-import { iClaim } from "./dataModels/Claim";
+import { iClaimEdge } from "../dataModels/ClaimEdge";
+import { iScore } from "../dataModels/Score";
+import { RsData, iRsData } from "../dataModels/RsData";
+import { iAction } from "../dataModels/Action";
+import { iClaim } from "../dataModels/Claim";
 
 
-export class BaseRepository {
+export class RepositoryLocalBase {
 
     constructor(
         public rsData: iRsData = new RsData()

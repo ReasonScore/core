@@ -1,5 +1,5 @@
-import { iAction } from "../dataModels/Action"
-import { iRsData } from "../dataModels/RsData"
+import { iAction } from "../../dataModels/Action"
+import { iRsData } from "../../dataModels/RsData"
 
 export function claims(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
     switch (action.type) {

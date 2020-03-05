@@ -1,15 +1,15 @@
-import { PureRepository } from "../PureRepository";
+import { RepositoryLocalPure } from "../repositories/RepositoryLocalPure";
 import { calculateScoreActions } from "../calculateScoreActions";
 import { calculateScore } from "../calculateScore";
 import { Claim } from "../dataModels/Claim";
 import { Action } from "../dataModels/Action";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { ReactiveRepository } from "../ReactiveRepository";
+import { RepositoryLocalReactive } from "../repositories/RepositoryLocalReactive";
 import { Score } from "../dataModels/Score";
 
 
 test('add a new scoretree', async () => {
-    const repository = new ReactiveRepository();
+    const repository = new RepositoryLocalReactive();
     // Add a new claim and set it as a score tree top
     const result = await calculateScoreActions({
         actions: [
@@ -38,8 +38,8 @@ test('add a new scoretree', async () => {
     )
 });
 
-test.only('Add a child that does not change the top score', async () => {
-    const repository = new ReactiveRepository({
+test('Add a child that does not change the top score', async () => {
+    const repository = new RepositoryLocalReactive({
         "actionsLog": [],
         "claims": {
           "testClaim": {

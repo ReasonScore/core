@@ -1,14 +1,14 @@
-import { iClaimEdge, ClaimEdge } from "./dataModels/ClaimEdge";
-import { iScore, Score } from "./dataModels/Score";
-import { RsData, iRsData } from "./dataModels/RsData";
-import { iRepository } from "./dataModels/iRepository";
-import { iAction, Action } from "./dataModels/Action";
-import { iClaim } from "./dataModels/Claim";
-import { BaseRepository } from "./BaseRepository";
-import { ActionTypes } from "./dataModels/ActionTypes";
+import { iClaimEdge, ClaimEdge } from "../dataModels/ClaimEdge";
+import { iScore, Score } from "../dataModels/Score";
+import { RsData, iRsData } from "../dataModels/RsData";
+import { iRepository } from "../dataModels/iRepository";
+import { iAction, Action } from "../dataModels/Action";
+import { iClaim } from "../dataModels/Claim";
+import { RepositoryLocalBase } from "./RepositoryLocalBase";
+import { ActionTypes } from "../dataModels/ActionTypes";
 
 
-export class ReactiveRepository extends BaseRepository implements iRepository {
+export class RepositoryLocalReactive extends RepositoryLocalBase implements iRepository {
 
     constructor(
         public rsData: iRsData = new RsData()

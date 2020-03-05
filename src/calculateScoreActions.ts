@@ -1,17 +1,17 @@
 import { Score, differentScores } from "./dataModels/Score";
 import { Action } from "./dataModels/Action";
-import { PureRepository } from "./PureRepository";
+import { RepositoryLocalPure } from "./repositories/RepositoryLocalPure";
 import { iCalculateScore, calculateScore } from "./calculateScore";
 import { Claim } from "./dataModels/Claim";
 import { iRepository } from "./dataModels/iRepository";
 import { ClaimEdge } from "./dataModels/ClaimEdge";
 import { newId } from "./newId";
-import { ReactiveRepository } from "./ReactiveRepository";
+import { RepositoryLocalReactive } from "./repositories/RepositoryLocalReactive";
 
 /**
  * Calculates the score actions based on a list of actions
  */
-export async function calculateScoreActions({ actions = [], repository = new ReactiveRepository(), calculator = calculateScore }: {
+export async function calculateScoreActions({ actions = [], repository = new RepositoryLocalReactive(), calculator = calculateScore }: {
     /** An array of actions, usually on claims or edges that incluse no scores*/
     actions?: Action[];
     /** The repository used to get context for the actions */
@@ -121,8 +121,5 @@ async function calculateScoreTree(repository: iRepository, currentScore: Score, 
     if (differentScores(currentScore, newScore)) {
         actions.push(new Action(newScore, undefined, "add_score", newScore.id));
     }
-
-
     return newScore;
-
 }

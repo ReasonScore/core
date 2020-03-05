@@ -1,6 +1,6 @@
-import { iAction } from "../dataModels/Action"
-import { iRsData } from "../dataModels/RsData"
-import { ClaimEdge } from "../dataModels/ClaimEdge"
+import { iAction } from "../../dataModels/Action"
+import { iRsData } from "../../dataModels/RsData"
+import { ClaimEdge } from "../../dataModels/ClaimEdge"
 
 export function claimEdges(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
     switch (action.type) {
