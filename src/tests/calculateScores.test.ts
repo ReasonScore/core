@@ -5,12 +5,13 @@ import { Claim } from "../dataModels/Claim";
 import { Action } from "../dataModels/Action";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
 import { ReactiveRepository } from "../ReactiveRepository";
+import { Score } from "../dataModels/Score";
 
 
 test('add a new scoretree', async () => {
     const repository = new ReactiveRepository();
     // Add a new claim and set it as a score tree top
-    const result1 = await calculateScoreActions({
+    const result = await calculateScoreActions({
         actions: [
             new Action(new Claim("", "testClaim"), undefined, "add_claim", "testClaim"),
             new Action(undefined, undefined, "add_scoretree", "testClaim")
@@ -19,7 +20,7 @@ test('add a new scoretree', async () => {
         calculator: calculateScore
     })
 
-    expect(result1).toMatchObject(
+    expect(result).toMatchObject(
         [{
             "newData":
             {
@@ -78,17 +79,17 @@ test.only('Add a child that does not change the top score', async () => {
       });
 
     //Add a child that does not change the top score
-    const result2 = await calculateScoreActions({
+    const result = await calculateScoreActions({
         actions: [
-            //new Action(new Claim("", "ChildClaim1"), undefined, "add_claim", "ChildClaim1"),
-            new Action(new ClaimEdge("testClaim","ChildClaim1"), undefined, "add_claimEdge","ChildClaim1Edge")
+            new Action(new ClaimEdge("testClaim","ChildClaim1", undefined, undefined,"ChildClaim1Edge"), undefined, "add_claimEdge","ChildClaim1Edge")
         ],
         repository: repository,
         calculator: calculateScore
     })
 
-    expect(result2).toMatchObject(
-        [{
+    expect(result).toMatchObject(
+        [
+          {
             "newData":
             {
                 "sourceClaimId": "ChildClaim1",
@@ -99,10 +100,11 @@ test.only('Add a child that does not change the top score', async () => {
                 "relevance": 1,
                 "parentScoreId": "Y9ZapFMMg0Bf"
                 //"dataId": "Ya3ZeuTmGUZq"
-            }, "oldData": {},
+            }, "oldData": undefined,
             "type": "add_score",
             //"dataId": "Ya3ZeuTmGUZq"
-        }]
+         }
+      ]
     )
 
 });

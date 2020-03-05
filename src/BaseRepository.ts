@@ -22,6 +22,7 @@ export class BaseRepository {
         return this.rsData.scores[id];
     }
     async getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]> {
+        debugger
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];
         const claimEdges: iClaimEdge[] = [];
         if (claimEdgeIdStrings) {

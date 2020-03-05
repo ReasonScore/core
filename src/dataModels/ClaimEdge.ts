@@ -2,8 +2,8 @@ import { Affects } from "./Affects"
 import { ItemTypes } from "./ItemTypes";
 import { newId } from "../newId";
 /**
- * Stores the relationship between two claims.
- * This is directional as the edge points from one claim to another.
+ * Stores the relationship between a claim and an item (usually another claim).
+ * This is directional as the edge points from one claim to it's parent.
  * This is just a data transfer object so it should have no logic in it
  * and only JSON compatible types string, number, object, array, boolean
  */

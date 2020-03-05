@@ -31,6 +31,7 @@ export function differentScores(scoreA: Score, scoreB: Score) {
     return !(
         scoreA.confidence == scoreB.confidence
         && scoreA.relevance == scoreB.relevance
+        && scoreA.pro == scoreB.pro
     )
 }
 
