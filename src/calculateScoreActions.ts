@@ -1,4 +1,4 @@
-import { Score, differentScores } from "./dataModels/Score";
+import { Score, differentScores, iScore } from "./dataModels/Score";
 import { Action } from "./dataModels/Action";
 import { RepositoryLocalPure } from "./repositories/RepositoryLocalPure";
 import { iCalculateScore, calculateScore } from "./calculateScore";
@@ -38,7 +38,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             claimIdsToScore.push(action.dataId)
             const claim = await repository.getClaim(action.dataId);
             if (claim) {
-                const score = calculator({ sourceClaimId: claim.id });
+                const score = new Score(claim.id);
                 const action = new Action(score, {}, "add_score", score.id);
                 scoreActions.push(action);
                 repository.notify([action]);
@@ -56,22 +56,24 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             const scoresForTheClaim = await repository.getScoresByClaimId(claimId)
             for (const claimScore of scoresForTheClaim) {
                 // for each score, walk up the tree looking for the top (the first score to not have a parentId)
-                let currentScore: Score | undefined = claimScore;
+                let currentScore: iScore | undefined = claimScore;
                 let topScoreId = claimScore.id;
                 while (currentScore?.parentScoreId) {
                     topScoreId = currentScore.id;
                     currentScore = await repository.getScore(currentScore.parentScoreId);
                 }
-                topScoreIds.push(topScoreId)
+                if (topScoreId) {
+                    topScoreIds.push(topScoreId)
+                }
             }
         }
 
         //Re-calc all top scores with possible changed claims
-        debugger
         for (const topScoreId of topScoreIds) {
             const topScore = await repository.getScore(topScoreId)
             if (topScore) {
-                await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId, scoreActions)
+                await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", scoreActions)
+                await repository.notify(scoreActions)
                 await calculateScoreTree(repository, topScore, calculator, scoreActions);
             }
         }
@@ -90,8 +92,6 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
         if (!score) {
             //Create a new Score and attach it to it's parent
             score = new Score(edge.childId, currentScoreId, undefined, edge.pro, edge.affects);
-            //TODO: Should we add the new scores to the repository (If they are different form the old score?)
-            //TODO: Should we check the new score and only add it to the actions if it is different from the old score?
             actions.push(new Action(score, undefined, "add_score", score.id));
         }
         //Recurse and through children
@@ -100,7 +100,7 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
 }
 
 //This function assume that all scores already exist
-async function calculateScoreTree(repository: iRepository, currentScore: Score, calculator: iCalculateScore = calculateScore, actions: Action[]) {
+async function calculateScoreTree(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[]) {
     const oldScores = await repository.getChildrenByScoreId(currentScore.id)
     const newScores: Score[] = [];
 
@@ -109,15 +109,14 @@ async function calculateScoreTree(repository: iRepository, currentScore: Score, 
         newScores.push(await calculateScoreTree(repository, oldScore, calculator, actions));
     }
 
-    const newScore = calculator({
-        scores: newScores,
+    const newScoreFragment = calculator({
+        childScores: newScores,
         reversible: currentScore.reversible,
-        sourceClaimId: currentScore.sourceClaimId
     })
-    newScore.id = currentScore.id;
-    newScore.parentScoreId = currentScore.id;
     //TODO: Modify the newScore based on any formulas
     //TODO: Should we add the new scores to the repository (If they are different form the old score?)
+    const newScore = { ...currentScore, ...newScoreFragment }
+    debugger
     if (differentScores(currentScore, newScore)) {
         actions.push(new Action(newScore, undefined, "add_score", newScore.id));
     }

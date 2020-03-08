@@ -1,40 +1,38 @@
-import { Score } from "./dataModels/Score";
+import { Score, iScore, iScoreFragment } from "./dataModels/Score";
 
 export interface iCalculateScore {
-    ({ scores , reversible , sourceClaimId }: {
+    ({ childScores , reversible }: {
         /** An array of grouped edges and claims*/
-        scores?: Score[];
+        childScores?: Score[];
         /** Can this score fall below a 0 confidence (have a negative confidence) */
-        reversible?: boolean;
-        /** The ID of the claim we are creating a score for */
-        sourceClaimId?: string;
-    }) : Score
+        reversible?: boolean
+    }) : iScoreFragment
 }
 
 /**
  * Calculates a new score based on the child scores passed in.
  */
-export function calculateScore({ scores = [], reversible = true, sourceClaimId = '' }: {
+export function calculateScore({ childScores = [], reversible = true }: {
     /** An array of grouped edges and claims*/
-    scores?: Score[];
+    childScores?: Score[];
     /** Can this score fall below a 0 confidence (have a negative confidence) */
-    reversible?: boolean;
-    /** The ID of the claim we are creating a score for */
-    sourceClaimId?: string;
+    reversible?: boolean
 } = {},
-) : Score {
-    const newScore: Score = new Score(sourceClaimId);
+) : iScoreFragment {
+    
+    const newScore: iScoreFragment = {};
+    
     let childrenConfidence = 0
     let childrenRelevance = 0
 
-    if (scores.filter(s => s.affects === 'confidence').length < 1) {
+    if (childScores.filter(s => s.affects === 'confidence').length < 1) {
         // If there are no children that affect the confidence of the claim
         // then assume the claim is 100% confident and start strength and relevance at 1
         childrenConfidence = 1;
         childrenRelevance = 1;
     }
 
-    scores.forEach(score => {
+    childScores.forEach(score => {
         // Loop through the child scores and determine the score of the parent.
         if (score.affects === 'confidence') {
 
@@ -57,9 +55,9 @@ export function calculateScore({ scores = [], reversible = true, sourceClaimId =
         if (score.affects === 'relevance') {
             // Process Relevance child claims
             if (score.pro) {
-                newScore.relevance += score.confidence; // Add up all the strength of the children
+                score.relevance += score.confidence; // Add up all the strength of the children
             } else {
-                newScore.relevance -= score.confidence;
+                score.relevance -= score.confidence;
             }
         }
     });
@@ -81,11 +79,6 @@ export function calculateScore({ scores = [], reversible = true, sourceClaimId =
         // Protect against negative zero 
         newScore.confidence = 0;
     }
-
-    if (sourceClaimId !== undefined) {
-        newScore.sourceClaimId = sourceClaimId
-    }
-
 
     return newScore;
 }

@@ -93,10 +93,10 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
         let indexId = score.parentScoreId;
         let id = score.id;
         if (indexId) {
-            let destination = this.rsData.scoreIdsByClaimId[indexId];
+            let destination = this.rsData.childIdsByScoreId[indexId];
             if (!destination) {
                 destination = [];
-                this.rsData.scoreIdsByClaimId[indexId] = destination;
+                this.rsData.childIdsByScoreId[indexId] = destination;
             }
             if (!destination.includes(id)) {
                 destination.push(id)

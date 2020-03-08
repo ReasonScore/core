@@ -41,7 +41,7 @@ describe.each(JsonTestData)(
     (testJson) => {
         const t: TestData = JSON.parse(testJson);
         test(t.testDescription + ' Confidence', () => {
-            const result = calculateScore({ scores: t.scores, reversible: t.reversible });
+            const result = calculateScore({ childScores: t.scores, reversible: t.reversible });
             expect(result.confidence).toBe(t.expectedScore.confidence)
         });
 
