@@ -75,7 +75,7 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
         }
     }
 
-    private scoreIdsByClaimId(score: Score) {
+    private scoreIdsByClaimId(score: iScore) {
         let indexId = score.sourceClaimId;
         let id = score.id;
         let destination = this.rsData.scoreIdsByClaimId[indexId];
@@ -89,7 +89,7 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
     }
 
     //TODO: not sure if this is correct
-    private childIdsByScoreId(score: Score) {
+    private childIdsByScoreId(score: iScore) {
         let indexId = score.parentScoreId;
         let id = score.id;
         if (indexId) {

@@ -1,9 +1,9 @@
-import { Score, iScore, iScoreFragment } from "./dataModels/Score";
+import { iScore, iScoreFragment } from "./dataModels/Score";
 
 export interface iCalculateScore {
     ({ childScores , reversible }: {
         /** An array of grouped edges and claims*/
-        childScores?: Score[];
+        childScores?: iScore[];
         /** Can this score fall below a 0 confidence (have a negative confidence) */
         reversible?: boolean
     }) : iScoreFragment
@@ -14,7 +14,7 @@ export interface iCalculateScore {
  */
 export function calculateScore({ childScores = [], reversible = true }: {
     /** An array of grouped edges and claims*/
-    childScores?: Score[];
+    childScores?: iScore[];
     /** Can this score fall below a 0 confidence (have a negative confidence) */
     reversible?: boolean
 } = {},

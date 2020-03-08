@@ -102,7 +102,7 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
 //This function assume that all scores already exist
 async function calculateScoreTree(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[]) {
     const oldScores = await repository.getChildrenByScoreId(currentScore.id)
-    const newScores: Score[] = [];
+    const newScores: iScore[] = [];
 
     for (const oldScore of oldScores) { //Calculate Children
         //TODO: remove any scores to calculate based on formulas
