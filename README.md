@@ -1,0 +1,1 @@
+[![Known Vulnerabilities](https://snyk.io/test/github/ReasonScore/core/badge.svg?targetFile=package.json)](https://snyk.io/test/github/ReasonScore/core?targetFile=package.json)
