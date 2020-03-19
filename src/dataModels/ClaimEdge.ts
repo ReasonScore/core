@@ -1,35 +1,40 @@
 import { Affects } from "./Affects"
-import { Item } from "./Item";
-import { Type } from "./Type";
-import End from "./End"
+import { ItemTypes } from "./ItemTypes";
 import { newId } from "../newId";
-import { Id, ID } from "./Id";
 /**
- * Stores the relationship between two claims.
- * This is directional as the edge points from one claim to another.
+ * Stores the relationship between a claim and an item (usually another claim).
+ * This is directional as the edge points from one claim to it's parent.
  * This is just a data transfer object so it should have no logic in it
  * and only JSON compatible types string, number, object, array, boolean
  */
-export class ClaimEdge implements Item {
-    type: Type = Type.claimEdge
-    
+export class ClaimEdge {
+    type: ItemTypes = 'claimEdge'
+
     constructor(
         /** The ID for the parent claim this edge points to */
-        public parentId: Id = ID(""),
+        public parentId: string,
         /** The ID for the child claim this edge points from */
-        public childId: Id = ID(""),
-        /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
-        public affects: Affects = Affects.Confidence,
+        public childId: string,
+        /** How the child affects the parent score */
+        public affects: Affects = 'confidence',
         /** Is the child claim a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
         public id: Id = newId(),
         public priority: string = "",
-        public version: Id = newId(),
-        public start: string = new Date().toISOString(),
-        public end: string = End,
     ) {
     }
 }
 
-        /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
-        //public reversible: boolean = false,
+export interface iClaimEdge {
+    type: ItemTypes
+
+    /** The ID for the parent claim this edge points to */
+    parentId: string,
+    /** The ID for the child claim this edge points from */
+    childId: string,
+    /** How the child affects the parent score */
+    affects: Affects,
+    /** Is the child claim a pro of it's parent (false if it is a con) */
+    pro: boolean,
+    id: string,
+}

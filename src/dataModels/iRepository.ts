@@ -1,10 +1,14 @@
-import { Change, Id, ClaimEdge, Score } from "..";
-import { Item } from "./Item";
+import { iAction, iClaimEdge, iScore, iClaim } from "..";
+import { RsData } from "./RsData";
 
 export interface iRepository {
-    notify(changes: Change[]): void
-    getItem(ItemId: Id, when?: string): Promise<Item | undefined>
-    getClaimEdgesByParentId(parentId: Id, when?: string): Promise<ClaimEdge[]>
-    getClaimEdgesByChildId(childId: Id, when?: string): Promise<ClaimEdge[]>
-    getScoreBySourceClaimId(sourceClaimId: Id, when?: string): Promise<Score | undefined>
+    rsData: RsData;
+    notify(actions: iAction[]): void // TODO: move notify completely out of repository?
+    getClaim(id: string): Promise<iClaim | undefined>
+    getClaimEdge(id: string): Promise<iClaimEdge | undefined>
+    getScore(id: string): Promise<iScore | undefined>
+    getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]>
+    getClaimEdgesByChildId(childId: string): Promise<iClaimEdge[]>
+    getScoresByClaimId(sourceClaimId: string): Promise<iScore[]>
+    getChildrenByScoreId(scoreId: string): Promise<iScore[]>
 }

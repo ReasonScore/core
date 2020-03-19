@@ -1,4 +1,4 @@
-import { Score } from "./dataModels/Score";
+import { iScore } from "./dataModels/Score";
 import { Id } from "./dataModels/Id";
 import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
 /**
@@ -11,4 +11,4 @@ export declare function calculateScore({ scoreAndClaimEdges, reversible, sourceC
     reversible?: boolean;
     /** The ID of the claim we are creating a score for */
     sourceClaimId?: Id;
-}): Score;
+}): iScore;

@@ -1,26 +1,46 @@
-import { Item } from "./Item";
+import { iAction, iClaim, iClaimEdge, iScore } from "..";
 
-export interface ItemDictionary { [idString: string]: Item; }
 export interface Index { [searchIndex: string]: string; } //Store the string for the ID
 export interface IndexArray { [searchIndex: string]: string[]; } //Store the string for the ID
-export interface IndexVersionDateArray { [searchIndex: string]: VersionDate[]; } //Store the string for the ID
 
-export class VersionDate {
-    constructor(
-        public ItemIdString: string,
-        public start: string,
-        public end: string
-    ) {
-    }
+export interface iRsData {
+    /** Stores all the actions sent through */
+    actionsLog: iAction[][],
+    // Claim data
+    /** Stores all the current claims */
+    claims: { [idString: string]: iClaim; },
+    /** Stores all the current claim edges */
+    claimEdges: { [idString: string]: iClaimEdge; },
+
+    // Claim Indexes - Local
+    claimEdgeIdsByParentId: IndexArray,
+    claimEdgeIdsByChildId: IndexArray,
+
+    // Score Data - Local
+    scores: { [idString: string]: iScore; },
+    //Score Indexes - Local
+    scoreIdsByClaimId: IndexArray,
+    childIdsByScoreId: IndexArray,
 }
 
-export class RsData {
+export class RsData implements iRsData {
     constructor(
-        public versions: ItemDictionary = {},
-        public scoreBySourceClaimId: Index = {},
-        public claimEdgesByParentId: IndexArray = {},
-        public claimEdgesByChildId: IndexArray = {},
-        public versionIdByItemId: IndexVersionDateArray = {},
+        public actionsLog: iAction[][] = [],
+        // Claim data
+        /** Stores all the current claims */
+        public claims: { [idString: string]: iClaim; } = {},
+        /** Stores all the current claim edges */
+        public claimEdges: { [idString: string]: iClaimEdge; } = {},
+
+        // Claim Indexes - Local
+        public claimEdgeIdsByParentId: IndexArray = {},
+        public claimEdgeIdsByChildId: IndexArray = {},
+
+        // Score Data - Local
+        public scores: { [idString: string]: iScore; } = {},
+        //Score Indexes - Local
+        public scoreIdsByClaimId: IndexArray = {},
+        public childIdsByScoreId: IndexArray = {},
     ) {
     }
 }

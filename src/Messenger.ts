@@ -1,14 +1,14 @@
-import { Change } from "./dataModels/Change";
+import { Action } from "./dataModels/Action";
 
 export class Messenger {
-    public readonly subscribers: { (changes: Change[]): void; }[] = []
-    public readonly log: Change[][] = [];
+    public readonly subscribers: { (changes: Action[]): void; }[] = []
+    public readonly log: Action[][] = [];
 
-    subscribe(callback: (changes: Change[]) => void): void {
+    subscribe(callback: (changes: Action[]) => void): void {
         this.subscribers.push(callback)
     }
 
-    unsubscribe(callback: (changes: Change[]) => void): void {
+    unsubscribe(callback: (changes: Action[]) => void): void {
         const index = this.subscribers.indexOf(callback, 0);
         if (index > -1) {
             this.subscribers.splice(index, 1);
@@ -16,7 +16,7 @@ export class Messenger {
     }
 
     /** this function can be called by outside code to notfy this repository of changes */
-    notify = (changes: Change[]) => {
+    notify = (changes: Action[]) => {
         this.log.push(changes);
         for (const subscriber of this.subscribers) {
             subscriber(changes);
