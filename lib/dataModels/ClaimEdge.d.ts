@@ -18,6 +18,7 @@ export declare class ClaimEdge implements Item {
     /** Is the child claim a pro of it's parent (false if it is a con) */
     pro: boolean;
     id: Id;
+    priority: string;
     version: Id;
     start: string;
     end: string;
@@ -30,6 +31,6 @@ export declare class ClaimEdge implements Item {
     /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
     affects?: Affects, 
     /** Is the child claim a pro of it's parent (false if it is a con) */
-    pro?: boolean, id?: Id, version?: Id, start?: string, end?: string);
+    pro?: boolean, id?: Id, priority?: string, version?: Id, start?: string, end?: string);
 }
 /** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
