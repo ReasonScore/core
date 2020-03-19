@@ -1,14 +1,18 @@
-import { iScore } from "./dataModels/Score";
-import { Id } from "./dataModels/Id";
-import { ScoreAndClaimEdge } from "./dataModels/ScoreAndClaimEdge";
+import { iScore, iScoreFragment } from "./dataModels/Score";
+export interface iCalculateScore {
+    ({ childScores, reversible }: {
+        /** An array of grouped edges and claims*/
+        childScores?: iScore[];
+        /** Can this score fall below a 0 confidence (have a negative confidence) */
+        reversible?: boolean;
+    }): iScoreFragment;
+}
 /**
- * Calculates a new score based on the child scores and how thay wre linked (by edged) the claim this score is for.
+ * Calculates a new score based on the child scores passed in.
  */
-export declare function calculateScore({ scoreAndClaimEdges, reversible, sourceClaimId }?: {
+export declare function calculateScore({ childScores, reversible }?: {
     /** An array of grouped edges and claims*/
-    scoreAndClaimEdges?: ScoreAndClaimEdge[];
+    childScores?: iScore[];
     /** Can this score fall below a 0 confidence (have a negative confidence) */
     reversible?: boolean;
-    /** The ID of the claim we are creating a score for */
-    sourceClaimId?: Id;
-}): iScore;
+}): iScoreFragment;

@@ -1,27 +1,55 @@
-import { Item } from "./Item";
-export interface ItemDictionary {
-    [idString: string]: Item;
-}
+import { iAction, iClaim, iClaimEdge, iScore } from "..";
 export interface Index {
     [searchIndex: string]: string;
 }
 export interface IndexArray {
     [searchIndex: string]: string[];
 }
-export interface IndexVersionDateArray {
-    [searchIndex: string]: VersionDate[];
+export interface iRsData {
+    /** Stores all the actions sent through */
+    actionsLog: iAction[][];
+    /** Stores all the current claims */
+    claims: {
+        [idString: string]: iClaim;
+    };
+    /** Stores all the current claim edges */
+    claimEdges: {
+        [idString: string]: iClaimEdge;
+    };
+    claimEdgeIdsByParentId: IndexArray;
+    claimEdgeIdsByChildId: IndexArray;
+    scores: {
+        [idString: string]: iScore;
+    };
+    scoreIdsByClaimId: IndexArray;
+    childIdsByScoreId: IndexArray;
 }
-export declare class VersionDate {
-    ItemIdString: string;
-    start: string;
-    end: string;
-    constructor(ItemIdString: string, start: string, end: string);
-}
-export declare class RsData {
-    versions: ItemDictionary;
-    scoreBySourceClaimId: Index;
-    claimEdgesByParentId: IndexArray;
-    claimEdgesByChildId: IndexArray;
-    versionIdByItemId: IndexVersionDateArray;
-    constructor(versions?: ItemDictionary, scoreBySourceClaimId?: Index, claimEdgesByParentId?: IndexArray, claimEdgesByChildId?: IndexArray, versionIdByItemId?: IndexVersionDateArray);
+export declare class RsData implements iRsData {
+    actionsLog: iAction[][];
+    /** Stores all the current claims */
+    claims: {
+        [idString: string]: iClaim;
+    };
+    /** Stores all the current claim edges */
+    claimEdges: {
+        [idString: string]: iClaimEdge;
+    };
+    claimEdgeIdsByParentId: IndexArray;
+    claimEdgeIdsByChildId: IndexArray;
+    scores: {
+        [idString: string]: iScore;
+    };
+    scoreIdsByClaimId: IndexArray;
+    childIdsByScoreId: IndexArray;
+    constructor(actionsLog?: iAction[][], 
+    /** Stores all the current claims */
+    claims?: {
+        [idString: string]: iClaim;
+    }, 
+    /** Stores all the current claim edges */
+    claimEdges?: {
+        [idString: string]: iClaimEdge;
+    }, claimEdgeIdsByParentId?: IndexArray, claimEdgeIdsByChildId?: IndexArray, scores?: {
+        [idString: string]: iScore;
+    }, scoreIdsByClaimId?: IndexArray, childIdsByScoreId?: IndexArray);
 }

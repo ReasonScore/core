@@ -1,46 +1,69 @@
-import { Item } from "./Item";
-import { Type } from "./Type";
-import { Id } from "./Id";
+import { Affects } from "./Affects";
 /**
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
- * Usually within the context of a view of the claim or another claim
  */
-export declare class Score implements iScore {
+export declare class Score implements iScore, iScoreFragment {
+    /** The claim to which this score belongs */
+    sourceClaimId: string;
+    /** The parent of this score in the score tree graph */
+    parentScoreId: string | undefined;
+    reversible: boolean;
+    /** Is this score a pro of it's parent (false if it is a con) */
+    pro: boolean;
     /** how confident we sould be in the claim. (AKA True) */
+    /** How the child affects the parent score */
+    affects: Affects;
     confidence: number;
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number;
-    id: Id;
-    /** The claim to which this score belongs */
-    sourceClaimId: Id;
-    version: Id;
-    start: string;
-    end: string;
-    type: Type;
+    id: string;
     constructor(
+    /** The claim to which this score belongs */
+    sourceClaimId?: string, //TODO: Should we change this to also be an edge so we can have a claim exist twice with the same parent?
+    /** The parent of this score in the score tree graph */
+    parentScoreId?: string | undefined, reversible?: boolean, 
+    /** Is this score a pro of it's parent (false if it is a con) */
+    pro?: boolean, 
     /** how confident we sould be in the claim. (AKA True) */
-    confidence?: number, 
+    /** How the child affects the parent score */
+    affects?: Affects, confidence?: number, 
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
-    relevance?: number, id?: Id, 
-    /** The claim to which this score belongs */
-    sourceClaimId?: Id, version?: Id, start?: string, end?: string);
+    relevance?: number, id?: string);
 }
 /** Compare two scores to see if they are different in what the score is.
  *  Just compares confidence and relavance
  */
 export declare function differentScores(scoreA: iScore, scoreB: iScore): boolean;
-export interface iScore extends Item {
+export interface iScore {
+    /** The claim to which this score belongs */
+    sourceClaimId: string;
+    /** The parent of this score in the score tree graph */
+    parentScoreId: string | undefined;
+    reversible: boolean;
+    /** Is this score a pro of it's parent (false if it is a con) */
+    pro: boolean;
+    /** how confident we sould be in the claim. (AKA True) */
+    /** How the child affects the parent score */
+    affects: Affects;
     /** how confident we sould be in the claim. (AKA True) */
     confidence: number;
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number;
-    id: Id;
-    /** The claim to which this score belongs */
-    sourceClaimId: Id;
-    version: Id;
-    start: string;
-    end: string;
+    id: string;
+}
+export interface iScoreFragment {
+    reversible?: boolean;
+    /** Is this score a pro of it's parent (false if it is a con) */
+    pro?: boolean;
+    /** how confident we sould be in the claim. (AKA True) */
+    /** How the child affects the parent score */
+    affects?: Affects;
+    /** how confident we sould be in the claim. (AKA True) */
+    confidence?: number;
+    /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
+     * A multiplier set by all the child edges that affect 'relevance'*/
+    relevance?: number;
 }

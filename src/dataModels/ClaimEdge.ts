@@ -19,7 +19,7 @@ export class ClaimEdge {
         public affects: Affects = 'confidence',
         /** Is the child claim a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
-        public id: Id = newId(),
+        public id: string = newId(),
         public priority: string = "",
     ) {
     }

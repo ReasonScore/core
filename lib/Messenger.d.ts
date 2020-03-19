@@ -1,11 +1,11 @@
-import { Change } from "./dataModels/Change";
+import { Action } from "./dataModels/Action";
 export declare class Messenger {
     readonly subscribers: {
-        (changes: Change[]): void;
+        (changes: Action[]): void;
     }[];
-    readonly log: Change[][];
-    subscribe(callback: (changes: Change[]) => void): void;
-    unsubscribe(callback: (changes: Change[]) => void): void;
+    readonly log: Action[][];
+    subscribe(callback: (changes: Action[]) => void): void;
+    unsubscribe(callback: (changes: Action[]) => void): void;
     /** this function can be called by outside code to notfy this repository of changes */
-    notify: (changes: Change[]) => void;
+    notify: (changes: Action[]) => void;
 }

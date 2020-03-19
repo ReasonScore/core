@@ -1,36 +1,42 @@
 import { Affects } from "./Affects";
-import { Item } from "./Item";
-import { Type } from "./Type";
-import { Id } from "./Id";
+import { ItemTypes } from "./ItemTypes";
 /**
- * Stores the relationship between two claims.
- * This is directional as the edge points from one claim to another.
+ * Stores the relationship between a claim and an item (usually another claim).
+ * This is directional as the edge points from one claim to it's parent.
  * This is just a data transfer object so it should have no logic in it
  * and only JSON compatible types string, number, object, array, boolean
  */
-export declare class ClaimEdge implements Item {
+export declare class ClaimEdge {
     /** The ID for the parent claim this edge points to */
-    parentId: Id;
+    parentId: string;
     /** The ID for the child claim this edge points from */
-    childId: Id;
-    /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
+    childId: string;
+    /** How the child affects the parent score */
     affects: Affects;
     /** Is the child claim a pro of it's parent (false if it is a con) */
     pro: boolean;
-    id: Id;
+    id: string;
     priority: string;
-    version: Id;
-    start: string;
-    end: string;
-    type: Type;
+    type: ItemTypes;
     constructor(
     /** The ID for the parent claim this edge points to */
-    parentId?: Id, 
+    parentId: string, 
     /** The ID for the child claim this edge points from */
-    childId?: Id, 
-    /** How the child affects the parent. Often what math is done with when using this edge in generating the score */
+    childId: string, 
+    /** How the child affects the parent score */
     affects?: Affects, 
     /** Is the child claim a pro of it's parent (false if it is a con) */
-    pro?: boolean, id?: Id, priority?: string, version?: Id, start?: string, end?: string);
+    pro?: boolean, id?: string, priority?: string);
 }
-/** Can the score for this edge fall below a 0 confidence (have a negative confidence) */
+export interface iClaimEdge {
+    type: ItemTypes;
+    /** The ID for the parent claim this edge points to */
+    parentId: string;
+    /** The ID for the child claim this edge points from */
+    childId: string;
+    /** How the child affects the parent score */
+    affects: Affects;
+    /** Is the child claim a pro of it's parent (false if it is a con) */
+    pro: boolean;
+    id: string;
+}
