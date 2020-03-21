@@ -50,7 +50,6 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             const claimEdge = action.newData as ClaimEdge;
             claimIdsToScore.push(claimEdge.parentId)
         }
-
         //Walk up the scores for each claim to the top
         for (const claimId of claimIdsToScore) {
             const scoresForTheClaim = await repository.getScoresByClaimId(claimId)
@@ -116,7 +115,6 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
     //TODO: Modify the newScore based on any formulas
     //TODO: Should we add the new scores to the repository (If they are different form the old score?)
     const newScore = { ...currentScore, ...newScoreFragment }
-    debugger
     if (differentScores(currentScore, newScore)) {
         actions.push(new Action(newScore, undefined, "add_score", newScore.id));
     }

@@ -1,11 +1,18 @@
 import { iAction } from "../../dataModels/Action"
 import { iRsData } from "../../dataModels/RsData"
-import { ClaimEdge } from "../../dataModels/ClaimEdge"
 
 export function claimEdges(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
     switch (action.type) {
         case "add_claimEdge":
             {
+                //Add any missing arrays
+                if (! state.claimEdgeIdsByParentId[action.newData.parentId]){
+                    state.claimEdgeIdsByParentId[action.newData.parentId] = []
+                }
+                if (! state.claimEdgeIdsByChildId[action.newData.childId]){
+                    state.claimEdgeIdsByChildId[action.newData.childId] = []
+                }
+                
                 return {
                     ...state,
                     claimEdges: {
@@ -16,14 +23,14 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
                         ...state.claimEdgeIdsByParentId,
                         [action.newData.parentId]: [
                             ...state.claimEdgeIdsByParentId[action.newData.parentId],
-                            ...action.dataId
+                            action.dataId
                         ]
                     },
                     claimEdgeIdsByChildId: {
                         ...state.claimEdgeIdsByChildId,
                         [action.newData.childId]: [
                             ...state.claimEdgeIdsByChildId[action.newData.childId],
-                            ...action.dataId
+                            action.dataId
                         ]
                     }
                 } as iRsData

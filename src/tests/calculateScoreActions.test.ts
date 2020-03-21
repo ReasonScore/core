@@ -4,12 +4,11 @@ import { calculateScore } from "../calculateScore";
 import { Claim } from "../dataModels/Claim";
 import { Action } from "../dataModels/Action";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { RepositoryLocalReactive } from "../repositories/RepositoryLocalReactive";
-import { Score } from "../dataModels/Score";
+//import { RepositoryLocalReactive } from "../repositories/RepositoryLocalReactive";
 
 
 test('add a new scoretree', async () => {
-  const repository = new RepositoryLocalReactive();
+  const repository = new RepositoryLocalPure();
   // Add a new claim and set it as a score tree top
   const result = await calculateScoreActions({
     actions: [
@@ -39,7 +38,7 @@ test('add a new scoretree', async () => {
 });
 
 test('Add a child that does not change the top score', async () => {
-  const repository = new RepositoryLocalReactive({
+  const repository = new RepositoryLocalPure({
     "actionsLog": [],
     "claims": {
       "testClaim": {
@@ -109,7 +108,7 @@ test('Add a child that does not change the top score', async () => {
 });
 
 test('Add a child that reverses the top score', async () => {
-  const repository = new RepositoryLocalReactive({
+  const repository = new RepositoryLocalPure({
     "actionsLog": [],
     "claims": {
       "testClaim": {
@@ -155,7 +154,7 @@ test('Add a child that reverses the top score', async () => {
     repository: repository,
     calculator: calculateScore
   })
-debugger
+
   expect(result).toMatchObject(
     [
       {
