@@ -1,6 +1,9 @@
 export * from "./calculateScore";
 export * from "./Messenger";
 export * from "./newId";
+export * from "./calculateScoreActions";
+export * from "./repositories/RepositoryLocalPure"
+export * from "./repositories/RepositoryLocalReactive"
 
 // Data Models
 export * from "./dataModels/Action";
