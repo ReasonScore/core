@@ -1,7 +1,7 @@
 {
   "name": "@reasonscore/core",
   "main": "lib/index.js",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Core code for Reason Score http://ReasonScore.com",
   "scripts": {
     "type-check": "tsc --noEmit",
@@ -12,7 +12,7 @@
     "bundle": "rollup -c",
     "test": "jest",
     "test-debug": "node --inspect-brk ./node_modules/jest/bin/jest.js --runInBand",
-    "publish": "npm publish"
+    "publish-package": "npm publish"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

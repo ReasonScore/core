@@ -584,8 +584,7 @@ var reasonscore_core = (function (exports) {
       switch (action.type) {
         case "add_score" :
           {
-            const score = action.newData;
-            debugger; //Add any missing arrays
+            const score = action.newData; //Add any missing arrays
 
             if (score.parentScoreId && !state.childIdsByScoreId[score.parentScoreId]) {
               state.childIdsByScoreId[score.parentScoreId] = [];

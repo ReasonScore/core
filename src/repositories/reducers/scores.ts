@@ -7,7 +7,6 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
         case "add_score" || "modify_score":
             {
                 const score = action.newData as iScore
-debugger
                 //Add any missing arrays
                 if (score.parentScoreId && !state.childIdsByScoreId[score.parentScoreId]) {
                     state.childIdsByScoreId[score.parentScoreId] = []
