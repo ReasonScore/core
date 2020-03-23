@@ -33,16 +33,24 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             claimIdsToScore.push(action.dataId)
         }
 
-        //Add scores for new Score Tree
-        if (action.type == 'add_scoretree') {
-            claimIdsToScore.push(action.dataId)
-            const claim = await repository.getClaim(action.dataId);
-            if (claim) {
-                const score = new Score(claim.id);
-                const action = new Action(score, {}, "add_score", score.id);
-                scoreActions.push(action);
-                repository.notify([action]);
-            }
+        // //Add scores for new Score Tree
+        // //action.oldData = the claim to start the new score tree from
+        // //TODO: above is an unexpected use of oldData. See if this should be changed or documented as an exception
+        // //action.newData = the base top score for the new score tree
+        // //action.dataId = the new ID for the Score Tree
+        // if (action.type == 'add_scoretree') {
+        //     claimIdsToScore.push(action.oldData.id)
+        //     const claim = await repository.getClaim(action.oldData.id);
+        //     if (claim) {
+        //         const newAction = new Action(action.newData, {}, "add_score", action.newData.id);
+        //         scoreActions.push(newAction);
+        //         repository.notify([newAction]);
+        //     }
+        // }
+
+        if (action.type == "add_score") {
+            const score = action.newData as Score;
+            claimIdsToScore.push(score.sourceClaimId)
         }
 
         //Add scores if edges adds new children to claims in score trees

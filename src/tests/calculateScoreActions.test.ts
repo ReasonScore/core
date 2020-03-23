@@ -4,37 +4,24 @@ import { calculateScore } from "../calculateScore";
 import { Claim } from "../dataModels/Claim";
 import { Action } from "../dataModels/Action";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
+import { Score } from "../dataModels/Score";
 //import { RepositoryLocalReactive } from "../repositories/RepositoryLocalReactive";
 
 
 test('add a new scoretree', async () => {
   const repository = new RepositoryLocalPure();
   // Add a new claim and set it as a score tree top
+  const newScore = new Score("testClaim");
   const result = await calculateScoreActions({
     actions: [
       new Action(new Claim("", "testClaim"), undefined, "add_claim", "testClaim"),
-      new Action(undefined, undefined, "add_scoretree", "testClaim")
+      new Action(newScore, undefined, "add_score", newScore.id)
     ],
     repository: repository,
     calculator: calculateScore
   })
-
-  expect(result).toMatchObject(
-    [{
-      "newData":
-      {
-        "sourceClaimId": "testClaim",
-        "reversible": false,
-        "pro": true,
-        "affects": "confidence",
-        "confidence": 1,
-        "relevance": 1,
-        //"id": "Ya3ZeuTmGUZq"
-      }, "oldData": {},
-      "type": "add_score",
-      //"dataId": "Ya3ZeuTmGUZq"
-    }]
-  )
+debugger
+  expect(repository.rsData.scoreIdsByClaimId["testClaim"].length).toEqual(1)
 });
 
 test('Add a child that does not change the top score', async () => {

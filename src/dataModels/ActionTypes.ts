@@ -12,7 +12,8 @@ export type ActionTypes =
 
     "add_score" |
     "modify_score" |
-    "delete_score"|
+    "delete_score"
 
-    "add_scoretree" |
-    "delete_scoretree"
+    //TODO: do we need scoreTree? I guess just to keep a list of the tops. We could also just record any new scores without parents.
+    // "add_scoretree" |
+    // "delete_scoretree"
