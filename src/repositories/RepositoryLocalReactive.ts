@@ -17,6 +17,7 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
     }
 
     notify(actions: iAction[]): void {
+        this.rsData.actionsLog.push(actions);
         for (const action of actions) {
             // "add_claim" |
             if (action.type == "add_claim" ||

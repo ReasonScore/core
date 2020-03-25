@@ -10,5 +10,5 @@ export declare class Action implements iAction {
     oldData: any;
     type: ActionTypes;
     dataId: string;
-    constructor(newData: any, oldData: any, type: ActionTypes, dataId: string);
+    constructor(newData: any, oldData: any, type: ActionTypes, dataId?: string);
 }

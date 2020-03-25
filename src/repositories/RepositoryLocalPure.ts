@@ -16,6 +16,7 @@ export class RepositoryLocalPure extends RepositoryLocalBase implements iReposit
     }
 
     async notify(actions: iAction[]) {
+        this.rsData.actionsLog.push(actions);
         for (const action of actions) {
             //TODO: add more reducers
             this.rsData = claims(this.rsData, action);

@@ -191,11 +191,15 @@ function differentScores(scoreA, scoreB) {
 }
 
 class Action {
-  constructor(newData, oldData, type, dataId) {
+  constructor(newData, oldData, type, dataId = "") {
     this.newData = newData;
     this.oldData = oldData;
     this.type = type;
     this.dataId = dataId;
+
+    if (dataId === "") {
+      this.dataId = newData.id;
+    }
   }
 
 }
@@ -298,6 +302,8 @@ class RepositoryLocalReactive extends RepositoryLocalBase {
   }
 
   notify(actions) {
+    this.rsData.actionsLog.push(actions);
+
     for (const action of actions) {
       // "add_claim" |
       if (action.type == "add_claim" || action.type == "modify_claim") {
@@ -416,21 +422,7 @@ async function calculateScoreActions({
     // find claims that may need scores changed
     if (action.type == 'add_claim' || action.type == 'modify_claim') {
       claimIdsToScore.push(action.dataId);
-    } // //Add scores for new Score Tree
-    // //action.oldData = the claim to start the new score tree from
-    // //TODO: above is an unexpected use of oldData. See if this should be changed or documented as an exception
-    // //action.newData = the base top score for the new score tree
-    // //action.dataId = the new ID for the Score Tree
-    // if (action.type == 'add_scoretree') {
-    //     claimIdsToScore.push(action.oldData.id)
-    //     const claim = await repository.getClaim(action.oldData.id);
-    //     if (claim) {
-    //         const newAction = new Action(action.newData, {}, "add_score", action.newData.id);
-    //         scoreActions.push(newAction);
-    //         repository.notify([newAction]);
-    //     }
-    // }
-
+    }
 
     if (action.type == "add_score") {
       const score = action.newData;
@@ -470,9 +462,16 @@ async function calculateScoreActions({
       const topScore = await repository.getScore(topScoreId);
 
       if (topScore) {
-        await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", scoreActions);
-        await repository.notify(scoreActions);
-        await calculateScoreTree(repository, topScore, calculator, scoreActions);
+        const tempMissingScoreActions = [];
+        await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions);
+
+        if (tempMissingScoreActions.length > 0) {
+          await repository.notify(tempMissingScoreActions);
+        }
+
+        const tempcalculateScoreTreeActions = [];
+        await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
+        scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
       }
     }
   }
@@ -521,7 +520,7 @@ async function calculateScoreTree(repository, currentScore, calculator = calcula
   const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment);
 
   if (differentScores(currentScore, newScore)) {
-    actions.push(new Action(newScore, undefined, "add_score", newScore.id));
+    actions.push(new Action(newScore, undefined, "modify_score", newScore.id));
   }
 
   return newScore;
@@ -632,6 +631,8 @@ class RepositoryLocalPure extends RepositoryLocalBase {
   }
 
   async notify(actions) {
+    this.rsData.actionsLog.push(actions);
+
     for (const action of actions) {
       //TODO: add more reducers
       this.rsData = claims(this.rsData, action);

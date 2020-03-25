@@ -1,7 +1,7 @@
 {
   "name": "@reasonscore/core",
   "main": "lib/index.js",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Core code for Reason Score http://ReasonScore.com",
   "scripts": {
     "type-check": "tsc --noEmit",
@@ -29,11 +29,11 @@
   "homepage": "https://github.com/ReasonScore/core#readme",
   "devDependencies": {
     "@babel/cli": "^7.8.4",
-    "@babel/core": "^7.8.7",
+    "@babel/core": "^7.9.0",
     "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-object-rest-spread": "^7.8.3",
-    "@babel/preset-env": "^7.8.7",
-    "@babel/preset-typescript": "^7.8.3",
+    "@babel/plugin-proposal-object-rest-spread": "^7.9.0",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-typescript": "^7.9.0",
     "@types/jest": "^24.9.1",
     "jest": "^25.1.0",
     "minimist": ">=1.2.2",

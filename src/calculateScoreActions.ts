@@ -25,28 +25,12 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
     const topScoreIds: string[] = [];
 
     await repository.notify(actions);
-
     for (const action of actions) {
 
         // find claims that may need scores changed
         if (action.type == 'add_claim' || action.type == 'modify_claim') {
             claimIdsToScore.push(action.dataId)
         }
-
-        // //Add scores for new Score Tree
-        // //action.oldData = the claim to start the new score tree from
-        // //TODO: above is an unexpected use of oldData. See if this should be changed or documented as an exception
-        // //action.newData = the base top score for the new score tree
-        // //action.dataId = the new ID for the Score Tree
-        // if (action.type == 'add_scoretree') {
-        //     claimIdsToScore.push(action.oldData.id)
-        //     const claim = await repository.getClaim(action.oldData.id);
-        //     if (claim) {
-        //         const newAction = new Action(action.newData, {}, "add_score", action.newData.id);
-        //         scoreActions.push(newAction);
-        //         repository.notify([newAction]);
-        //     }
-        // }
 
         if (action.type == "add_score") {
             const score = action.newData as Score;
@@ -79,9 +63,15 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
         for (const topScoreId of topScoreIds) {
             const topScore = await repository.getScore(topScoreId)
             if (topScore) {
-                await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", scoreActions)
-                await repository.notify(scoreActions)
-                await calculateScoreTree(repository, topScore, calculator, scoreActions);
+                const tempMissingScoreActions: Action[] = [];
+                await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions)
+                if (tempMissingScoreActions.length > 0) { 
+                    await repository.notify(tempMissingScoreActions)
+                }
+                const tempcalculateScoreTreeActions: Action[] = [];
+                await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
+
+                scoreActions.push(...tempMissingScoreActions,...tempcalculateScoreTreeActions)
             }
         }
     }
@@ -124,7 +114,7 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
     //TODO: Should we add the new scores to the repository (If they are different form the old score?)
     const newScore = { ...currentScore, ...newScoreFragment }
     if (differentScores(currentScore, newScore)) {
-        actions.push(new Action(newScore, undefined, "add_score", newScore.id));
+        actions.push(new Action(newScore, undefined, "modify_score", newScore.id));
     }
     return newScore;
 }

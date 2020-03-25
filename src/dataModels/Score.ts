@@ -39,7 +39,7 @@ export interface iScore {
     /** The claim to which this score belongs */
     sourceClaimId: string,
     /** The parent of this score in the score tree graph */
-    parentScoreId: string | undefined,
+    parentScoreId?: string,
     reversible: boolean,
     /** Is this score a pro of it's parent (false if it is a con) */
     pro: boolean,
@@ -52,6 +52,8 @@ export interface iScore {
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number,
     id: string,
+    /** allow for other properties by external implementations */
+    [others: string]: any;
 }
 
 export interface iScoreFragment {
