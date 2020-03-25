@@ -440,12 +440,17 @@ async function calculateScoreActions({
         let currentScore = claimScore;
         let topScoreId = claimScore.id;
 
-        while ((_currentScore = currentScore) === null || _currentScore === void 0 ? void 0 : _currentScore.parentScoreId) {
+        do {
           var _currentScore;
 
-          topScoreId = currentScore.id;
-          currentScore = await repository.getScore(currentScore.parentScoreId);
-        }
+          if (currentScore.parentScoreId) {
+            currentScore = await repository.getScore(currentScore.parentScoreId);
+          }
+
+          if (currentScore) {
+            topScoreId = currentScore.id;
+          }
+        } while ((_currentScore = currentScore) === null || _currentScore === void 0 ? void 0 : _currentScore.parentScoreId);
 
         if (topScoreId) {
           topScoreIds.push(topScoreId);
@@ -511,7 +516,6 @@ async function calculateScoreTree(repository, currentScore, calculator = calcula
     childScores: newScores,
     reversible: currentScore.reversible
   }); //TODO: Modify the newScore based on any formulas
-  //TODO: Should we add the new scores to the repository (If they are different form the old score?)
 
   const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment);
 

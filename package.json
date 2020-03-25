@@ -1,7 +1,7 @@
 {
   "name": "@reasonscore/core",
   "main": "lib/index.js",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Core code for Reason Score http://ReasonScore.com",
   "scripts": {
     "type-check": "tsc --noEmit",
