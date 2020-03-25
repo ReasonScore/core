@@ -45,14 +45,20 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
         //Walk up the scores for each claim to the top
         for (const claimId of claimIdsToScore) {
             const scoresForTheClaim = await repository.getScoresByClaimId(claimId)
+            
             for (const claimScore of scoresForTheClaim) {
                 // for each score, walk up the tree looking for the top (the first score to not have a parentId)
                 let currentScore: iScore | undefined = claimScore;
                 let topScoreId = claimScore.id;
-                while (currentScore?.parentScoreId) {
-                    topScoreId = currentScore.id;
-                    currentScore = await repository.getScore(currentScore.parentScoreId);
-                }
+                do {
+                    if (currentScore.parentScoreId) {
+                        currentScore = await repository.getScore(currentScore.parentScoreId);
+                    }
+                    if (currentScore) {
+                        topScoreId = currentScore.id;
+                    }
+                } while (currentScore?.parentScoreId)
+
                 if (topScoreId) {
                     topScoreIds.push(topScoreId)
                 }
@@ -65,13 +71,13 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             if (topScore) {
                 const tempMissingScoreActions: Action[] = [];
                 await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions)
-                if (tempMissingScoreActions.length > 0) { 
+                if (tempMissingScoreActions.length > 0) {
                     await repository.notify(tempMissingScoreActions)
                 }
                 const tempcalculateScoreTreeActions: Action[] = [];
                 await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
 
-                scoreActions.push(...tempMissingScoreActions,...tempcalculateScoreTreeActions)
+                scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions)
             }
         }
     }
@@ -111,7 +117,6 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
         reversible: currentScore.reversible,
     })
     //TODO: Modify the newScore based on any formulas
-    //TODO: Should we add the new scores to the repository (If they are different form the old score?)
     const newScore = { ...currentScore, ...newScoreFragment }
     if (differentScores(currentScore, newScore)) {
         actions.push(new Action(newScore, undefined, "modify_score", newScore.id));

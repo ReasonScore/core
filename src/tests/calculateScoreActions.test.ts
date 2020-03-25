@@ -78,12 +78,12 @@ test('Add a child that reverses the top score', async () => {
 
   const result = await calculateScoreActions({
     actions: [
-      new Action(new ClaimEdge("testClaim", "ChildClaim1", undefined, false, "ChildClaim1Edge"), undefined, "add_claimEdge", "ChildClaim1Edge")
+      new Action(new ClaimEdge("testClaim", "ChildClaim1", undefined, false, "ChildClaim1Edge"), undefined, "add_claimEdge")
     ],
     repository: repository,
     calculator: calculateScore
   })
-debugger
+
   expect(result).toMatchObject(
     [
       {
@@ -115,6 +115,74 @@ debugger
         }, "oldData": undefined,
         "type": "modify_score",
         //"dataId": "Ya3ZeuTmGUZq"
+      }
+    ]
+  )
+
+});
+
+test('Reverse Scores 2 levels', async () => {
+  const repository = new RepositoryLocalPure();
+  const temp = await calculateScoreActions({
+    actions: [
+      new Action(new Claim("", "testClaim"), undefined, "add_claim"),
+      new Action(new Score("testClaim", u, u, u, u, 0, u, "newScore"), undefined, "add_score"),
+      new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
+      new Action(new Claim("", "ChildClaim2"), undefined, "add_claim"),
+      new Action(new ClaimEdge("testClaim", "ChildClaim1", undefined, false, "ChildClaim1Edge"), undefined, "add_claimEdge"),
+      new Action(new ClaimEdge("testClaim", "ChildClaim2", undefined, true, "ChildClaim2Edge"), undefined, "add_claimEdge"),
+      new Action(new Claim("", "grandChild1"), undefined, "add_claim"),
+    ],
+    repository: repository
+  })
+  
+  const result = await calculateScoreActions({
+    actions: [
+      new Action(new ClaimEdge("ChildClaim1", "grandChild1", undefined, false, "GrandChildClaim1Edge"), undefined, "add_claimEdge")
+    ],
+    repository: repository,
+    calculator: calculateScore
+  })
+debugger
+  expect(result).toMatchObject(
+    [
+      {
+        "newData":
+        {
+          "sourceClaimId": "grandChild1",
+          "reversible": false,
+          "pro": false,
+          "affects": "confidence",
+          "confidence": 1,
+          "relevance": 1,
+        }, "oldData": undefined,
+        "type": "add_score",
+      },
+      {
+        "newData":
+        {
+          "sourceClaimId": "ChildClaim1",
+          "reversible": false,
+          "pro": false,
+          "affects": "confidence",
+          "confidence": 0,
+          "relevance": 1,
+          "parentScoreId": "newScore"
+        }, "oldData": undefined,
+        "type": "modify_score",
+      },
+      {
+        "newData":
+        {
+          "sourceClaimId": "testClaim",
+          "parentScoreId": undefined,
+          "reversible": false,
+          "pro": true,
+          "affects": "confidence",
+          "confidence": 1,
+          "relevance": 1,
+        }, "oldData": undefined,
+        "type": "modify_score",
       }
     ]
   )
