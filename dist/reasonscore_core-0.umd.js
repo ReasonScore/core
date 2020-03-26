@@ -170,9 +170,11 @@ function newId(when = new Date()) {
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  */
 class Score {
-  constructor(sourceClaimId = "", parentScoreId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId()) {
+  constructor(sourceClaimId, topScoreId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId()) {
     this.sourceClaimId = sourceClaimId;
+    this.topScoreId = topScoreId;
     this.parentScoreId = parentScoreId;
+    this.sourceEdgeId = sourceEdgeId;
     this.reversible = reversible;
     this.pro = pro;
     this.affects = affects;
@@ -468,7 +470,7 @@ async function calculateScoreActions({
 
       if (topScore) {
         const tempMissingScoreActions = [];
-        await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions);
+        await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId);
 
         if (tempMissingScoreActions.length > 0) {
           await repository.notify(tempMissingScoreActions);
@@ -484,7 +486,7 @@ async function calculateScoreActions({
   return scoreActions;
 } //Create Blank Missing Scores
 
-async function createBlankMissingScores(repository, currentScoreId, currentClaimId, actions) {
+async function createBlankMissingScores(repository, currentScoreId, currentClaimId, actions, topScoreId) {
   const edges = await repository.getClaimEdgesByParentId(currentClaimId);
   const scores = await repository.getChildrenByScoreId(currentScoreId);
 
@@ -496,12 +498,12 @@ async function createBlankMissingScores(repository, currentScoreId, currentClaim
 
     if (!score) {
       //Create a new Score and attach it to it's parent
-      score = new Score(edge.childId, currentScoreId, undefined, edge.pro, edge.affects);
+      score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects);
       actions.push(new Action(score, undefined, "add_score", score.id));
     } //Recurse and through children
 
 
-    await createBlankMissingScores(repository, score.id, edge.childId, actions);
+    await createBlankMissingScores(repository, score.id, edge.childId, actions, topScoreId);
   }
 } //This function assume that all scores already exist
 

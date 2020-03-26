@@ -5,8 +5,12 @@ import { Affects } from "./Affects";
 export declare class Score implements iScore, iScoreFragment {
     /** The claim to which this score belongs */
     sourceClaimId: string;
+    /** The top of the tree of scores that this belongs to. Used for indexing */
+    topScoreId: string;
     /** The parent of this score in the score tree graph */
     parentScoreId: string | undefined;
+    /** The Edge to which this score belongs */
+    sourceEdgeId: string | undefined;
     reversible: boolean;
     /** Is this score a pro of it's parent (false if it is a con) */
     pro: boolean;
@@ -20,9 +24,13 @@ export declare class Score implements iScore, iScoreFragment {
     id: string;
     constructor(
     /** The claim to which this score belongs */
-    sourceClaimId?: string, //TODO: Should we change this to also be an edge so we can have a claim exist twice with the same parent?
+    sourceClaimId: string, 
+    /** The top of the tree of scores that this belongs to. Used for indexing */
+    topScoreId: string, 
     /** The parent of this score in the score tree graph */
-    parentScoreId?: string | undefined, reversible?: boolean, 
+    parentScoreId?: string | undefined, 
+    /** The Edge to which this score belongs */
+    sourceEdgeId?: string | undefined, reversible?: boolean, 
     /** Is this score a pro of it's parent (false if it is a con) */
     pro?: boolean, 
     /** how confident we sould be in the claim. (AKA True) */
@@ -39,6 +47,10 @@ export declare function differentScores(scoreA: iScore, scoreB: iScore): boolean
 export interface iScore {
     /** The claim to which this score belongs */
     sourceClaimId: string;
+    /** The Edge to which this score belongs */
+    sourceEdgeId?: string;
+    /** The top of the tree of scores that this belongs to. Used for indexing */
+    topScoreId: string;
     /** The parent of this score in the score tree graph */
     parentScoreId?: string;
     reversible: boolean;
@@ -60,7 +72,6 @@ export interface iScoreFragment {
     reversible?: boolean;
     /** Is this score a pro of it's parent (false if it is a con) */
     pro?: boolean;
-    /** how confident we sould be in the claim. (AKA True) */
     /** How the child affects the parent score */
     affects?: Affects;
     /** how confident we sould be in the claim. (AKA True) */
