@@ -13,7 +13,7 @@ class TestData {
 }
 
 function s(confidence: number = 1, relevance: number = 1, pro: boolean = true, affects: Affects = "confidence"): Score {
-    return new Score("", undefined, undefined, pro, affects, confidence, relevance);
+    return new Score("","","", undefined, undefined, pro, affects, confidence, relevance);
 }
 
 function t(testDescription: string, expectedScore: Score, scores: Score[], reversible: boolean = false) {

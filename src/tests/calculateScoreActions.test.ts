@@ -12,7 +12,7 @@ const u = undefined;
 test('add a new scoretree', async () => {
   const repository = new RepositoryLocalPure();
   // Add a new claim and set it as a score tree top
-  const newScore = new Score("testClaim");
+  const newScore = new Score("testClaim","testClaim");
   const result = await calculateScoreActions({
     actions: [
       new Action(new Claim("", "testClaim"), undefined, "add_claim", "testClaim"),
@@ -30,7 +30,7 @@ test('Add a child that does not change the top score', async () => {
   const temp = await calculateScoreActions({
     actions: [
       new Action(new Claim("", "testClaim"), undefined, "add_claim"),
-      new Action(new Score("testClaim", u, u, u, u, u, u, "newScore"), undefined, "add_score"),
+      new Action(new Score("testClaim","testClaim", u, u, u, u, u, u, u, "newScore"), undefined, "add_score"),
       new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
     ],
     repository: repository
@@ -70,7 +70,7 @@ test('Add a child that reverses the top score', async () => {
   const temp = await calculateScoreActions({
     actions: [
       new Action(new Claim("", "testClaim"), undefined, "add_claim"),
-      new Action(new Score("testClaim", u, u, u, u, u, u, "newScore"), undefined, "add_score"),
+      new Action(new Score("testClaim","testClaim", u, u, u, u, u, u, u, "newScore"), undefined, "add_score"),
       new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
     ],
     repository: repository
@@ -126,7 +126,7 @@ test('Reverse Scores 2 levels', async () => {
   const temp = await calculateScoreActions({
     actions: [
       new Action(new Claim("", "testClaim"), undefined, "add_claim"),
-      new Action(new Score("testClaim", u, u, u, u, 0, u, "newScore"), undefined, "add_score"),
+      new Action(new Score("testClaim","testClaim",u, u, u, u, u, 0, u, "newScore"), undefined, "add_score"),
       new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
       new Action(new Claim("", "ChildClaim2"), undefined, "add_claim"),
       new Action(new ClaimEdge("testClaim", "ChildClaim1", undefined, false, "ChildClaim1Edge"), undefined, "add_claimEdge"),
@@ -147,42 +147,45 @@ debugger
   expect(result).toMatchObject(
     [
       {
-        "newData":
-        {
+        "newData": {
           "sourceClaimId": "grandChild1",
+          "topScoreId": "newScore",
+          "sourceEdgeId": "GrandChildClaim1Edge",
           "reversible": false,
           "pro": false,
           "affects": "confidence",
           "confidence": 1,
           "relevance": 1,
-        }, "oldData": undefined,
+        },
         "type": "add_score",
       },
       {
-        "newData":
-        {
+        "newData": {
           "sourceClaimId": "ChildClaim1",
+          "topScoreId": "newScore",
+          "parentScoreId": "newScore",
+          "sourceEdgeId": "ChildClaim1Edge",
           "reversible": false,
           "pro": false,
           "affects": "confidence",
           "confidence": 0,
           "relevance": 1,
-          "parentScoreId": "newScore"
-        }, "oldData": undefined,
+        },
         "type": "modify_score",
       },
       {
-        "newData":
-        {
+        "newData": {
           "sourceClaimId": "testClaim",
-          "parentScoreId": undefined,
+          "topScoreId": "testClaim",
           "reversible": false,
           "pro": true,
           "affects": "confidence",
           "confidence": 1,
           "relevance": 1,
-        }, "oldData": undefined,
+          "id": "newScore"
+        },
         "type": "modify_score",
+        "dataId": "newScore"
       }
     ]
   )

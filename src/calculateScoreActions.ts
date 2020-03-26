@@ -70,7 +70,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             const topScore = await repository.getScore(topScoreId)
             if (topScore) {
                 const tempMissingScoreActions: Action[] = [];
-                await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions)
+                await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId)
                 if (tempMissingScoreActions.length > 0) {
                     await repository.notify(tempMissingScoreActions)
                 }
@@ -86,7 +86,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
 }
 
 //Create Blank Missing Scores
-async function createBlankMissingScores(repository: iRepository, currentScoreId: string, currentClaimId: string, actions: Action[]) {
+async function createBlankMissingScores(repository: iRepository, currentScoreId: string, currentClaimId: string, actions: Action[], topScoreId:string) {
     const edges = await repository.getClaimEdgesByParentId(currentClaimId)
     const scores = await repository.getChildrenByScoreId(currentScoreId)
     for (const edge of edges) {
@@ -94,11 +94,11 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
         let score = scores.find(({ sourceClaimId }) => sourceClaimId === edge.childId);
         if (!score) {
             //Create a new Score and attach it to it's parent
-            score = new Score(edge.childId, currentScoreId, undefined, edge.pro, edge.affects);
+            score = new Score(edge.childId,topScoreId, currentScoreId,edge.id, undefined, edge.pro, edge.affects);
             actions.push(new Action(score, undefined, "add_score", score.id));
         }
         //Recurse and through children
-        await createBlankMissingScores(repository, score.id, edge.childId, actions);
+        await createBlankMissingScores(repository, score.id, edge.childId, actions, topScoreId);
     }
 }
 

@@ -6,9 +6,14 @@ import { Affects } from "./Affects";
 export class Score implements iScore, iScoreFragment {
     constructor(
         /** The claim to which this score belongs */
-        public sourceClaimId: string = "",  //TODO: Should we change this to also be an edge so we can have a claim exist twice with the same parent?
+        public sourceClaimId: string,
+        /** The top of the tree of scores that this belongs to. Used for indexing */
+        public topScoreId: string,
         /** The parent of this score in the score tree graph */
         public parentScoreId: string | undefined = undefined,
+        /** The Edge to which this score belongs */
+        public sourceEdgeId: string | undefined = undefined,
+
         public reversible: boolean = false,
         /** Is this score a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
@@ -38,6 +43,10 @@ export function differentScores(scoreA: iScore, scoreB: iScore) {
 export interface iScore {
     /** The claim to which this score belongs */
     sourceClaimId: string,
+    /** The Edge to which this score belongs */
+    sourceEdgeId?: string,
+    /** The top of the tree of scores that this belongs to. Used for indexing */
+    topScoreId: string,
     /** The parent of this score in the score tree graph */
     parentScoreId?: string,
     reversible: boolean,
@@ -60,7 +69,6 @@ export interface iScoreFragment {
     reversible?: boolean,
     /** Is this score a pro of it's parent (false if it is a con) */
     pro?: boolean,
-    /** how confident we sould be in the claim. (AKA True) */
     /** How the child affects the parent score */
     affects?: Affects,
     /** how confident we sould be in the claim. (AKA True) */
