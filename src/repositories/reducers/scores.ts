@@ -4,15 +4,27 @@ import { iScore } from "../../dataModels/Score"
 
 export function scores(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
     switch (action.type) {
-        case "add_score" || "modify_score":
+        case "add_score":
+        case "modify_score":
             {
-                const score = action.newData as iScore
-                //Add any missing arrays
+                // Since the score data might just be some of the data we need to get the current score and combine them
+                const originalScore = state.scores[action.dataId];
+                let score = action.newData as iScore
+                if (originalScore) {
+                    score = { ...originalScore, ...score }
+                }
+
+                //Add any missing empty index arrays
                 if (score.parentScoreId && !state.childIdsByScoreId[score.parentScoreId]) {
                     state.childIdsByScoreId[score.parentScoreId] = []
                 }
-                if (!state.scoreIdsByClaimId[score.sourceClaimId]) {
-                    state.scoreIdsByClaimId[score.sourceClaimId] = []
+                if (!state.scoreIdsBySourceId[score.sourceClaimId]) {
+                    state.scoreIdsBySourceId[score.sourceClaimId] = []
+                }
+                if (score.sourceEdgeId) {
+                    if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
+                        state.scoreIdsBySourceId[score.sourceEdgeId] = []
+                    }
                 }
 
                 //If there is a parent then index the child
@@ -29,20 +41,40 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
                     }
                 }
 
-                return {
+                state = {
                     ...state,
                     scores: {
                         ...state.scores,
-                        [action.dataId]: action.newData,
+                        [action.dataId]: score,
                     },
-                    scoreIdsByClaimId: {
-                        ...state.scoreIdsByClaimId,
+                    scoreIdsBySourceId: {
+                        ...state.scoreIdsBySourceId,
                         [score.sourceClaimId]: [
-                            ...state.scoreIdsByClaimId[score.sourceClaimId],
+                            ...state.scoreIdsBySourceId[score.sourceClaimId],
                             action.dataId
                         ]
                     }
-                } as iRsData
+                }
+
+                //Exception for the the sourceEdgeId exists
+                if (score.sourceEdgeId) {
+                    if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
+                        state.scoreIdsBySourceId[score.sourceEdgeId] = []
+                    }
+
+                    state = {
+                        ...state,
+                        scoreIdsBySourceId: {
+                            ...state.scoreIdsBySourceId,
+                            [score.sourceEdgeId]: [
+                                ...state.scoreIdsBySourceId[score.sourceClaimId],
+                                action.dataId
+                            ]
+                        }
+                    }
+                }
+
+                return state as iRsData
             }
         default:
             return state

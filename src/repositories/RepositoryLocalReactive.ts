@@ -41,7 +41,7 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
                 action.type == "modify_score") {
                 const item = action.newData as Score;
                 this.rsData.scores[action.dataId] = action.newData
-                this.scoreIdsByClaimId(item);
+                this.scoreIdsBySourceId(item);
                 this.childIdsByScoreId(item);
             }
             if (action.type == "delete_score") {
@@ -76,16 +76,33 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
         }
     }
 
-    private scoreIdsByClaimId(score: iScore) {
-        let indexId = score.sourceClaimId;
-        let id = score.id;
-        let destination = this.rsData.scoreIdsByClaimId[indexId];
-        if (!destination) {
-            destination = [];
-            this.rsData.scoreIdsByClaimId[indexId] = destination;
+    private scoreIdsBySourceId(score: iScore) {
+        //Source Claim ID
+        {
+            let indexId = score.sourceClaimId;
+            let id = score.id;
+            let destination = this.rsData.scoreIdsBySourceId[indexId];
+            if (!destination) {
+                destination = [];
+                this.rsData.scoreIdsBySourceId[indexId] = destination;
+            }
+            if (!destination.includes(id)) {
+                destination.push(id)
+            }
         }
-        if (!destination.includes(id)) {
-            destination.push(id)
+
+        //Source Edge ID
+        if (score.sourceEdgeId){
+            let indexId = score.sourceEdgeId;
+            let id = score.id;
+            let destination = this.rsData.scoreIdsBySourceId[indexId];
+            if (!destination) {
+                destination = [];
+                this.rsData.scoreIdsBySourceId[indexId] = destination;
+            }
+            if (!destination.includes(id)) {
+                destination.push(id)
+            }
         }
     }
 

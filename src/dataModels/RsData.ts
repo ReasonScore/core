@@ -19,7 +19,7 @@ export interface iRsData {
     // Score Data - Local
     scores: { [idString: string]: iScore; },
     //Score Indexes - Local
-    scoreIdsByClaimId: IndexArray,
+    scoreIdsBySourceId: IndexArray,
     childIdsByScoreId: IndexArray,
 }
 
@@ -39,7 +39,7 @@ export class RsData implements iRsData {
         // Score Data - Local
         public scores: { [idString: string]: iScore; } = {},
         //Score Indexes - Local
-        public scoreIdsByClaimId: IndexArray = {},
+        public scoreIdsBySourceId: IndexArray = {},
         public childIdsByScoreId: IndexArray = {},
     ) {
     }

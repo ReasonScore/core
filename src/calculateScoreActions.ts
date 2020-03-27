@@ -42,10 +42,32 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             const claimEdge = action.newData as ClaimEdge;
             claimIdsToScore.push(claimEdge.parentId)
         }
+
+        //TODO: If an edge changes then modify the existing scores to match
+        //Thsi wipes out the correct score but the score will be updated later on anyways
+        if (action.type == 'add_claimEdge' || action.type == 'modify_claimEdge') {
+            const claimEdge = action.newData as ClaimEdge;
+            const scores = await repository.getScoresBySourceId(claimEdge.id)
+            for (const score of scores) {
+                //TODO: Where should I put this? It is modifying am object. If it is reactive i should just change the data. If pure it should be a new object.
+                //For now I will modify it but it may not trigger updates in a pure library (React)
+                //This change should also probably be centralized somewhere to reduce the chance of inconsistent bugs. I think it will happen in multiple paces
+                //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
+                //Should I group these actions or just throw them in one at a time like I am doing
+
+                //TODO: This is also looping in on itself making extra calculations because the modified score causes a re-calculation?
+                debugger
+                await repository.notify([new Action({
+                    pro: claimEdge.pro,
+                    affects: claimEdge.affects,
+                }, score, "modify_score", score.id)])
+            }
+        }
+
         //Walk up the scores for each claim to the top
         for (const claimId of claimIdsToScore) {
-            const scoresForTheClaim = await repository.getScoresByClaimId(claimId)
-            
+            const scoresForTheClaim = await repository.getScoresBySourceId(claimId)
+
             for (const claimScore of scoresForTheClaim) {
                 // for each score, walk up the tree looking for the top (the first score to not have a parentId)
                 let currentScore: iScore | undefined = claimScore;
@@ -86,7 +108,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
 }
 
 //Create Blank Missing Scores
-async function createBlankMissingScores(repository: iRepository, currentScoreId: string, currentClaimId: string, actions: Action[], topScoreId:string) {
+async function createBlankMissingScores(repository: iRepository, currentScoreId: string, currentClaimId: string, actions: Action[], topScoreId: string) {
     const edges = await repository.getClaimEdgesByParentId(currentClaimId)
     const scores = await repository.getChildrenByScoreId(currentScoreId)
     for (const edge of edges) {
@@ -94,7 +116,7 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
         let score = scores.find(({ sourceClaimId }) => sourceClaimId === edge.childId);
         if (!score) {
             //Create a new Score and attach it to it's parent
-            score = new Score(edge.childId,topScoreId, currentScoreId,edge.id, undefined, edge.pro, edge.affects);
+            score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects);
             actions.push(new Action(score, undefined, "add_score", score.id));
         }
         //Recurse and through children

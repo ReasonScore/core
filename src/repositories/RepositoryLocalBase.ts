@@ -41,8 +41,8 @@ export class RepositoryLocalBase {
         }
         return claimEdges
     }
-    async getScoresByClaimId(sourceClaimId: string): Promise<iScore[]> {
-        const scoreIdStrings = this.rsData.scoreIdsByClaimId[sourceClaimId];
+    async getScoresBySourceId(sourceClaimId: string): Promise<iScore[]> {
+        const scoreIdStrings = this.rsData.scoreIdsBySourceId[sourceClaimId];
         const scores: iScore[] = [];
         if (scoreIdStrings) {
             for (const scoreIdString of scoreIdStrings) {
