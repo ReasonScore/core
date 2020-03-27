@@ -65,7 +65,7 @@ test('Add a child that does not change the top score', async () => {
 
 });
 
-test.only('Changing a child pro value should change the top score', async () => {
+test('Changing a child pro value should change the top score', async () => {
   const repository = new RepositoryLocalPure();
   const temp = await calculateScoreActions({
     actions: [
@@ -83,7 +83,7 @@ test.only('Changing a child pro value should change the top score', async () => 
     ],
     repository: repository
   })
-debugger
+
   expect(result).toMatchObject(
     [
       {
@@ -99,7 +99,7 @@ debugger
         }, "oldData": undefined,
         "type": "modify_score",
       }
-    ]  )
+    ])
 
 });
 
@@ -181,6 +181,7 @@ test('Adding a grandchild score Reverses Scores 2 levels', async () => {
     repository: repository,
     calculator: calculateScore
   })
+
   expect(result).toMatchObject(
     [
       {

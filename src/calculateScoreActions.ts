@@ -20,6 +20,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
     calculator?: iCalculateScore;
 } = {},
 ) {
+    debugger
     const scoreActions: Action[] = [];
     const claimIdsToScore: string[] = [];
     const topScoreIds: string[] = [];
@@ -44,8 +45,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
         }
 
         //TODO: If an edge changes then modify the existing scores to match
-        //Thsi wipes out the correct score but the score will be updated later on anyways
-        if (action.type == 'add_claimEdge' || action.type == 'modify_claimEdge') {
+        if (action.type == 'modify_claimEdge') {
             const claimEdge = action.newData as ClaimEdge;
             const scores = await repository.getScoresBySourceId(claimEdge.id)
             for (const score of scores) {
@@ -55,52 +55,50 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
                 //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
                 //Should I group these actions or just throw them in one at a time like I am doing
 
-                //TODO: This is also looping in on itself making extra calculations because the modified score causes a re-calculation?
-                debugger
                 await repository.notify([new Action({
                     pro: claimEdge.pro,
                     affects: claimEdge.affects,
                 }, score, "modify_score", score.id)])
             }
         }
+    }
 
-        //Walk up the scores for each claim to the top
-        for (const claimId of claimIdsToScore) {
-            const scoresForTheClaim = await repository.getScoresBySourceId(claimId)
+    //Walk up the scores for each claim to the top
+    for (const claimId of claimIdsToScore) {
+        const scoresForTheClaim = await repository.getScoresBySourceId(claimId)
 
-            for (const claimScore of scoresForTheClaim) {
-                // for each score, walk up the tree looking for the top (the first score to not have a parentId)
-                let currentScore: iScore | undefined = claimScore;
-                let topScoreId = claimScore.id;
-                do {
-                    if (currentScore.parentScoreId) {
-                        currentScore = await repository.getScore(currentScore.parentScoreId);
-                    }
-                    if (currentScore) {
-                        topScoreId = currentScore.id;
-                    }
-                } while (currentScore?.parentScoreId)
-
-                if (topScoreId) {
-                    topScoreIds.push(topScoreId)
+        for (const claimScore of scoresForTheClaim) {
+            // for each score, walk up the tree looking for the top (the first score to not have a parentId)
+            let currentScore: iScore | undefined = claimScore;
+            let topScoreId = claimScore.id;
+            do {
+                if (currentScore.parentScoreId) {
+                    currentScore = await repository.getScore(currentScore.parentScoreId);
                 }
+                if (currentScore) {
+                    topScoreId = currentScore.id;
+                }
+            } while (currentScore?.parentScoreId)
+
+            if (topScoreId && topScoreIds.indexOf(topScoreId) == -1) {
+                topScoreIds.push(topScoreId)
             }
         }
+    }
 
-        //Re-calc all top scores with possible changed claims
-        for (const topScoreId of topScoreIds) {
-            const topScore = await repository.getScore(topScoreId)
-            if (topScore) {
-                const tempMissingScoreActions: Action[] = [];
-                await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId)
-                if (tempMissingScoreActions.length > 0) {
-                    await repository.notify(tempMissingScoreActions)
-                }
-                const tempcalculateScoreTreeActions: Action[] = [];
-                await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
-
-                scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions)
+    //Re-calc all top scores with possible changed claims
+    for (const topScoreId of topScoreIds) {
+        const topScore = await repository.getScore(topScoreId)
+        if (topScore) {
+            const tempMissingScoreActions: Action[] = [];
+            await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId)
+            if (tempMissingScoreActions.length > 0) {
+                await repository.notify(tempMissingScoreActions)
             }
+            const tempcalculateScoreTreeActions: Action[] = [];
+            await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
+            debugger
+            scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions)
         }
     }
 
@@ -130,7 +128,7 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
     const newScores: iScore[] = [];
 
     for (const oldScore of oldScores) { //Calculate Children
-        //TODO: remove any scores to calculate based on formulas
+        //TODO: remove any scores to calculate based on formulas that exclude scores
         newScores.push(await calculateScoreTree(repository, oldScore, calculator, actions));
     }
 
@@ -138,6 +136,7 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
         childScores: newScores,
         reversible: currentScore.reversible,
     })
+
     //TODO: Modify the newScore based on any formulas
     const newScore = { ...currentScore, ...newScoreFragment }
     if (differentScores(currentScore, newScore)) {
