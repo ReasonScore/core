@@ -465,10 +465,14 @@ var reasonscore_core = (function (exports) {
             //This change should also probably be centralized somewhere to reduce the chance of inconsistent bugs. I think it will happen in multiple paces
             //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
             //Should I group these actions or just throw them in one at a time like I am doing
-            await repository.notify([new Action({
-              pro: claimEdge.pro,
-              affects: claimEdge.affects
-            }, score, "modify_score", score.id)]);
+            if (score.pro != claimEdge.pro || score.affects != claimEdge.affects) {
+              const action = new Action({
+                pro: claimEdge.pro,
+                affects: claimEdge.affects
+              }, score, "modify_score", score.id);
+              scoreActions.push(action);
+              await repository.notify([action]);
+            }
           }
         }
       } //Walk up the scores for each claim to the top

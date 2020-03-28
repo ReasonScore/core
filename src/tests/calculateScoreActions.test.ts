@@ -273,7 +273,6 @@ test('Complex Test', async () => {
   const ChildClaim1ScoresInitial = await repository.getScoresBySourceId("ChildClaim1")
   expect(ChildClaim1ScoresInitial[0].pro).toEqual(false);
 
-  debugger
   const changedScores2 = await calculateScoreActions({
     actions: [
       {
