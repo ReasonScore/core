@@ -8,6 +8,6 @@ export declare class RepositoryLocalReactive extends RepositoryLocalBase impleme
     notify(actions: iAction[]): void;
     private indexClaimEdgeIdByParentId;
     private indexClaimEdgeIdByChildId;
-    private scoreIdsByClaimId;
+    private scoreIdsBySourceId;
     private childIdsByScoreId;
 }

@@ -28,7 +28,7 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
                 }
 
                 //If there is a parent then index the child
-                if (score.parentScoreId) {
+                if (score.parentScoreId && state.childIdsByScoreId[score.parentScoreId].indexOf(action.dataId) == -1) {
                     state = { //TODO: is it bad form to reassign a param?
                         ...state,
                         childIdsByScoreId: {
@@ -41,23 +41,35 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
                     }
                 }
 
+                //TODO: Do I need to stop recreating the state so many times in this reducer?
                 state = {
                     ...state,
                     scores: {
                         ...state.scores,
                         [action.dataId]: score,
-                    },
-                    scoreIdsBySourceId: {
-                        ...state.scoreIdsBySourceId,
-                        [score.sourceClaimId]: [
-                            ...state.scoreIdsBySourceId[score.sourceClaimId],
-                            action.dataId
-                        ]
+                    }
+                }
+
+                if (state.scoreIdsBySourceId[score.sourceClaimId].indexOf(action.dataId) == -1) {
+                    state = {
+                        ...state,
+                        scores: {
+                            ...state.scores,
+                            [action.dataId]: score,
+                        },
+                        scoreIdsBySourceId: {
+                            ...state.scoreIdsBySourceId,
+                            [score.sourceClaimId]: [
+                                ...state.scoreIdsBySourceId[score.sourceClaimId],
+                                action.dataId
+                            ]
+                        }
                     }
                 }
 
                 //Exception for the the sourceEdgeId exists
-                if (score.sourceEdgeId) {
+                if (score.sourceEdgeId && 
+                    state.scoreIdsBySourceId[score.sourceEdgeId].indexOf(action.dataId) == -1) {
                     if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
                         state.scoreIdsBySourceId[score.sourceEdgeId] = []
                     }
@@ -67,7 +79,7 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
                         scoreIdsBySourceId: {
                             ...state.scoreIdsBySourceId,
                             [score.sourceEdgeId]: [
-                                ...state.scoreIdsBySourceId[score.sourceClaimId],
+                                ...state.scoreIdsBySourceId[score.sourceEdgeId],
                                 action.dataId
                             ]
                         }

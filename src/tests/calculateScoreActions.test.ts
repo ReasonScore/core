@@ -230,3 +230,24 @@ test('Adding a grandchild score Reverses Scores 2 levels', async () => {
 
 });
 
+test('Complex Test', async () => {
+  const repository = new RepositoryLocalPure();
+  const changedScores = await calculateScoreActions({
+    actions: [
+      new Action(new Claim("Top Claim", "topClaim"), u, "add_claim"),
+      new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+      new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+      new Action(new Claim("GrandChild Claim1", "grandChild1"), u, "add_claim"),
+      new Action(new ClaimEdge("topClaim", "ChildClaim1", u, false, "ChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild1", u, false, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new Score("topClaim", "topClaim", u, u, u, u, u, 0, u, "newScore"), u, "add_score"),
+    ],
+    repository: repository
+  })
+
+  await repository.notify(changedScores);
+  expect(repository.rsData.scores["newScore"].confidence).toEqual(1);
+  expect(repository.rsData.scoreIdsBySourceId["topClaim"].length).toEqual(1);
+//TODO: Do i want to check all indexes for duplicate indexed items?
+});

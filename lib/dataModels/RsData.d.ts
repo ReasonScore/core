@@ -21,7 +21,7 @@ export interface iRsData {
     scores: {
         [idString: string]: iScore;
     };
-    scoreIdsByClaimId: IndexArray;
+    scoreIdsBySourceId: IndexArray;
     childIdsByScoreId: IndexArray;
 }
 export declare class RsData implements iRsData {
@@ -39,7 +39,7 @@ export declare class RsData implements iRsData {
     scores: {
         [idString: string]: iScore;
     };
-    scoreIdsByClaimId: IndexArray;
+    scoreIdsBySourceId: IndexArray;
     childIdsByScoreId: IndexArray;
     constructor(actionsLog?: iAction[][], 
     /** Stores all the current claims */
@@ -51,5 +51,5 @@ export declare class RsData implements iRsData {
         [idString: string]: iClaimEdge;
     }, claimEdgeIdsByParentId?: IndexArray, claimEdgeIdsByChildId?: IndexArray, scores?: {
         [idString: string]: iScore;
-    }, scoreIdsByClaimId?: IndexArray, childIdsByScoreId?: IndexArray);
+    }, scoreIdsBySourceId?: IndexArray, childIdsByScoreId?: IndexArray);
 }

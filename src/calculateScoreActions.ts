@@ -20,7 +20,6 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
     calculator?: iCalculateScore;
 } = {},
 ) {
-    debugger
     const scoreActions: Action[] = [];
     const claimIdsToScore: string[] = [];
     const topScoreIds: string[] = [];
@@ -97,7 +96,6 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             }
             const tempcalculateScoreTreeActions: Action[] = [];
             await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
-            debugger
             scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions)
         }
     }

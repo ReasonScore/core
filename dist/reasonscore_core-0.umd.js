@@ -209,14 +209,14 @@ class Action {
 //Store the string for the ID
 //Store the string for the ID
 class RsData {
-  constructor(actionsLog = [], claims = {}, claimEdges = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scores = {}, scoreIdsByClaimId = {}, childIdsByScoreId = {}) {
+  constructor(actionsLog = [], claims = {}, claimEdges = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scores = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
     this.actionsLog = actionsLog;
     this.claims = claims;
     this.claimEdges = claimEdges;
     this.claimEdgeIdsByParentId = claimEdgeIdsByParentId;
     this.claimEdgeIdsByChildId = claimEdgeIdsByChildId;
     this.scores = scores;
-    this.scoreIdsByClaimId = scoreIdsByClaimId;
+    this.scoreIdsBySourceId = scoreIdsBySourceId;
     this.childIdsByScoreId = childIdsByScoreId;
   }
 
@@ -267,8 +267,8 @@ class RepositoryLocalBase {
     return claimEdges;
   }
 
-  async getScoresByClaimId(sourceClaimId) {
-    const scoreIdStrings = this.rsData.scoreIdsByClaimId[sourceClaimId];
+  async getScoresBySourceId(sourceClaimId) {
+    const scoreIdStrings = this.rsData.scoreIdsBySourceId[sourceClaimId];
     const scores = [];
 
     if (scoreIdStrings) {
@@ -330,7 +330,7 @@ class RepositoryLocalReactive extends RepositoryLocalBase {
       if (action.type == "add_score" || action.type == "modify_score") {
         const item = action.newData;
         this.rsData.scores[action.dataId] = action.newData;
-        this.scoreIdsByClaimId(item);
+        this.scoreIdsBySourceId(item);
         this.childIdsByScoreId(item);
       }
 
@@ -370,18 +370,36 @@ class RepositoryLocalReactive extends RepositoryLocalBase {
     }
   }
 
-  scoreIdsByClaimId(score) {
-    let indexId = score.sourceClaimId;
-    let id = score.id;
-    let destination = this.rsData.scoreIdsByClaimId[indexId];
+  scoreIdsBySourceId(score) {
+    //Source Claim ID
+    {
+      let indexId = score.sourceClaimId;
+      let id = score.id;
+      let destination = this.rsData.scoreIdsBySourceId[indexId];
 
-    if (!destination) {
-      destination = [];
-      this.rsData.scoreIdsByClaimId[indexId] = destination;
-    }
+      if (!destination) {
+        destination = [];
+        this.rsData.scoreIdsBySourceId[indexId] = destination;
+      }
 
-    if (!destination.includes(id)) {
-      destination.push(id);
+      if (!destination.includes(id)) {
+        destination.push(id);
+      }
+    } //Source Edge ID
+
+    if (score.sourceEdgeId) {
+      let indexId = score.sourceEdgeId;
+      let id = score.id;
+      let destination = this.rsData.scoreIdsBySourceId[indexId];
+
+      if (!destination) {
+        destination = [];
+        this.rsData.scoreIdsBySourceId[indexId] = destination;
+      }
+
+      if (!destination.includes(id)) {
+        destination.push(id);
+      }
     }
   } //TODO: not sure if this is correct
 
@@ -415,6 +433,7 @@ async function calculateScoreActions({
   repository = new RepositoryLocalReactive(),
   calculator = calculateScore
 } = {}) {
+  debugger;
   const scoreActions = [];
   const claimIdsToScore = [];
   const topScoreIds = [];
@@ -435,51 +454,70 @@ async function calculateScoreActions({
     if (action.type == 'add_claimEdge' || action.type == 'modify_claimEdge') {
       const claimEdge = action.newData;
       claimIdsToScore.push(claimEdge.parentId);
-    } //Walk up the scores for each claim to the top
+    } //TODO: If an edge changes then modify the existing scores to match
 
 
-    for (const claimId of claimIdsToScore) {
-      const scoresForTheClaim = await repository.getScoresByClaimId(claimId);
+    if (action.type == 'modify_claimEdge') {
+      const claimEdge = action.newData;
+      const scores = await repository.getScoresBySourceId(claimEdge.id);
 
-      for (const claimScore of scoresForTheClaim) {
-        // for each score, walk up the tree looking for the top (the first score to not have a parentId)
-        let currentScore = claimScore;
-        let topScoreId = claimScore.id;
-
-        do {
-          var _currentScore;
-
-          if (currentScore.parentScoreId) {
-            currentScore = await repository.getScore(currentScore.parentScoreId);
-          }
-
-          if (currentScore) {
-            topScoreId = currentScore.id;
-          }
-        } while ((_currentScore = currentScore) === null || _currentScore === void 0 ? void 0 : _currentScore.parentScoreId);
-
-        if (topScoreId) {
-          topScoreIds.push(topScoreId);
-        }
+      for (const score of scores) {
+        //TODO: Where should I put this? It is modifying am object. If it is reactive i should just change the data. If pure it should be a new object.
+        //For now I will modify it but it may not trigger updates in a pure library (React)
+        //This change should also probably be centralized somewhere to reduce the chance of inconsistent bugs. I think it will happen in multiple paces
+        //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
+        //Should I group these actions or just throw them in one at a time like I am doing
+        await repository.notify([new Action({
+          pro: claimEdge.pro,
+          affects: claimEdge.affects
+        }, score, "modify_score", score.id)]);
       }
-    } //Re-calc all top scores with possible changed claims
+    }
+  } //Walk up the scores for each claim to the top
 
 
-    for (const topScoreId of topScoreIds) {
-      const topScore = await repository.getScore(topScoreId);
+  for (const claimId of claimIdsToScore) {
+    const scoresForTheClaim = await repository.getScoresBySourceId(claimId);
 
-      if (topScore) {
-        const tempMissingScoreActions = [];
-        await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId);
+    for (const claimScore of scoresForTheClaim) {
+      // for each score, walk up the tree looking for the top (the first score to not have a parentId)
+      let currentScore = claimScore;
+      let topScoreId = claimScore.id;
 
-        if (tempMissingScoreActions.length > 0) {
-          await repository.notify(tempMissingScoreActions);
+      do {
+        var _currentScore;
+
+        if (currentScore.parentScoreId) {
+          currentScore = await repository.getScore(currentScore.parentScoreId);
         }
 
-        const tempcalculateScoreTreeActions = [];
-        await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
-        scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
+        if (currentScore) {
+          topScoreId = currentScore.id;
+        }
+      } while ((_currentScore = currentScore) === null || _currentScore === void 0 ? void 0 : _currentScore.parentScoreId);
+
+      if (topScoreId && topScoreIds.indexOf(topScoreId) == -1) {
+        topScoreIds.push(topScoreId);
       }
+    }
+  } //Re-calc all top scores with possible changed claims
+
+
+  for (const topScoreId of topScoreIds) {
+    const topScore = await repository.getScore(topScoreId);
+
+    if (topScore) {
+      const tempMissingScoreActions = [];
+      await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId);
+
+      if (tempMissingScoreActions.length > 0) {
+        await repository.notify(tempMissingScoreActions);
+      }
+
+      const tempcalculateScoreTreeActions = [];
+      await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
+      debugger;
+      scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
     }
   }
 
@@ -514,7 +552,7 @@ async function calculateScoreTree(repository, currentScore, calculator = calcula
 
   for (const oldScore of oldScores) {
     //Calculate Children
-    //TODO: remove any scores to calculate based on formulas
+    //TODO: remove any scores to calculate based on formulas that exclude scores
     newScores.push((await calculateScoreTree(repository, oldScore, calculator, actions)));
   }
 
@@ -561,6 +599,7 @@ function claims(state, action, reverse = false) {
 function claimEdges(state, action, reverse = false) {
   switch (action.type) {
     case "add_claimEdge":
+    case "modify_claimEdge":
       {
         //Add any missing arrays
         if (!state.claimEdgeIdsByParentId[action.newData.parentId]) {
@@ -583,8 +622,6 @@ function claimEdges(state, action, reverse = false) {
           })
         });
       }
-    // TODO: Handle modify_claimEdge
-    // Check to see if the parent or child changes, If so, delete the reference and add the new one
     // TODO: Handle reverse (Or save state somewhere, would that be too large?)
 
     default:
@@ -594,16 +631,30 @@ function claimEdges(state, action, reverse = false) {
 
 function scores(state, action, reverse = false) {
   switch (action.type) {
-    case "add_score" :
+    case "add_score":
+    case "modify_score":
       {
-        const score = action.newData; //Add any missing arrays
+        // Since the score data might just be some of the data we need to get the current score and combine them
+        const originalScore = state.scores[action.dataId];
+        let score = action.newData;
+
+        if (originalScore) {
+          score = _objectSpread2({}, originalScore, {}, score);
+        } //Add any missing empty index arrays
+
 
         if (score.parentScoreId && !state.childIdsByScoreId[score.parentScoreId]) {
           state.childIdsByScoreId[score.parentScoreId] = [];
         }
 
-        if (!state.scoreIdsByClaimId[score.sourceClaimId]) {
-          state.scoreIdsByClaimId[score.sourceClaimId] = [];
+        if (!state.scoreIdsBySourceId[score.sourceClaimId]) {
+          state.scoreIdsBySourceId[score.sourceClaimId] = [];
+        }
+
+        if (score.sourceEdgeId) {
+          if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
+            state.scoreIdsBySourceId[score.sourceEdgeId] = [];
+          }
         } //If there is a parent then index the child
 
 
@@ -615,14 +666,28 @@ function scores(state, action, reverse = false) {
           });
         }
 
-        return _objectSpread2({}, state, {
+        state = _objectSpread2({}, state, {
           scores: _objectSpread2({}, state.scores, {
-            [action.dataId]: action.newData
+            [action.dataId]: score
           }),
-          scoreIdsByClaimId: _objectSpread2({}, state.scoreIdsByClaimId, {
-            [score.sourceClaimId]: [...state.scoreIdsByClaimId[score.sourceClaimId], action.dataId]
+          scoreIdsBySourceId: _objectSpread2({}, state.scoreIdsBySourceId, {
+            [score.sourceClaimId]: [...state.scoreIdsBySourceId[score.sourceClaimId], action.dataId]
           })
-        });
+        }); //Exception for the the sourceEdgeId exists
+
+        if (score.sourceEdgeId) {
+          if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
+            state.scoreIdsBySourceId[score.sourceEdgeId] = [];
+          }
+
+          state = _objectSpread2({}, state, {
+            scoreIdsBySourceId: _objectSpread2({}, state.scoreIdsBySourceId, {
+              [score.sourceEdgeId]: [...state.scoreIdsBySourceId[score.sourceClaimId], action.dataId]
+            })
+          });
+        }
+
+        return state;
       }
 
     default:
