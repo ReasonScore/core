@@ -432,7 +432,6 @@ var reasonscore_core = (function (exports) {
       repository = new RepositoryLocalReactive(),
       calculator = calculateScore
     } = {}) {
-      debugger;
       const scoreActions = [];
       const claimIdsToScore = [];
       const topScoreIds = [];
@@ -515,7 +514,6 @@ var reasonscore_core = (function (exports) {
 
           const tempcalculateScoreTreeActions = [];
           await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
-          debugger;
           scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
         }
       }
@@ -657,31 +655,41 @@ var reasonscore_core = (function (exports) {
             } //If there is a parent then index the child
 
 
-            if (score.parentScoreId) {
+            if (score.parentScoreId && state.childIdsByScoreId[score.parentScoreId].indexOf(action.dataId) == -1) {
               state = _objectSpread2({}, state, {
                 childIdsByScoreId: _objectSpread2({}, state.childIdsByScoreId, {
                   [score.parentScoreId]: [...state.childIdsByScoreId[score.parentScoreId], action.dataId]
                 })
               });
-            }
+            } //TODO: Do I need to stop recreating the state so many times in this reducer?
+
 
             state = _objectSpread2({}, state, {
               scores: _objectSpread2({}, state.scores, {
                 [action.dataId]: score
-              }),
-              scoreIdsBySourceId: _objectSpread2({}, state.scoreIdsBySourceId, {
-                [score.sourceClaimId]: [...state.scoreIdsBySourceId[score.sourceClaimId], action.dataId]
               })
-            }); //Exception for the the sourceEdgeId exists
+            });
 
-            if (score.sourceEdgeId) {
+            if (state.scoreIdsBySourceId[score.sourceClaimId].indexOf(action.dataId) == -1) {
+              state = _objectSpread2({}, state, {
+                scores: _objectSpread2({}, state.scores, {
+                  [action.dataId]: score
+                }),
+                scoreIdsBySourceId: _objectSpread2({}, state.scoreIdsBySourceId, {
+                  [score.sourceClaimId]: [...state.scoreIdsBySourceId[score.sourceClaimId], action.dataId]
+                })
+              });
+            } //Exception for the the sourceEdgeId exists
+
+
+            if (score.sourceEdgeId && state.scoreIdsBySourceId[score.sourceEdgeId].indexOf(action.dataId) == -1) {
               if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
                 state.scoreIdsBySourceId[score.sourceEdgeId] = [];
               }
 
               state = _objectSpread2({}, state, {
                 scoreIdsBySourceId: _objectSpread2({}, state.scoreIdsBySourceId, {
-                  [score.sourceEdgeId]: [...state.scoreIdsBySourceId[score.sourceClaimId], action.dataId]
+                  [score.sourceEdgeId]: [...state.scoreIdsBySourceId[score.sourceEdgeId], action.dataId]
                 })
               });
             }
