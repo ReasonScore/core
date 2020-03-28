@@ -590,33 +590,39 @@ function claims(state, action, reverse = false) {
   }
 }
 
+function IndexReducer(state, index, keyId, id) {
+  if (keyId) {
+    //TODO: remove this, can I use "...state[index][keyId] || []" below?
+    if (!state[index][keyId]) {
+      state[index][keyId] = [];
+    }
+
+    if (state[index][keyId].indexOf(id) == -1) {
+      state = _objectSpread2({}, state, {
+        [index]: _objectSpread2({}, state[index], {
+          [keyId]: [...state[index][keyId], id]
+        })
+      });
+    }
+  }
+
+  return state;
+}
+
 function claimEdges(state, action, reverse = false) {
   switch (action.type) {
     case "add_claimEdge":
     case "modify_claimEdge":
       {
-        //Add any missing arrays
-        if (!state.claimEdgeIdsByParentId[action.newData.parentId]) {
-          state.claimEdgeIdsByParentId[action.newData.parentId] = [];
-        }
-
-        if (!state.claimEdgeIdsByChildId[action.newData.childId]) {
-          state.claimEdgeIdsByChildId[action.newData.childId] = [];
-        }
-
-        return _objectSpread2({}, state, {
+        state = _objectSpread2({}, state, {
           claimEdges: _objectSpread2({}, state.claimEdges, {
             [action.dataId]: action.newData
-          }),
-          claimEdgeIdsByParentId: _objectSpread2({}, state.claimEdgeIdsByParentId, {
-            [action.newData.parentId]: [...state.claimEdgeIdsByParentId[action.newData.parentId], action.dataId]
-          }),
-          claimEdgeIdsByChildId: _objectSpread2({}, state.claimEdgeIdsByChildId, {
-            [action.newData.childId]: [...state.claimEdgeIdsByChildId[action.newData.childId], action.dataId]
           })
         });
+        state = IndexReducer(state, "claimEdgeIdsByChildId", action.newData.childId, action.dataId);
+        state = IndexReducer(state, "claimEdgeIdsByParentId", action.newData.parentId, action.dataId);
+        return state;
       }
-    // TODO: Handle reverse (Or save state somewhere, would that be too large?)
 
     default:
       return state;
@@ -634,63 +640,17 @@ function scores(state, action, reverse = false) {
 
         if (originalScore) {
           score = _objectSpread2({}, originalScore, {}, score);
-        } //Add any missing empty index arrays
-
-
-        if (score.parentScoreId && !state.childIdsByScoreId[score.parentScoreId]) {
-          state.childIdsByScoreId[score.parentScoreId] = [];
         }
-
-        if (!state.scoreIdsBySourceId[score.sourceClaimId]) {
-          state.scoreIdsBySourceId[score.sourceClaimId] = [];
-        }
-
-        if (score.sourceEdgeId) {
-          if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
-            state.scoreIdsBySourceId[score.sourceEdgeId] = [];
-          }
-        } //If there is a parent then index the child
-
-
-        if (score.parentScoreId && state.childIdsByScoreId[score.parentScoreId].indexOf(action.dataId) == -1) {
-          state = _objectSpread2({}, state, {
-            childIdsByScoreId: _objectSpread2({}, state.childIdsByScoreId, {
-              [score.parentScoreId]: [...state.childIdsByScoreId[score.parentScoreId], action.dataId]
-            })
-          });
-        } //TODO: Do I need to stop recreating the state so many times in this reducer?
-
 
         state = _objectSpread2({}, state, {
           scores: _objectSpread2({}, state.scores, {
             [action.dataId]: score
           })
-        });
+        }); //TODO: Do I need to stop recreating the state so many times in this reducer?
 
-        if (state.scoreIdsBySourceId[score.sourceClaimId].indexOf(action.dataId) == -1) {
-          state = _objectSpread2({}, state, {
-            scores: _objectSpread2({}, state.scores, {
-              [action.dataId]: score
-            }),
-            scoreIdsBySourceId: _objectSpread2({}, state.scoreIdsBySourceId, {
-              [score.sourceClaimId]: [...state.scoreIdsBySourceId[score.sourceClaimId], action.dataId]
-            })
-          });
-        } //Exception for the the sourceEdgeId exists
-
-
-        if (score.sourceEdgeId && state.scoreIdsBySourceId[score.sourceEdgeId].indexOf(action.dataId) == -1) {
-          if (!state.scoreIdsBySourceId[score.sourceEdgeId]) {
-            state.scoreIdsBySourceId[score.sourceEdgeId] = [];
-          }
-
-          state = _objectSpread2({}, state, {
-            scoreIdsBySourceId: _objectSpread2({}, state.scoreIdsBySourceId, {
-              [score.sourceEdgeId]: [...state.scoreIdsBySourceId[score.sourceEdgeId], action.dataId]
-            })
-          });
-        }
-
+        state = IndexReducer(state, "childIdsByScoreId", score.parentScoreId, action.dataId);
+        state = IndexReducer(state, "scoreIdsBySourceId", score.sourceClaimId, action.dataId);
+        state = IndexReducer(state, "scoreIdsBySourceId", score.sourceEdgeId, action.dataId);
         return state;
       }
 

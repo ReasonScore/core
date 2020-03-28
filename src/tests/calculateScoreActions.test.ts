@@ -83,21 +83,39 @@ test('Changing a child pro value should change the top score', async () => {
     ],
     repository: repository
   })
-
   expect(result).toMatchObject(
     [
       {
-        "newData":
-        {
+        "newData": {
+          "pro": false,
+          "affects": "confidence"
+        },
+        "oldData": {
+          "sourceClaimId": "ChildClaim1",
+          "topScoreId": "newScore",
+          "parentScoreId": "newScore",
+          "sourceEdgeId": "ChildClaim1Edge",
+          "reversible": false,
+          "pro": true,
+          "affects": "confidence",
+          "confidence": 1,
+          "relevance": 1,
+        },
+        "type": "modify_score",
+      },
+      {
+        "newData": {
           "sourceClaimId": "testClaim",
-          "parentScoreId": undefined,
+          "topScoreId": "testClaim",
           "reversible": false,
           "pro": true,
           "affects": "confidence",
           "confidence": 0,
           "relevance": 1,
-        }, "oldData": undefined,
+          "id": "newScore"
+        },
         "type": "modify_score",
+        "dataId": "newScore"
       }
     ])
 
@@ -237,7 +255,7 @@ test('Complex Test', async () => {
       new Action(new Claim("Top Claim", "topClaim"), u, "add_claim"),
       new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
       new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
-      new Action(new Claim("GrandChild Claim1", "grandChild1"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
       new Action(new ClaimEdge("topClaim", "ChildClaim1", u, false, "ChildClaim1Edge"), u, "add_claimEdge"),
       new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "add_claimEdge"),
       new Action(new ClaimEdge("ChildClaim1", "grandChild1", u, false, "GrandChildClaim1Edge"), u, "add_claimEdge"),
@@ -249,5 +267,49 @@ test('Complex Test', async () => {
   await repository.notify(changedScores);
   expect(repository.rsData.scores["newScore"].confidence).toEqual(1);
   expect(repository.rsData.scoreIdsBySourceId["topClaim"].length).toEqual(1);
-//TODO: Do i want to check all indexes for duplicate indexed items?
+
+
+  //Weird score not changing
+  const ChildClaim1ScoresInitial = await repository.getScoresBySourceId("ChildClaim1")
+  expect(ChildClaim1ScoresInitial[0].pro).toEqual(false);
+
+  debugger
+  const changedScores2 = await calculateScoreActions({
+    actions: [
+      {
+        "newData": {
+          "content": "Child Claim 1",
+          "id": "ChildClaim1",
+          "reversible": false,
+          "type": "claim"
+        },
+        "type": "modify_claim",
+        "dataId": "ChildClaim1"
+      } as Action,
+      {
+        "newData": {
+          "parentId": "topClaim",
+          "childId": "ChildClaim1",
+          "affects": "confidence",
+          "pro": true,
+          "id": "ChildClaim1Edge",
+          "priority": "",
+          "type": "claimEdge"
+        },
+        "type": "modify_claimEdge",
+        "dataId": "ChildClaim1Edge"
+      } as Action
+    ],
+    repository: repository
+  })
+
+  await repository.notify(changedScores2);
+  const ChildClaim1Scores = await repository.getScoresBySourceId("ChildClaim1")
+  expect(ChildClaim1Scores[0].pro).toEqual(true);
+
+  expect(changedScores2.length).toEqual(1);
+
+
+  //TODO: Do I want to check all indexes for duplicate indexed items?
+
 });
