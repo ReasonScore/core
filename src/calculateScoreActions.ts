@@ -4,7 +4,7 @@ import { RepositoryLocalPure } from "./repositories/RepositoryLocalPure";
 import { iCalculateScore, calculateScore } from "./calculateScore";
 import { Claim } from "./dataModels/Claim";
 import { iRepository } from "./dataModels/iRepository";
-import { ClaimEdge } from "./dataModels/ClaimEdge";
+import { ClaimEdge, iClaimEdge } from "./dataModels/ClaimEdge";
 import { newId } from "./newId";
 import { RepositoryLocalReactive } from "./repositories/RepositoryLocalReactive";
 
@@ -33,34 +33,51 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
         }
 
         if (action.type == "add_score") {
-            const score = action.newData as Score;
+            let score = action.newData as iScore;
+            if (!score.parentId) {
+                const scoreTemp = await repository.getScore(action.dataId)
+                if (scoreTemp) {
+                    score = scoreTemp;
+                }
+            }
+
             claimIdsToScore.push(score.sourceClaimId)
         }
 
         //Add scores if edges adds new children to claims in score trees
         if (action.type == 'add_claimEdge' || action.type == 'modify_claimEdge') {
-            const claimEdge = action.newData as ClaimEdge;
+            let claimEdge = action.newData as iClaimEdge;
+            if (!claimEdge.parentId) {
+                const claimEdgeTemp = await repository.getClaimEdge(action.dataId)
+                if (claimEdgeTemp) {
+                    claimEdge = claimEdgeTemp;
+                }
+            }
             claimIdsToScore.push(claimEdge.parentId)
         }
 
         //TODO: If an edge changes then modify the existing scores to match
         if (action.type == 'modify_claimEdge') {
-            const claimEdge = action.newData as ClaimEdge;
-            const scores = await repository.getScoresBySourceId(claimEdge.id)
-            for (const score of scores) {
-                //TODO: Where should I put this? It is modifying am object. If it is reactive i should just change the data. If pure it should be a new object.
-                //For now I will modify it but it may not trigger updates in a pure library (React)
-                //This change should also probably be centralized somewhere to reduce the chance of inconsistent bugs. I think it will happen in multiple paces
-                //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
-                //Should I group these actions or just throw them in one at a time like I am doing
-                if (score.pro != claimEdge.pro ||
-                    score.affects != claimEdge.affects) {
-                    const action = new Action({
-                        pro: claimEdge.pro,
-                        affects: claimEdge.affects,
-                    }, score, "modify_score", score.id)
-                    scoreActions.push(action);
-                    await repository.notify([action]);
+            let claimEdge = await repository.getClaimEdge(action.dataId)
+            claimEdge = { ...claimEdge, ...action.newData }
+            if (claimEdge) {
+                action.newData as ClaimEdge;
+                const scores = await repository.getScoresBySourceId(claimEdge.id)
+                for (const score of scores) {
+                    //TODO: Where should I put this? It is modifying am object. If it is reactive i should just change the data. If pure it should be a new object.
+                    //For now I will modify it but it may not trigger updates in a pure library (React)
+                    //This change should also probably be centralized somewhere to reduce the chance of inconsistent bugs. I think it will happen in multiple paces
+                    //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
+                    //Should I group these actions or just throw them in one at a time like I am doing
+                    if (score.pro != claimEdge.pro ||
+                        score.affects != claimEdge.affects) {
+                        const action = new Action({
+                            pro: claimEdge.pro,
+                            affects: claimEdge.affects,
+                        }, score, "modify_score", score.id)
+                        scoreActions.push(action);
+                        await repository.notify([action]);
+                    }
                 }
             }
         }

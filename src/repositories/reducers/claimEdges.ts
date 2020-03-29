@@ -11,7 +11,7 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
                     ...state,
                     claimEdges: {
                         ...state.claimEdges,
-                        [action.dataId]: action.newData,
+                        [action.dataId]: {...state.claimEdges[action.dataId], ...action.newData},
                     }
                 } 
 

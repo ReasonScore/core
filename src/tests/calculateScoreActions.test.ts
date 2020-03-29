@@ -312,3 +312,46 @@ test('Complex Test', async () => {
   //TODO: Do I want to check all indexes for duplicate indexed items?
 
 });
+
+test('Partial Claim Edge Update', async () => {
+  const repository = new RepositoryLocalPure();
+  const changedScores = await calculateScoreActions({
+    actions: [
+      new Action(new Claim("Top Claim", "topClaim"), u, "add_claim"),
+      new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+      new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
+      new Action(new ClaimEdge("topClaim", "ChildClaim1", u, false, "ChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild1", u, false, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new Score("topClaim", "topClaim", u, u, u, u, u, 0, u, "topScore"), u, "add_score"),
+    ],
+    repository: repository
+  })
+
+  await repository.notify(changedScores);
+  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+  expect(repository.rsData.scoreIdsBySourceId["topClaim"].length).toEqual(1);
+
+  const result = await calculateScoreActions({
+    actions: [
+      new Action(new ClaimEdge("topClaim", "ChildClaim2", u, false, "ChildClaim2Edge"), u, "modify_claimEdge"),
+    ],
+    repository: repository
+  })
+  await repository.notify(result);
+  expect(repository.rsData.scores["topScore"].confidence).toEqual(0);
+
+  const result2 = await calculateScoreActions({
+    actions: [
+      new Action({pro:true}, u, "modify_claimEdge","ChildClaim2Edge" ),
+      //new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "modify_claimEdge"),
+    ],
+    repository: repository
+  })
+  debugger
+  await repository.notify(result2);
+  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+
+
+});
