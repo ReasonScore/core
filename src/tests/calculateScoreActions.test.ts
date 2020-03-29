@@ -264,7 +264,7 @@ test('Complex Test', async () => {
     repository: repository
   })
 
-  await repository.notify(changedScores);
+  //await repository.notify(changedScores);
   expect(repository.rsData.scores["newScore"].confidence).toEqual(1);
   expect(repository.rsData.scoreIdsBySourceId["topClaim"].length).toEqual(1);
 
@@ -302,7 +302,7 @@ test('Complex Test', async () => {
     repository: repository
   })
 
-  await repository.notify(changedScores2);
+  //await repository.notify(changedScores2);
   const ChildClaim1Scores = await repository.getScoresBySourceId("ChildClaim1")
   expect(ChildClaim1Scores[0].pro).toEqual(true);
 
@@ -313,7 +313,7 @@ test('Complex Test', async () => {
 
 });
 
-test('Partial Claim Edge Update', async () => {
+test('Partial Claim Edge Grandchild Update', async () => {
   const repository = new RepositoryLocalPure();
   const changedScores = await calculateScoreActions({
     actions: [
@@ -329,7 +329,7 @@ test('Partial Claim Edge Update', async () => {
     repository: repository
   })
 
-  await repository.notify(changedScores);
+  //await repository.notify(changedScores);
   expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
   expect(repository.rsData.scoreIdsBySourceId["topClaim"].length).toEqual(1);
 
@@ -349,9 +349,48 @@ test('Partial Claim Edge Update', async () => {
     ],
     repository: repository
   })
-  debugger
+  
   await repository.notify(result2);
   expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+});
 
+test('Partial Claim Edge Child Update', async () => {
+  const repository = new RepositoryLocalPure();
+  const changedScores = await calculateScoreActions({
+    actions: [
+      new Action(new Claim("Top Claim", "topClaim"), u, "add_claim"),
+      new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+      new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
+      new Action(new ClaimEdge("topClaim", "ChildClaim1", u, false, "ChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild1", u, false, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new Score("topClaim", "topClaim", u, u, u, u, u, 0, u, "topScore"), u, "add_score"),
+    ],
+    repository: repository
+  })
 
+  //await repository.notify(changedScores);
+  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+
+  const result = await calculateScoreActions({
+    actions: [
+      new Action({pro:false}, u, "modify_claimEdge","ChildClaim2Edge" ),
+      //new Action(new ClaimEdge("topClaim", "ChildClaim2", u, false, "ChildClaim2Edge"), u, "modify_claimEdge"),
+    ],
+    repository: repository
+  })
+  //await repository.notify(result);
+  expect(repository.rsData.scores["topScore"].confidence).toEqual(0);
+
+  const result2 = await calculateScoreActions({
+    actions: [
+      new Action({pro:true}, u, "modify_claimEdge","ChildClaim2Edge" ),
+      //new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "modify_claimEdge"),
+    ],
+    repository: repository
+  })
+  debugger
+  //await repository.notify(result2);
+  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
 });

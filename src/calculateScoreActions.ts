@@ -121,6 +121,9 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
         }
     }
 
+    //TODO: Review this decision: Feed the score actions back into the repository so this repository is up to date in case it is used 
+    await repository.notify(scoreActions);
+
     return scoreActions;
 }
 
