@@ -544,8 +544,10 @@ async function calculateScoreActions({
       await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
       scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
     }
-  }
+  } //TODO: Review this decision: Feed the score actions back into the repository so this repository is up to date in case it is used 
 
+
+  await repository.notify(scoreActions);
   return scoreActions;
 } //Create Blank Missing Scores
 
