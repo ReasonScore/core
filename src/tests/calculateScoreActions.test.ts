@@ -38,7 +38,7 @@ test('Add a child that does not change the top score', async () => {
 
   const result = await calculateScoreActions({
     actions: [
-      new Action(new ClaimEdge("testClaim", "ChildClaim1"), undefined, "add_claimEdge")
+      new Action(new ClaimEdge("testClaim", "ChildClaim1",u,u,u,"Priority Set"), undefined, "add_claimEdge")
     ],
     repository: repository
   })
@@ -54,11 +54,10 @@ test('Add a child that does not change the top score', async () => {
           "affects": "confidence",
           "confidence": 1,
           "relevance": 1,
-          "parentScoreId": "newScore"
-          //"dataId": "Ya3ZeuTmGUZq"
+          "parentScoreId": "newScore",
+          "priority": "Priority Set"
         }, "oldData": undefined,
         "type": "add_score",
-        //"dataId": "Ya3ZeuTmGUZq"
       }
     ]
   )

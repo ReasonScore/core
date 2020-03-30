@@ -29,6 +29,7 @@ export class Score implements iScore, iScoreFragment, Item {
          * A multiplier set by all the child edges that affect 'relevance'*/
         public relevance: number = 1,
         public id: string = newId(),
+        public priority: string = "",
     ) {
     }
 }
@@ -67,6 +68,8 @@ export interface iScore {
     relevance: number,
     id: string,
     type: ItemTypes,
+    priority: string,
+
     /** allow for other properties by external implementations */
     [others: string]: any;
 }
@@ -82,6 +85,8 @@ export interface iScoreFragment {
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance?: number,
+    priority?: string,
+
     /** allow for other properties by external implementations */
     [others: string]: any;
 }

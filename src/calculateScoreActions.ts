@@ -134,7 +134,8 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
         let score = scores.find(({ sourceClaimId }) => sourceClaimId === edge.childId);
         if (!score) {
             //Create a new Score and attach it to it's parent
-            score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects);
+            const u = undefined;
+            score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects,u,u,u,edge.priority);
             actions.push(new Action(score, undefined, "add_score", score.id));
         }
         //Recurse and through children
