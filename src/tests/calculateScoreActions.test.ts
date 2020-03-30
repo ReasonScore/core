@@ -389,8 +389,7 @@ test('Partial Claim Edge Child Update', async () => {
     ],
     repository: repository
   })
-  debugger
-  //await repository.notify(result2);
+  
   expect(repository.rsData.items["topScore"].confidence).toEqual(1);
 });
 
