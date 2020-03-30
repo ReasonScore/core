@@ -7,7 +7,9 @@ export interface IndexArray {
 }
 export interface iRsData {
     /** Stores all the actions sent through */
-    actionsLog: iAction[][];
+    actionsLog: {
+        actions: iAction[];
+    }[];
     /** Stores all the current items */
     items: {
         [idString: string]: Item;
@@ -18,7 +20,9 @@ export interface iRsData {
     childIdsByScoreId: IndexArray;
 }
 export declare class RsData implements iRsData {
-    actionsLog: iAction[][];
+    actionsLog: {
+        actions: iAction[];
+    }[];
     /** Stores all the current items */
     items: {
         [idString: string]: Item;
@@ -27,7 +31,9 @@ export declare class RsData implements iRsData {
     claimEdgeIdsByChildId: IndexArray;
     scoreIdsBySourceId: IndexArray;
     childIdsByScoreId: IndexArray;
-    constructor(actionsLog?: iAction[][], 
+    constructor(actionsLog?: {
+        actions: iAction[];
+    }[], 
     /** Stores all the current items */
     items?: {
         [idString: string]: Item;

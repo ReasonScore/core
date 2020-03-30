@@ -209,229 +209,13 @@ class Action {
 
 }
 
-//Store the string for the ID
-//Store the string for the ID
-class RsData {
-  constructor(actionsLog = [], items = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
-    this.actionsLog = actionsLog;
-    this.items = items;
-    this.claimEdgeIdsByParentId = claimEdgeIdsByParentId;
-    this.claimEdgeIdsByChildId = claimEdgeIdsByChildId;
-    this.scoreIdsBySourceId = scoreIdsBySourceId;
-    this.childIdsByScoreId = childIdsByScoreId;
-  }
-
-}
-
-class RepositoryLocalBase {
-  constructor(rsData = new RsData()) {
-    this.rsData = rsData;
-
-    _defineProperty(this, "log", []);
-  }
-
-  async getClaim(id) {
-    return this.rsData.items[id];
-  }
-
-  async getClaimEdge(id) {
-    return this.rsData.items[id];
-  }
-
-  async getScore(id) {
-    return this.rsData.items[id];
-  }
-
-  async getClaimEdgesByParentId(parentId) {
-    const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];
-    const claimEdges = [];
-
-    if (claimEdgeIdStrings) {
-      for (const claimEdgeIdString of claimEdgeIdStrings) {
-        const claimEdge = await this.getClaimEdge(claimEdgeIdString);
-        if (claimEdge) claimEdges.push(claimEdge);
-      }
-    }
-
-    return claimEdges;
-  }
-
-  async getClaimEdgesByChildId(childId) {
-    const claimEdgeIdStrings = this.rsData.claimEdgeIdsByChildId[childId];
-    const claimEdges = [];
-
-    for (const claimEdgeIdString of claimEdgeIdStrings) {
-      const claimEdge = await this.getClaimEdge(claimEdgeIdString);
-      if (claimEdge) claimEdges.push(claimEdge);
-    }
-
-    return claimEdges;
-  }
-
-  async getScoresBySourceId(sourceClaimId) {
-    const scoreIdStrings = this.rsData.scoreIdsBySourceId[sourceClaimId];
-    const scores = [];
-
-    if (scoreIdStrings) {
-      for (const scoreIdString of scoreIdStrings) {
-        const score = await this.getScore(scoreIdString);
-        if (score) scores.push(score);
-      }
-    }
-
-    return scores;
-  }
-
-  async getChildrenByScoreId(parentScoreId) {
-    const childIdStrings = this.rsData.childIdsByScoreId[parentScoreId];
-    const scores = [];
-
-    if (childIdStrings) {
-      for (const scoreIdString of childIdStrings) {
-        const score = await this.getScore(scoreIdString);
-        if (score) scores.push(score);
-      }
-    }
-
-    return scores;
-  }
-
-}
-
-class RepositoryLocalReactive extends RepositoryLocalBase {
-  constructor(rsData = new RsData()) {
-    super(rsData);
-    this.rsData = rsData;
-  }
-
-  notify(actions) {
-    this.rsData.actionsLog.push(actions);
-
-    for (const action of actions) {
-      // "add_claim" |
-      if (action.type == "add_claim" || action.type == "modify_claim") {
-        this.rsData.items[action.dataId] = action.newData;
-      }
-
-      if (action.type == "delete_claim") {
-        throw new Error("Method not implemented.");
-      }
-
-      if (action.type == "add_claimEdge" || action.type == "modify_claimEdge") {
-        this.rsData.items[action.dataId] = action.newData;
-        const item = action.newData;
-        this.indexClaimEdgeIdByParentId(item);
-        this.indexClaimEdgeIdByChildId(item);
-      }
-
-      if (action.type == "delete_claimEdge") {
-        throw new Error("Method not implemented.");
-      }
-
-      if (action.type == "add_score" || action.type == "modify_score") {
-        const item = action.newData;
-        this.rsData.items[action.dataId] = action.newData;
-        this.scoreIdsBySourceId(item);
-        this.childIdsByScoreId(item);
-      }
-
-      if (action.type == "delete_score") {
-        throw new Error("Method not implemented.");
-      }
-    }
-  }
-
-  indexClaimEdgeIdByParentId(claimEdge) {
-    let indexId = claimEdge.parentId;
-    let id = claimEdge.id;
-    let destination = this.rsData.claimEdgeIdsByParentId[claimEdge.parentId];
-
-    if (!destination) {
-      destination = [];
-      this.rsData.claimEdgeIdsByParentId[claimEdge.parentId] = destination;
-    }
-
-    if (!destination.includes(claimEdge.id)) {
-      destination.push(claimEdge.id);
-    }
-  }
-
-  indexClaimEdgeIdByChildId(claimEdge) {
-    let indexId = claimEdge.childId;
-    let id = claimEdge.id;
-    let destination = this.rsData.claimEdgeIdsByChildId[indexId];
-
-    if (!destination) {
-      destination = [];
-      this.rsData.claimEdgeIdsByChildId[indexId] = destination;
-    }
-
-    if (!destination.includes(id)) {
-      destination.push(id);
-    }
-  }
-
-  scoreIdsBySourceId(score) {
-    //Source Claim ID
-    {
-      let indexId = score.sourceClaimId;
-      let id = score.id;
-      let destination = this.rsData.scoreIdsBySourceId[indexId];
-
-      if (!destination) {
-        destination = [];
-        this.rsData.scoreIdsBySourceId[indexId] = destination;
-      }
-
-      if (!destination.includes(id)) {
-        destination.push(id);
-      }
-    } //Source Edge ID
-
-    if (score.sourceEdgeId) {
-      let indexId = score.sourceEdgeId;
-      let id = score.id;
-      let destination = this.rsData.scoreIdsBySourceId[indexId];
-
-      if (!destination) {
-        destination = [];
-        this.rsData.scoreIdsBySourceId[indexId] = destination;
-      }
-
-      if (!destination.includes(id)) {
-        destination.push(id);
-      }
-    }
-  } //TODO: not sure if this is correct
-
-
-  childIdsByScoreId(score) {
-    let indexId = score.parentScoreId;
-    let id = score.id;
-
-    if (indexId) {
-      let destination = this.rsData.childIdsByScoreId[indexId];
-
-      if (!destination) {
-        destination = [];
-        this.rsData.childIdsByScoreId[indexId] = destination;
-      }
-
-      if (!destination.includes(id)) {
-        destination.push(id);
-      }
-    }
-  }
-
-}
-
 /**
  * Calculates the score actions based on a list of actions
  */
 
 async function calculateScoreActions({
   actions = [],
-  repository = new RepositoryLocalReactive(),
+  repository = new RepositoryLocalPure(),
   calculator = calculateScore
 } = {}) {
   const scoreActions = [];
@@ -600,6 +384,20 @@ async function calculateScoreTree(repository, currentScore, calculator = calcula
   return newScore;
 }
 
+//Store the string for the ID
+//Store the string for the ID
+class RsData {
+  constructor(actionsLog = [], items = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
+    this.actionsLog = actionsLog;
+    this.items = items;
+    this.claimEdgeIdsByParentId = claimEdgeIdsByParentId;
+    this.claimEdgeIdsByChildId = claimEdgeIdsByChildId;
+    this.scoreIdsBySourceId = scoreIdsBySourceId;
+    this.childIdsByScoreId = childIdsByScoreId;
+  }
+
+}
+
 function claims(state, action, reverse = false) {
   switch (action.type) {
     case "add_claim":
@@ -665,6 +463,81 @@ function claimEdges(state, action, reverse = false) {
   }
 }
 
+class RepositoryLocalBase {
+  constructor(rsData = new RsData()) {
+    this.rsData = rsData;
+
+    _defineProperty(this, "log", []);
+  }
+
+  async getClaim(id) {
+    return this.rsData.items[id];
+  }
+
+  async getClaimEdge(id) {
+    return this.rsData.items[id];
+  }
+
+  async getScore(id) {
+    return this.rsData.items[id];
+  }
+
+  async getClaimEdgesByParentId(parentId) {
+    const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];
+    const claimEdges = [];
+
+    if (claimEdgeIdStrings) {
+      for (const claimEdgeIdString of claimEdgeIdStrings) {
+        const claimEdge = await this.getClaimEdge(claimEdgeIdString);
+        if (claimEdge) claimEdges.push(claimEdge);
+      }
+    }
+
+    return claimEdges;
+  }
+
+  async getClaimEdgesByChildId(childId) {
+    const claimEdgeIdStrings = this.rsData.claimEdgeIdsByChildId[childId];
+    const claimEdges = [];
+
+    for (const claimEdgeIdString of claimEdgeIdStrings) {
+      const claimEdge = await this.getClaimEdge(claimEdgeIdString);
+      if (claimEdge) claimEdges.push(claimEdge);
+    }
+
+    return claimEdges;
+  }
+
+  async getScoresBySourceId(sourceClaimId) {
+    const scoreIdStrings = this.rsData.scoreIdsBySourceId[sourceClaimId];
+    const scores = [];
+
+    if (scoreIdStrings) {
+      for (const scoreIdString of scoreIdStrings) {
+        const score = await this.getScore(scoreIdString);
+        if (score) scores.push(score);
+      }
+    }
+
+    return scores;
+  }
+
+  async getChildrenByScoreId(parentScoreId) {
+    const childIdStrings = this.rsData.childIdsByScoreId[parentScoreId];
+    const scores = [];
+
+    if (childIdStrings) {
+      for (const scoreIdString of childIdStrings) {
+        const score = await this.getScore(scoreIdString);
+        if (score) scores.push(score);
+      }
+    }
+
+    return scores;
+  }
+
+}
+
 function scores(state, action, reverse = false) {
   switch (action.type) {
     case "add_score":
@@ -702,8 +575,7 @@ class RepositoryLocalPure extends RepositoryLocalBase {
   }
 
   async notify(actions) {
-    this.rsData.actionsLog.push(actions);
-
+    //this.rsData.actionsLog.push({actions:actions}); //TODO: put logs back is
     for (const action of actions) {
       //TODO: add more reducers
       this.rsData = claims(this.rsData, action);
@@ -751,7 +623,6 @@ exports.Claim = Claim;
 exports.ClaimEdge = ClaimEdge;
 exports.Messenger = Messenger;
 exports.RepositoryLocalPure = RepositoryLocalPure;
-exports.RepositoryLocalReactive = RepositoryLocalReactive;
 exports.RsData = RsData;
 exports.Score = Score;
 exports.calculateScore = calculateScore;

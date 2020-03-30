@@ -3,7 +3,6 @@ export * from "./Messenger";
 export * from "./newId";
 export * from "./calculateScoreActions";
 export * from "./repositories/RepositoryLocalPure";
-export * from "./repositories/RepositoryLocalReactive";
 export * from "./dataModels/Action";
 export * from "./dataModels/ActionTypes";
 export * from "./dataModels/Affects";
