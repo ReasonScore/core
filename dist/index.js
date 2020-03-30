@@ -169,7 +169,7 @@ var reasonscore_core = (function (exports) {
      * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
      */
     class Score {
-      constructor(sourceClaimId, topScoreId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId()) {
+      constructor(sourceClaimId, topScoreId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "") {
         this.sourceClaimId = sourceClaimId;
         this.topScoreId = topScoreId;
         this.parentScoreId = parentScoreId;
@@ -180,6 +180,7 @@ var reasonscore_core = (function (exports) {
         this.confidence = confidence;
         this.relevance = relevance;
         this.id = id;
+        this.priority = priority;
 
         _defineProperty(this, "type", 'score');
       }
@@ -190,7 +191,7 @@ var reasonscore_core = (function (exports) {
      */
 
     function differentScores(scoreA, scoreB) {
-      return !(scoreA.confidence == scoreB.confidence && scoreA.relevance == scoreB.relevance && scoreA.pro == scoreB.pro);
+      return !(scoreA.confidence == scoreB.confidence && scoreA.relevance == scoreB.relevance && scoreA.pro == scoreB.pro && scoreA.priority == scoreB.priority);
     }
 
     class Action {
@@ -490,7 +491,8 @@ var reasonscore_core = (function (exports) {
               if (score.pro != claimEdge.pro || score.affects != claimEdge.affects) {
                 const action = new Action({
                   pro: claimEdge.pro,
-                  affects: claimEdge.affects
+                  affects: claimEdge.affects,
+                  priority: claimEdge.priority
                 }, score, "modify_score", score.id);
                 scoreActions.push(action);
                 await repository.notify([action]);
@@ -562,7 +564,8 @@ var reasonscore_core = (function (exports) {
 
         if (!score) {
           //Create a new Score and attach it to it's parent
-          score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects);
+          const u = undefined;
+          score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects, u, u, u, edge.priority);
           actions.push(new Action(score, undefined, "add_score", score.id));
         } //Recurse and through children
 

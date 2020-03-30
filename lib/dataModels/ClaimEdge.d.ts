@@ -39,6 +39,7 @@ export interface iClaimEdge {
     /** Is the child claim a pro of it's parent (false if it is a con) */
     pro: boolean;
     id: string;
+    priority: string;
     /** allow for other properties by external implementations */
     [others: string]: any;
 }

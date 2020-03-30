@@ -24,6 +24,7 @@ export declare class Score implements iScore, iScoreFragment, Item {
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number;
     id: string;
+    priority: string;
     type: ItemTypes;
     constructor(
     /** The claim to which this score belongs */
@@ -41,7 +42,7 @@ export declare class Score implements iScore, iScoreFragment, Item {
     affects?: Affects, confidence?: number, 
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
-    relevance?: number, id?: string);
+    relevance?: number, id?: string, priority?: string);
 }
 /** Compare two scores to see if they are different in what the score is.
  *  Just compares confidence and relavance
@@ -69,6 +70,7 @@ export interface iScore {
     relevance: number;
     id: string;
     type: ItemTypes;
+    priority: string;
     /** allow for other properties by external implementations */
     [others: string]: any;
 }
@@ -83,6 +85,7 @@ export interface iScoreFragment {
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance?: number;
+    priority?: string;
     /** allow for other properties by external implementations */
     [others: string]: any;
 }
