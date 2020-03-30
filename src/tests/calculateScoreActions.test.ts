@@ -38,7 +38,7 @@ test('Add a child that does not change the top score', async () => {
 
   const result = await calculateScoreActions({
     actions: [
-      new Action(new ClaimEdge("testClaim", "ChildClaim1",u,u,u,"Priority Set"), undefined, "add_claimEdge")
+      new Action(new ClaimEdge("testClaim", "ChildClaim1", u, u, u, "Priority Set"), undefined, "add_claimEdge")
     ],
     repository: repository
   })
@@ -343,12 +343,12 @@ test('Partial Claim Edge Grandchild Update', async () => {
 
   const result2 = await calculateScoreActions({
     actions: [
-      new Action({pro:true}, u, "modify_claimEdge","ChildClaim2Edge" ),
+      new Action({ pro: true }, u, "modify_claimEdge", "ChildClaim2Edge"),
       //new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "modify_claimEdge"),
     ],
     repository: repository
   })
-  
+
   await repository.notify(result2);
   expect(repository.rsData.items["topScore"].confidence).toEqual(1);
 });
@@ -374,7 +374,7 @@ test('Partial Claim Edge Child Update', async () => {
 
   const result = await calculateScoreActions({
     actions: [
-      new Action({pro:false}, u, "modify_claimEdge","ChildClaim2Edge" ),
+      new Action({ pro: false }, u, "modify_claimEdge", "ChildClaim2Edge"),
       //new Action(new ClaimEdge("topClaim", "ChildClaim2", u, false, "ChildClaim2Edge"), u, "modify_claimEdge"),
     ],
     repository: repository
@@ -384,12 +384,34 @@ test('Partial Claim Edge Child Update', async () => {
 
   const result2 = await calculateScoreActions({
     actions: [
-      new Action({pro:true}, u, "modify_claimEdge","ChildClaim2Edge" ),
+      new Action({ pro: true }, u, "modify_claimEdge", "ChildClaim2Edge"),
       //new Action(new ClaimEdge("topClaim", "ChildClaim2", u, true, "ChildClaim2Edge"), u, "modify_claimEdge"),
     ],
     repository: repository
   })
   debugger
   //await repository.notify(result2);
+  expect(repository.rsData.items["topScore"].confidence).toEqual(1);
+});
+
+test('Deleting an edge should reverses the top score', async () => {
+  const repository = new RepositoryLocalPure();
+  await calculateScoreActions({
+    actions: [
+      new Action(new Claim("", "testClaim"), undefined, "add_claim"),
+      new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
+      new Action(new ClaimEdge("testClaim", "ChildClaim1", undefined, false, "ChildClaim1Edge"), undefined, "add_claimEdge"),
+      new Action(new Score("testClaim", "testClaim", u, u, u, u, u, u, u, "topScore"), undefined, "add_score"),
+    ], repository: repository
+  })
+
+  expect(repository.rsData.items["topScore"].confidence).toEqual(0);
+
+  await calculateScoreActions({
+    actions: [
+      new Action(u, {parentId:"testClaim"}, "delete_claimEdge", "ChildClaim1Edge")
+    ], repository: repository,
+  })
+
   expect(repository.rsData.items["topScore"].confidence).toEqual(1);
 });

@@ -79,6 +79,12 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
                 }
             }
         }
+
+        if (action.type == 'delete_claimEdge') {
+            const oldClaimEdge = action.oldData as ClaimEdge;
+            claimIdsToScore.push(oldClaimEdge.parentId)
+        }
+        
     }
 
     //Walk up the scores for each claim to the top
