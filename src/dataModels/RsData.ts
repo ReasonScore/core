@@ -5,7 +5,7 @@ export interface IndexArray { [searchIndex: string]: string[]; } //Store the str
 
 export interface iRsData {
     /** Stores all the actions sent through */
-    actionsLog: iAction[][],
+    actionsLog: {actions:iAction[]}[],
     // Claim data
     /** Stores all the current items */
     items: { [idString: string]: Item; },
@@ -21,7 +21,7 @@ export interface iRsData {
 
 export class RsData implements iRsData {
     constructor(
-        public actionsLog: iAction[][] = [],
+        public actionsLog: {actions:iAction[]}[] = [],
         // Claim data
         /** Stores all the current items */
         public items: { [idString: string]: Item; } = {},
