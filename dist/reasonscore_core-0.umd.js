@@ -123,13 +123,13 @@ class Messenger {
   constructor() {
     _defineProperty(this, "subscribers", []);
 
-    _defineProperty(this, "log", []);
+    _defineProperty(this, "actionsLog", []);
 
-    _defineProperty(this, "notify", changes => {
-      this.log.push(changes);
+    _defineProperty(this, "notify", actions => {
+      this.actionsLog.push(actions);
 
       for (const subscriber of this.subscribers) {
-        subscriber(changes);
+        subscriber(actions);
       }
     });
   }
@@ -181,6 +181,8 @@ class Score {
     this.confidence = confidence;
     this.relevance = relevance;
     this.id = id;
+
+    _defineProperty(this, "type", 'score');
   }
 
 }
@@ -209,13 +211,11 @@ class Action {
 //Store the string for the ID
 //Store the string for the ID
 class RsData {
-  constructor(actionsLog = [], claims = {}, claimEdges = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scores = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
+  constructor(actionsLog = [], items = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
     this.actionsLog = actionsLog;
-    this.claims = claims;
-    this.claimEdges = claimEdges;
+    this.items = items;
     this.claimEdgeIdsByParentId = claimEdgeIdsByParentId;
     this.claimEdgeIdsByChildId = claimEdgeIdsByChildId;
-    this.scores = scores;
     this.scoreIdsBySourceId = scoreIdsBySourceId;
     this.childIdsByScoreId = childIdsByScoreId;
   }
@@ -230,15 +230,15 @@ class RepositoryLocalBase {
   }
 
   async getClaim(id) {
-    return this.rsData.claims[id];
+    return this.rsData.items[id];
   }
 
   async getClaimEdge(id) {
-    return this.rsData.claimEdges[id];
+    return this.rsData.items[id];
   }
 
   async getScore(id) {
-    return this.rsData.scores[id];
+    return this.rsData.items[id];
   }
 
   async getClaimEdgesByParentId(parentId) {
@@ -309,7 +309,7 @@ class RepositoryLocalReactive extends RepositoryLocalBase {
     for (const action of actions) {
       // "add_claim" |
       if (action.type == "add_claim" || action.type == "modify_claim") {
-        this.rsData.claims[action.dataId] = action.newData;
+        this.rsData.items[action.dataId] = action.newData;
       }
 
       if (action.type == "delete_claim") {
@@ -317,7 +317,7 @@ class RepositoryLocalReactive extends RepositoryLocalBase {
       }
 
       if (action.type == "add_claimEdge" || action.type == "modify_claimEdge") {
-        this.rsData.claimEdges[action.dataId] = action.newData;
+        this.rsData.items[action.dataId] = action.newData;
         const item = action.newData;
         this.indexClaimEdgeIdByParentId(item);
         this.indexClaimEdgeIdByChildId(item);
@@ -329,7 +329,7 @@ class RepositoryLocalReactive extends RepositoryLocalBase {
 
       if (action.type == "add_score" || action.type == "modify_score") {
         const item = action.newData;
-        this.rsData.scores[action.dataId] = action.newData;
+        this.rsData.items[action.dataId] = action.newData;
         this.scoreIdsBySourceId(item);
         this.childIdsByScoreId(item);
       }
@@ -602,7 +602,7 @@ function claims(state, action, reverse = false) {
     case "add_claim":
       {
         return _objectSpread2({}, state, {
-          claims: _objectSpread2({}, state.claims, {
+          items: _objectSpread2({}, state.items, {
             [action.dataId]: action.newData
           })
         });
@@ -611,8 +611,8 @@ function claims(state, action, reverse = false) {
     case "modify_claim":
       {
         return _objectSpread2({}, state, {
-          claims: _objectSpread2({}, state.claims, {
-            [action.dataId]: _objectSpread2({}, state.claims[action.dataId], {}, action.newData)
+          items: _objectSpread2({}, state.items, {
+            [action.dataId]: _objectSpread2({}, state.items[action.dataId], {}, action.newData)
           })
         });
       }
@@ -648,8 +648,8 @@ function claimEdges(state, action, reverse = false) {
     case "modify_claimEdge":
       {
         state = _objectSpread2({}, state, {
-          claimEdges: _objectSpread2({}, state.claimEdges, {
-            [action.dataId]: _objectSpread2({}, state.claimEdges[action.dataId], {}, action.newData)
+          items: _objectSpread2({}, state.items, {
+            [action.dataId]: _objectSpread2({}, state.items[action.dataId], {}, action.newData)
           })
         });
         state = IndexReducer(state, "claimEdgeIdsByChildId", action.newData.childId, action.dataId);
@@ -668,7 +668,7 @@ function scores(state, action, reverse = false) {
     case "modify_score":
       {
         // Since the score data might just be some of the data we need to get the current score and combine them
-        const originalScore = state.scores[action.dataId];
+        const originalScore = state.items[action.dataId];
         let score = action.newData;
 
         if (originalScore) {
@@ -676,7 +676,7 @@ function scores(state, action, reverse = false) {
         }
 
         state = _objectSpread2({}, state, {
-          scores: _objectSpread2({}, state.scores, {
+          items: _objectSpread2({}, state.items, {
             [action.dataId]: score
           })
         }); //TODO: Do I need to stop recreating the state so many times in this reducer?
@@ -711,17 +711,6 @@ class RepositoryLocalPure extends RepositoryLocalBase {
 
 }
 
-class Claim {
-  constructor(content = "", id = newId(), reversible = false) {
-    this.content = content;
-    this.id = id;
-    this.reversible = reversible;
-
-    _defineProperty(this, "type", 'claim');
-  }
-
-}
-
 /**
  * Stores the relationship between a claim and an item (usually another claim).
  * This is directional as the edge points from one claim to it's parent.
@@ -739,6 +728,17 @@ class ClaimEdge {
     this.priority = priority;
 
     _defineProperty(this, "type", 'claimEdge');
+  }
+
+}
+
+class Claim {
+  constructor(content = "", id = newId(), reversible = false) {
+    this.content = content;
+    this.id = id;
+    this.reversible = reversible;
+
+    _defineProperty(this, "type", 'claim');
   }
 
 }

@@ -1,5 +1,6 @@
 import { ItemTypes } from "./ItemTypes";
-export declare class Claim implements iClaim {
+import { Item } from "..";
+export declare class Claim implements iClaim, Item {
     content: string;
     id: string;
     reversible: boolean;

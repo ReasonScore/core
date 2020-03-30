@@ -1,8 +1,10 @@
 import { Affects } from "./Affects";
+import { Item } from "./Item";
+import { ItemTypes } from "..";
 /**
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  */
-export declare class Score implements iScore, iScoreFragment {
+export declare class Score implements iScore, iScoreFragment, Item {
     /** The claim to which this score belongs */
     sourceClaimId: string;
     /** The top of the tree of scores that this belongs to. Used for indexing */
@@ -22,6 +24,7 @@ export declare class Score implements iScore, iScoreFragment {
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number;
     id: string;
+    type: ItemTypes;
     constructor(
     /** The claim to which this score belongs */
     sourceClaimId: string, 
@@ -65,6 +68,7 @@ export interface iScore {
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance: number;
     id: string;
+    type: ItemTypes;
     /** allow for other properties by external implementations */
     [others: string]: any;
 }
@@ -79,4 +83,6 @@ export interface iScoreFragment {
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance?: number;
+    /** allow for other properties by external implementations */
+    [others: string]: any;
 }

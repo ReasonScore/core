@@ -122,13 +122,13 @@ var reasonscore_core = (function (exports) {
       constructor() {
         _defineProperty(this, "subscribers", []);
 
-        _defineProperty(this, "log", []);
+        _defineProperty(this, "actionsLog", []);
 
-        _defineProperty(this, "notify", changes => {
-          this.log.push(changes);
+        _defineProperty(this, "notify", actions => {
+          this.actionsLog.push(actions);
 
           for (const subscriber of this.subscribers) {
-            subscriber(changes);
+            subscriber(actions);
           }
         });
       }
@@ -180,6 +180,8 @@ var reasonscore_core = (function (exports) {
         this.confidence = confidence;
         this.relevance = relevance;
         this.id = id;
+
+        _defineProperty(this, "type", 'score');
       }
 
     }
@@ -208,13 +210,11 @@ var reasonscore_core = (function (exports) {
     //Store the string for the ID
     //Store the string for the ID
     class RsData {
-      constructor(actionsLog = [], claims = {}, claimEdges = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scores = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
+      constructor(actionsLog = [], items = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
         this.actionsLog = actionsLog;
-        this.claims = claims;
-        this.claimEdges = claimEdges;
+        this.items = items;
         this.claimEdgeIdsByParentId = claimEdgeIdsByParentId;
         this.claimEdgeIdsByChildId = claimEdgeIdsByChildId;
-        this.scores = scores;
         this.scoreIdsBySourceId = scoreIdsBySourceId;
         this.childIdsByScoreId = childIdsByScoreId;
       }
@@ -229,15 +229,15 @@ var reasonscore_core = (function (exports) {
       }
 
       async getClaim(id) {
-        return this.rsData.claims[id];
+        return this.rsData.items[id];
       }
 
       async getClaimEdge(id) {
-        return this.rsData.claimEdges[id];
+        return this.rsData.items[id];
       }
 
       async getScore(id) {
-        return this.rsData.scores[id];
+        return this.rsData.items[id];
       }
 
       async getClaimEdgesByParentId(parentId) {
@@ -308,7 +308,7 @@ var reasonscore_core = (function (exports) {
         for (const action of actions) {
           // "add_claim" |
           if (action.type == "add_claim" || action.type == "modify_claim") {
-            this.rsData.claims[action.dataId] = action.newData;
+            this.rsData.items[action.dataId] = action.newData;
           }
 
           if (action.type == "delete_claim") {
@@ -316,7 +316,7 @@ var reasonscore_core = (function (exports) {
           }
 
           if (action.type == "add_claimEdge" || action.type == "modify_claimEdge") {
-            this.rsData.claimEdges[action.dataId] = action.newData;
+            this.rsData.items[action.dataId] = action.newData;
             const item = action.newData;
             this.indexClaimEdgeIdByParentId(item);
             this.indexClaimEdgeIdByChildId(item);
@@ -328,7 +328,7 @@ var reasonscore_core = (function (exports) {
 
           if (action.type == "add_score" || action.type == "modify_score") {
             const item = action.newData;
-            this.rsData.scores[action.dataId] = action.newData;
+            this.rsData.items[action.dataId] = action.newData;
             this.scoreIdsBySourceId(item);
             this.childIdsByScoreId(item);
           }
@@ -601,7 +601,7 @@ var reasonscore_core = (function (exports) {
         case "add_claim":
           {
             return _objectSpread2({}, state, {
-              claims: _objectSpread2({}, state.claims, {
+              items: _objectSpread2({}, state.items, {
                 [action.dataId]: action.newData
               })
             });
@@ -610,8 +610,8 @@ var reasonscore_core = (function (exports) {
         case "modify_claim":
           {
             return _objectSpread2({}, state, {
-              claims: _objectSpread2({}, state.claims, {
-                [action.dataId]: _objectSpread2({}, state.claims[action.dataId], {}, action.newData)
+              items: _objectSpread2({}, state.items, {
+                [action.dataId]: _objectSpread2({}, state.items[action.dataId], {}, action.newData)
               })
             });
           }
@@ -647,8 +647,8 @@ var reasonscore_core = (function (exports) {
         case "modify_claimEdge":
           {
             state = _objectSpread2({}, state, {
-              claimEdges: _objectSpread2({}, state.claimEdges, {
-                [action.dataId]: _objectSpread2({}, state.claimEdges[action.dataId], {}, action.newData)
+              items: _objectSpread2({}, state.items, {
+                [action.dataId]: _objectSpread2({}, state.items[action.dataId], {}, action.newData)
               })
             });
             state = IndexReducer(state, "claimEdgeIdsByChildId", action.newData.childId, action.dataId);
@@ -667,7 +667,7 @@ var reasonscore_core = (function (exports) {
         case "modify_score":
           {
             // Since the score data might just be some of the data we need to get the current score and combine them
-            const originalScore = state.scores[action.dataId];
+            const originalScore = state.items[action.dataId];
             let score = action.newData;
 
             if (originalScore) {
@@ -675,7 +675,7 @@ var reasonscore_core = (function (exports) {
             }
 
             state = _objectSpread2({}, state, {
-              scores: _objectSpread2({}, state.scores, {
+              items: _objectSpread2({}, state.items, {
                 [action.dataId]: score
               })
             }); //TODO: Do I need to stop recreating the state so many times in this reducer?
@@ -710,17 +710,6 @@ var reasonscore_core = (function (exports) {
 
     }
 
-    class Claim {
-      constructor(content = "", id = newId(), reversible = false) {
-        this.content = content;
-        this.id = id;
-        this.reversible = reversible;
-
-        _defineProperty(this, "type", 'claim');
-      }
-
-    }
-
     /**
      * Stores the relationship between a claim and an item (usually another claim).
      * This is directional as the edge points from one claim to it's parent.
@@ -738,6 +727,17 @@ var reasonscore_core = (function (exports) {
         this.priority = priority;
 
         _defineProperty(this, "type", 'claimEdge');
+      }
+
+    }
+
+    class Claim {
+      constructor(content = "", id = newId(), reversible = false) {
+        this.content = content;
+        this.id = id;
+        this.reversible = reversible;
+
+        _defineProperty(this, "type", 'claim');
       }
 
     }

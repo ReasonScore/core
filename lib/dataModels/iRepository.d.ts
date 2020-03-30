@@ -1,5 +1,4 @@
-import { iAction, iClaimEdge, iScore, iClaim } from "..";
-import { RsData } from "./RsData";
+import { iAction, iClaimEdge, iScore, iClaim, RsData } from "..";
 export interface iRepository {
     rsData: RsData;
     notify(actions: iAction[]): void;

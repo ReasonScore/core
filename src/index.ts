@@ -14,3 +14,4 @@ export * from "./dataModels/ItemTypes";
 export * from "./dataModels/ClaimEdge";
 export * from "./dataModels/RsData";
 export * from "./dataModels/Score";
+export * from "./dataModels/Claim";
