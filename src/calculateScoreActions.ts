@@ -1,11 +1,8 @@
 import { Score, differentScores, iScore } from "./dataModels/Score";
 import { Action } from "./dataModels/Action";
-import { RepositoryLocalPure } from "./repositories/RepositoryLocalPure";
 import { iCalculateScore, calculateScore } from "./calculateScore";
-import { Claim } from "./dataModels/Claim";
 import { iRepository } from "./dataModels/iRepository";
 import { ClaimEdge, iClaimEdge } from "./dataModels/ClaimEdge";
-import { newId } from "./newId";
 import { RepositoryLocalReactive } from "./repositories/RepositoryLocalReactive";
 
 /**

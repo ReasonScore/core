@@ -7,8 +7,8 @@ export function claims(state: iRsData, action: iAction, reverse: boolean = false
             {
                 return {
                     ...state,
-                    claims: {
-                        ...state.claims,
+                    items: {
+                        ...state.items,
                         [action.dataId]: action.newData
                     }
                 } as iRsData
@@ -17,10 +17,10 @@ export function claims(state: iRsData, action: iAction, reverse: boolean = false
             {
                 return {
                     ...state,
-                    claims: {
-                        ...state.claims,
+                    items: {
+                        ...state.items,
                         [action.dataId]: {
-                            ...state.claims[action.dataId],
+                            ...state.items[action.dataId],
                             ...action.newData,
                         }
                     }

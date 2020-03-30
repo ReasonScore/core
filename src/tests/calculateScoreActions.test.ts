@@ -265,7 +265,7 @@ test('Complex Test', async () => {
   })
 
   //await repository.notify(changedScores);
-  expect(repository.rsData.scores["newScore"].confidence).toEqual(1);
+  expect(repository.rsData.items["newScore"].confidence).toEqual(1);
   expect(repository.rsData.scoreIdsBySourceId["topClaim"].length).toEqual(1);
 
 
@@ -330,7 +330,7 @@ test('Partial Claim Edge Grandchild Update', async () => {
   })
 
   //await repository.notify(changedScores);
-  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+  expect(repository.rsData.items["topScore"].confidence).toEqual(1);
   expect(repository.rsData.scoreIdsBySourceId["topClaim"].length).toEqual(1);
 
   const result = await calculateScoreActions({
@@ -340,7 +340,7 @@ test('Partial Claim Edge Grandchild Update', async () => {
     repository: repository
   })
   await repository.notify(result);
-  expect(repository.rsData.scores["topScore"].confidence).toEqual(0);
+  expect(repository.rsData.items["topScore"].confidence).toEqual(0);
 
   const result2 = await calculateScoreActions({
     actions: [
@@ -351,7 +351,7 @@ test('Partial Claim Edge Grandchild Update', async () => {
   })
   
   await repository.notify(result2);
-  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+  expect(repository.rsData.items["topScore"].confidence).toEqual(1);
 });
 
 test('Partial Claim Edge Child Update', async () => {
@@ -371,7 +371,7 @@ test('Partial Claim Edge Child Update', async () => {
   })
 
   //await repository.notify(changedScores);
-  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+  expect(repository.rsData.items["topScore"].confidence).toEqual(1);
 
   const result = await calculateScoreActions({
     actions: [
@@ -381,7 +381,7 @@ test('Partial Claim Edge Child Update', async () => {
     repository: repository
   })
   //await repository.notify(result);
-  expect(repository.rsData.scores["topScore"].confidence).toEqual(0);
+  expect(repository.rsData.items["topScore"].confidence).toEqual(0);
 
   const result2 = await calculateScoreActions({
     actions: [
@@ -392,5 +392,5 @@ test('Partial Claim Edge Child Update', async () => {
   })
   debugger
   //await repository.notify(result2);
-  expect(repository.rsData.scores["topScore"].confidence).toEqual(1);
+  expect(repository.rsData.items["topScore"].confidence).toEqual(1);
 });

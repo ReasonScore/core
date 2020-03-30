@@ -9,9 +9,9 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
             {
                 state = {
                     ...state,
-                    claimEdges: {
-                        ...state.claimEdges,
-                        [action.dataId]: {...state.claimEdges[action.dataId], ...action.newData},
+                    items: {
+                        ...state.items,
+                        [action.dataId]: {...state.items[action.dataId], ...action.newData},
                     }
                 } 
 

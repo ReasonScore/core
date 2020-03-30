@@ -5,6 +5,4 @@
 export type ItemTypes =
     "claim" |
     "claimEdge" |
-    "score" |
-    "view" |
-    "viewEdge";
+    "score" ;

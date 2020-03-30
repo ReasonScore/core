@@ -13,13 +13,13 @@ export class RepositoryLocalBase {
     }
 
     async getClaim(id: string): Promise<iClaim | undefined> {
-        return this.rsData.claims[id];
+        return this.rsData.items[id] as iClaim;
     }
     async getClaimEdge(id: string): Promise<iClaimEdge | undefined> {
-        return this.rsData.claimEdges[id];
+        return this.rsData.items[id] as iClaimEdge;
     }
     async getScore(id: string): Promise<iScore | undefined> {
-        return this.rsData.scores[id];
+        return this.rsData.items[id] as iScore;
     }
     async getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]> {
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];

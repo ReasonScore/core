@@ -9,7 +9,7 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
         case "modify_score":
             {
                 // Since the score data might just be some of the data we need to get the current score and combine them
-                const originalScore = state.scores[action.dataId];
+                const originalScore = state.items[action.dataId];
                 let score = action.newData as iScore
                 if (originalScore) {
                     score = { ...originalScore, ...score }
@@ -17,8 +17,8 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
 
                 state = {
                     ...state,
-                    scores: {
-                        ...state.scores,
+                    items: {
+                        ...state.items,
                         [action.dataId]: score,
                     }
                 }

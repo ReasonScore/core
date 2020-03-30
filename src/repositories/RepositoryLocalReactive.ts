@@ -22,14 +22,14 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
             // "add_claim" |
             if (action.type == "add_claim" ||
                 action.type == "modify_claim") {
-                this.rsData.claims[action.dataId] = action.newData
+                this.rsData.items[action.dataId] = action.newData
             }
             if (action.type == "delete_claim") {
                 throw new Error("Method not implemented.");
             }
             if (action.type == "add_claimEdge" ||
                 action.type == "modify_claimEdge") {
-                this.rsData.claimEdges[action.dataId] = action.newData
+                this.rsData.items[action.dataId] = action.newData
                 const item = action.newData as ClaimEdge;
                 this.indexClaimEdgeIdByParentId(item);
                 this.indexClaimEdgeIdByChildId(item);
@@ -40,7 +40,7 @@ export class RepositoryLocalReactive extends RepositoryLocalBase implements iRep
             if (action.type == "add_score" ||
                 action.type == "modify_score") {
                 const item = action.newData as Score;
-                this.rsData.scores[action.dataId] = action.newData
+                this.rsData.items[action.dataId] = action.newData
                 this.scoreIdsBySourceId(item);
                 this.childIdsByScoreId(item);
             }

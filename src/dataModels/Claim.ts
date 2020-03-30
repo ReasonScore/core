@@ -1,7 +1,8 @@
 import { ItemTypes } from "./ItemTypes";
 import { newId } from "../newId";
+import { Item } from "..";
 
-export class Claim implements iClaim {
+export class Claim implements iClaim, Item {
     type: ItemTypes = 'claim'
 
     constructor(

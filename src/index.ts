@@ -9,7 +9,8 @@ export * from "./repositories/RepositoryLocalReactive"
 export * from "./dataModels/Action";
 export * from "./dataModels/ActionTypes";
 export * from "./dataModels/Affects";
-export * from "./dataModels/Claim";
+export * from "./dataModels/Item";
+export * from "./dataModels/ItemTypes";
 export * from "./dataModels/ClaimEdge";
 export * from "./dataModels/RsData";
 export * from "./dataModels/Score";
