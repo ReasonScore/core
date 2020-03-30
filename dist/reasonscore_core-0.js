@@ -284,6 +284,11 @@ var reasonscore_core = (function (exports) {
             }
           }
         }
+
+        if (action.type == 'delete_claimEdge') {
+          const oldClaimEdge = action.oldData;
+          claimIdsToScore.push(oldClaimEdge.parentId);
+        }
       } //Walk up the scores for each claim to the top
 
 
@@ -457,9 +462,46 @@ var reasonscore_core = (function (exports) {
             return state;
           }
 
+        case "delete_claimEdge":
+          {
+            const claimEdge = state.items[action.dataId]; //TODO: Check that I'm not deleting anythign I shouldn't or deleting something twice?
+            //TODO: Probably comment what this is doing
+
+            delete state.items[action.dataId];
+            state = IndexDelete(state, state.claimEdgeIdsByChildId, claimEdge.childId, action.dataId);
+            state = IndexDelete(state, state.claimEdgeIdsByParentId, claimEdge.parentId, action.dataId);
+            const scoreIds = state.scoreIdsBySourceId[action.dataId];
+
+            for (const scoreId of scoreIds) {
+              const score = state.items[scoreId];
+              delete state.items[scoreId];
+              delete state.scoreIdsBySourceId[action.dataId];
+              delete state.childIdsByScoreId[scoreId];
+
+              if (score.parentScoreId) {
+                state = IndexDelete(state, state.childIdsByScoreId, score.parentScoreId, scoreId);
+              }
+
+              state = IndexDelete(state, state.scoreIdsBySourceId, score.sourceClaimId, scoreId);
+            }
+
+            debugger;
+            return state;
+          }
+
         default:
           return state;
       }
+    }
+    function IndexDelete(state, index, keyId, id) {
+      const internalIndex = index[keyId];
+      const location = internalIndex.indexOf(id, 0);
+
+      if (location > -1) {
+        internalIndex.splice(location, 1);
+      }
+
+      return state;
     }
 
     class RepositoryLocalBase {
