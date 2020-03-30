@@ -71,6 +71,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
                         const action = new Action({
                             pro: claimEdge.pro,
                             affects: claimEdge.affects,
+                            priority: claimEdge.priority,
                         }, score, "modify_score", score.id)
                         scoreActions.push(action);
                         await repository.notify([action]);

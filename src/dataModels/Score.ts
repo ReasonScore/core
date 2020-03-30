@@ -41,6 +41,7 @@ export function differentScores(scoreA: iScore, scoreB: iScore) {
         scoreA.confidence == scoreB.confidence
         && scoreA.relevance == scoreB.relevance
         && scoreA.pro == scoreB.pro
+        && scoreA.priority == scoreB.priority
     )
 }
 
