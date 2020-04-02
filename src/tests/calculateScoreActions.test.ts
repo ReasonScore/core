@@ -421,12 +421,14 @@ test('Multi level relevance test', async () => {
   const pro = true;
   const con = false;
   const topClaim = new Claim("Should Fiction City convert Elm Street to only pedestrian traffic?", "topClaim")
-  const Claim1_0 = new Claim("The planning commission estimates this will increase foot traffic to local shops by 12% during peak hours.")
-  const Claim1_1 = new Claim("The increase in revenue is expected to pay off the expense in under 2 years meeting the cities investment requirements.")
+  const Claim1_0 = new Claim("The planning commission estimates this will increase foot traffic to local shops by 12% during peak hours.","Claim1_0")
+  const Claim1_1 = new Claim("The increase in revenue is expected to pay off the expense in under 2 years meeting the cities investment requirements.","Claim1_1")
   const Claim2_0 = new Claim("This will result in traffic being diverted down residential streets.")
   const Claim2_1 = new Claim("Children safety is more important than profit for local shops.")
   const Claim2_2 = new Claim("A set of railroad tracks are no longer in use and the City can convert that to a new street.")
   const Claim3_0 = new Claim("The conversion will cost 2 Million dollars.")
+  const ClaimEdge1_0 = new ClaimEdge(topClaim.id, Claim1_0.id, u, pro,"ClaimEdge1_0");
+  const ClaimEdge1_1 = new ClaimEdge(Claim1_0.id, Claim1_1.id, "relevance", pro,"ClaimEdge1_1")
   const actions = [
     new Action(topClaim, u, "add_claim"),
     new Action(Claim1_0, u, "add_claim"),
@@ -435,8 +437,8 @@ test('Multi level relevance test', async () => {
     new Action(Claim2_1, u, "add_claim"),
     new Action(Claim2_2, u, "add_claim"),
     new Action(Claim3_0, u, "add_claim"),
-    new Action(new ClaimEdge(topClaim.id, Claim1_0.id, u, pro), u, "add_claimEdge"),
-    new Action(new ClaimEdge(Claim1_0.id, Claim1_1.id, "relevance", pro), u, "add_claimEdge"),
+    new Action(ClaimEdge1_0, u, "add_claimEdge"),
+    new Action(ClaimEdge1_1, u, "add_claimEdge"),
     new Action(new ClaimEdge(topClaim.id, Claim2_0.id, u, con), u, "add_claimEdge"),
     new Action(new ClaimEdge(Claim2_0.id, Claim2_1.id, "relevance", con), u, "add_claimEdge"),
     new Action(new ClaimEdge(Claim2_0.id, Claim2_2.id, u, con), u, "add_claimEdge"),
@@ -446,5 +448,12 @@ test('Multi level relevance test', async () => {
   await calculateScoreActions({ actions: actions, repository: repository })
   
   expect(repository.rsData.items["topScore"].confidence).toEqual(0.3333333333333333);
+
+  const result = await calculateScoreActions({ actions: [
+    new Action(undefined, ClaimEdge1_1, "delete_claimEdge", ClaimEdge1_1.id)
+  ], repository: repository })
+
+  expect(repository.rsData.items["topScore"].confidence).toEqual(0);
+
 
 });

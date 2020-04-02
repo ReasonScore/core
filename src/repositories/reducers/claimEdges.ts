@@ -29,7 +29,6 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
                 //TODO: This leaves a lot of orphaned scores and claim and claimedges
                 //TODO: Probably should comment what this is doing
                 delete state.items[action.dataId];
-
                 state = IndexDelete(state, state.claimEdgeIdsByChildId, claimEdge.childId, action.dataId);
                 state = IndexDelete(state, state.claimEdgeIdsByParentId, claimEdge.parentId, action.dataId);
 

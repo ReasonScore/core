@@ -20,7 +20,10 @@ export function calculateScore({ childScores = [], reversible = true }: {
 } = {},
 ) : iScoreFragment {
     
-    const newScore: iScoreFragment = {};
+    const newScore: iScoreFragment = {
+        confidence: 1,
+        relevance: 1,
+    };
     
     let childrenConfidence = 0
     let childrenRelevance = 0
