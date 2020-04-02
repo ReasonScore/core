@@ -8,7 +8,10 @@ var reasonscore_core = (function (exports) {
       childScores = [],
       reversible = true
     } = {}) {
-      const newScore = {};
+      const newScore = {
+        confidence: 1,
+        relevance: 1
+      };
       let childrenConfidence = 0;
       let childrenRelevance = 0;
 
