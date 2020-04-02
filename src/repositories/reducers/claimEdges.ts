@@ -26,8 +26,8 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
             {
                 const claimEdge = state.items[action.dataId] as ClaimEdge;
                 //TODO: Check that I'm not deleting anythign I shouldn't or deleting something twice?
-                //TODO: This leaves a lot of orphaned scores
-                //TODO: Probably comment what this is doing
+                //TODO: This leaves a lot of orphaned scores and claim and claimedges
+                //TODO: Probably should comment what this is doing
                 delete state.items[action.dataId];
 
                 state = IndexDelete(state, state.claimEdgeIdsByChildId, claimEdge.childId, action.dataId);

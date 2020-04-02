@@ -53,11 +53,15 @@ export function calculateScore({ childScores = [], reversible = true }: {
         }
 
         if (score.affects === 'relevance') {
+            debugger
             // Process Relevance child claims
+            if (newScore.relevance == undefined){
+                newScore.relevance = 1;
+            }
             if (score.pro) {
-                score.relevance += score.confidence; // Add up all the strength of the children
+                newScore.relevance += score.confidence; // Add up all the strength of the children
             } else {
-                score.relevance -= score.confidence;
+                newScore.relevance -= score.confidence;
             }
         }
     });

@@ -13,7 +13,7 @@ class TestData {
 }
 
 function s(confidence: number = 1, relevance: number = 1, pro: boolean = true, affects: Affects = "confidence"): Score {
-    return new Score("","","", undefined, undefined, pro, affects, confidence, relevance);
+    return new Score("", "", "", undefined, undefined, pro, affects, confidence, relevance);
 }
 
 function t(testDescription: string, expectedScore: Score, scores: Score[], reversible: boolean = false) {
@@ -28,6 +28,8 @@ const testData = [
     t("1 and 1 = 1    ", s(1), [s(+1), s(+1)]),
     t("1 and -1 = 0   ", s(0), [s(+1), s(-1)]),
     t("pro and con = 0", s(0), [s(+1), s(+1, 1, con)]),
+    t("pro and con with relevance", s(0.3333333333333333), [s(+1, 2), s(+1, 1, con)]),
+    t("1 Relevance = 2", s(1, 2), [s(+1, 1, pro, "relevance")]),
 ]
 
 const JsonTestData: string[] = [];
@@ -43,6 +45,9 @@ describe.each(JsonTestData)(
         test(t.testDescription + ' Confidence', () => {
             const result = calculateScore({ childScores: t.scores, reversible: t.reversible });
             expect(result.confidence).toBe(t.expectedScore.confidence)
+            if (result.relevance != undefined) {
+                expect(result.relevance).toBe(t.expectedScore.relevance)
+            }
         });
 
     },

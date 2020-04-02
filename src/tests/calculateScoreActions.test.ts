@@ -389,7 +389,7 @@ test('Partial Claim Edge Child Update', async () => {
     ],
     repository: repository
   })
-  
+
   expect(repository.rsData.items["topScore"].confidence).toEqual(1);
 });
 
@@ -408,9 +408,43 @@ test('Deleting an edge should reverses the top score', async () => {
 
   await calculateScoreActions({
     actions: [
-      new Action(u, {parentId:"testClaim"}, "delete_claimEdge", "ChildClaim1Edge")
+      new Action(u, { parentId: "testClaim" }, "delete_claimEdge", "ChildClaim1Edge")
     ], repository: repository,
   })
 
   expect(repository.rsData.items["topScore"].confidence).toEqual(1);
+});
+
+test('Multi level relevance test', async () => {
+  const repository = new RepositoryLocalPure();
+
+  const pro = true;
+  const con = false;
+  const topClaim = new Claim("Should Fiction City convert Elm Street to only pedestrian traffic?", "topClaim")
+  const Claim1_0 = new Claim("The planning commission estimates this will increase foot traffic to local shops by 12% during peak hours.")
+  const Claim1_1 = new Claim("The increase in revenue is expected to pay off the expense in under 2 years meeting the cities investment requirements.")
+  const Claim2_0 = new Claim("This will result in traffic being diverted down residential streets.")
+  const Claim2_1 = new Claim("Children safety is more important than profit for local shops.")
+  const Claim2_2 = new Claim("A set of railroad tracks are no longer in use and the City can convert that to a new street.")
+  const Claim3_0 = new Claim("The conversion will cost 2 Million dollars.")
+  const actions = [
+    new Action(topClaim, u, "add_claim"),
+    new Action(Claim1_0, u, "add_claim"),
+    new Action(Claim1_1, u, "add_claim"),
+    new Action(Claim2_0, u, "add_claim"),
+    new Action(Claim2_1, u, "add_claim"),
+    new Action(Claim2_2, u, "add_claim"),
+    new Action(Claim3_0, u, "add_claim"),
+    new Action(new ClaimEdge(topClaim.id, Claim1_0.id, u, pro), u, "add_claimEdge"),
+    new Action(new ClaimEdge(Claim1_0.id, Claim1_1.id, "relevance", pro), u, "add_claimEdge"),
+    new Action(new ClaimEdge(topClaim.id, Claim2_0.id, u, con), u, "add_claimEdge"),
+    new Action(new ClaimEdge(Claim2_0.id, Claim2_1.id, "relevance", con), u, "add_claimEdge"),
+    new Action(new ClaimEdge(Claim2_0.id, Claim2_2.id, u, con), u, "add_claimEdge"),
+    new Action(new ClaimEdge(topClaim.id, Claim3_0.id, u, con), u, "add_claimEdge"),
+    new Action(new Score(topClaim.id, topClaim.id, u, u, u, u, u, 0, u, "topScore"), u, "add_score"),
+  ]
+  await calculateScoreActions({ actions: actions, repository: repository })
+  
+  expect(repository.rsData.items["topScore"].confidence).toEqual(0.3333333333333333);
+
 });
