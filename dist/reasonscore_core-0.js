@@ -39,8 +39,7 @@ var reasonscore_core = (function (exports) {
         }
 
         if (score.affects === 'relevance') {
-          debugger; // Process Relevance child claims
-
+          // Process Relevance child claims
           if (newScore.relevance == undefined) {
             newScore.relevance = 1;
           }
@@ -211,186 +210,6 @@ var reasonscore_core = (function (exports) {
         }
       }
 
-    }
-
-    /**
-     * Calculates the score actions based on a list of actions
-     */
-
-    async function calculateScoreActions({
-      actions = [],
-      repository = new RepositoryLocalPure(),
-      calculator = calculateScore
-    } = {}) {
-      const scoreActions = [];
-      const claimIdsToScore = [];
-      const topScoreIds = [];
-      await repository.notify(actions);
-
-      for (const action of actions) {
-        // find claims that may need scores changed
-        if (action.type == 'add_claim' || action.type == 'modify_claim') {
-          claimIdsToScore.push(action.dataId);
-        }
-
-        if (action.type == "add_score") {
-          let score = action.newData;
-
-          if (!score.parentId) {
-            const scoreTemp = await repository.getScore(action.dataId);
-
-            if (scoreTemp) {
-              score = scoreTemp;
-            }
-          }
-
-          claimIdsToScore.push(score.sourceClaimId);
-        } //Add scores if edges adds new children to claims in score trees
-
-
-        if (action.type == 'add_claimEdge' || action.type == 'modify_claimEdge') {
-          let claimEdge = action.newData;
-
-          if (!claimEdge.parentId) {
-            const claimEdgeTemp = await repository.getClaimEdge(action.dataId);
-
-            if (claimEdgeTemp) {
-              claimEdge = claimEdgeTemp;
-            }
-          }
-
-          claimIdsToScore.push(claimEdge.parentId);
-        } //TODO: If an edge changes then modify the existing scores to match
-
-
-        if (action.type == 'modify_claimEdge') {
-          let claimEdge = await repository.getClaimEdge(action.dataId);
-          claimEdge = _objectSpread2({}, claimEdge, {}, action.newData);
-
-          if (claimEdge) {
-            action.newData;
-            const scores = await repository.getScoresBySourceId(claimEdge.id);
-
-            for (const score of scores) {
-              //TODO: Where should I put this? It is modifying am object. If it is reactive i should just change the data. If pure it should be a new object.
-              //For now I will modify it but it may not trigger updates in a pure library (React)
-              //This change should also probably be centralized somewhere to reduce the chance of inconsistent bugs. I think it will happen in multiple paces
-              //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
-              //Should I group these actions or just throw them in one at a time like I am doing
-              if (score.pro != claimEdge.pro || score.affects != claimEdge.affects) {
-                const action = new Action({
-                  pro: claimEdge.pro,
-                  affects: claimEdge.affects,
-                  priority: claimEdge.priority
-                }, score, "modify_score", score.id);
-                scoreActions.push(action);
-                await repository.notify([action]);
-              }
-            }
-          }
-        }
-
-        if (action.type == 'delete_claimEdge') {
-          const oldClaimEdge = action.oldData;
-          claimIdsToScore.push(oldClaimEdge.parentId);
-        }
-      } //Walk up the scores for each claim to the top
-
-
-      for (const claimId of claimIdsToScore) {
-        const scoresForTheClaim = await repository.getScoresBySourceId(claimId);
-
-        for (const claimScore of scoresForTheClaim) {
-          // for each score, walk up the tree looking for the top (the first score to not have a parentId)
-          let currentScore = claimScore;
-          let topScoreId = claimScore.id;
-
-          do {
-            var _currentScore;
-
-            if (currentScore.parentScoreId) {
-              currentScore = await repository.getScore(currentScore.parentScoreId);
-            }
-
-            if (currentScore) {
-              topScoreId = currentScore.id;
-            }
-          } while ((_currentScore = currentScore) === null || _currentScore === void 0 ? void 0 : _currentScore.parentScoreId);
-
-          if (topScoreId && topScoreIds.indexOf(topScoreId) == -1) {
-            topScoreIds.push(topScoreId);
-          }
-        }
-      } //Re-calc all top scores with possible changed claims
-
-
-      for (const topScoreId of topScoreIds) {
-        const topScore = await repository.getScore(topScoreId);
-
-        if (topScore) {
-          const tempMissingScoreActions = [];
-          await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId);
-
-          if (tempMissingScoreActions.length > 0) {
-            await repository.notify(tempMissingScoreActions);
-          }
-
-          const tempcalculateScoreTreeActions = [];
-          await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
-          scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
-        }
-      } //TODO: Review this decision: Feed the score actions back into the repository so this repository is up to date in case it is used 
-
-
-      await repository.notify(scoreActions);
-      return scoreActions;
-    } //Create Blank Missing Scores
-
-    async function createBlankMissingScores(repository, currentScoreId, currentClaimId, actions, topScoreId) {
-      const edges = await repository.getClaimEdgesByParentId(currentClaimId);
-      const scores = await repository.getChildrenByScoreId(currentScoreId);
-
-      for (const edge of edges) {
-        //see if there is a matching child score for the child edge
-        let score = scores.find(({
-          sourceClaimId
-        }) => sourceClaimId === edge.childId);
-
-        if (!score) {
-          //Create a new Score and attach it to it's parent
-          const u = undefined;
-          score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects, u, u, u, edge.priority);
-          actions.push(new Action(score, undefined, "add_score", score.id));
-        } //Recurse and through children
-
-
-        await createBlankMissingScores(repository, score.id, edge.childId, actions, topScoreId);
-      }
-    } //This function assume that all scores already exist
-
-
-    async function calculateScoreTree(repository, currentScore, calculator = calculateScore, actions) {
-      const oldScores = await repository.getChildrenByScoreId(currentScore.id);
-      const newScores = [];
-
-      for (const oldScore of oldScores) {
-        //Calculate Children
-        //TODO: remove any scores to calculate based on formulas that exclude scores
-        newScores.push((await calculateScoreTree(repository, oldScore, calculator, actions)));
-      }
-
-      const newScoreFragment = calculator({
-        childScores: newScores,
-        reversible: currentScore.reversible
-      }); //TODO: Modify the newScore based on any formulas
-
-      const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment);
-
-      if (differentScores(currentScore, newScore)) {
-        actions.push(new Action(newScore, undefined, "modify_score", newScore.id));
-      }
-
-      return newScore;
     }
 
     //Store the string for the ID
@@ -630,6 +449,186 @@ var reasonscore_core = (function (exports) {
         }
       }
 
+    }
+
+    /**
+     * Calculates the score actions based on a list of actions
+     */
+
+    async function calculateScoreActions({
+      actions = [],
+      repository = new RepositoryLocalPure(),
+      calculator = calculateScore
+    } = {}) {
+      const scoreActions = [];
+      const claimIdsToScore = [];
+      const topScoreIds = [];
+      await repository.notify(actions);
+
+      for (const action of actions) {
+        // find claims that may need scores changed
+        if (action.type == 'add_claim' || action.type == 'modify_claim') {
+          claimIdsToScore.push(action.dataId);
+        }
+
+        if (action.type == "add_score") {
+          let score = action.newData;
+
+          if (!score.parentId) {
+            const scoreTemp = await repository.getScore(action.dataId);
+
+            if (scoreTemp) {
+              score = scoreTemp;
+            }
+          }
+
+          claimIdsToScore.push(score.sourceClaimId);
+        } //Add scores if edges adds new children to claims in score trees
+
+
+        if (action.type == 'add_claimEdge' || action.type == 'modify_claimEdge') {
+          let claimEdge = action.newData;
+
+          if (!claimEdge.parentId) {
+            const claimEdgeTemp = await repository.getClaimEdge(action.dataId);
+
+            if (claimEdgeTemp) {
+              claimEdge = claimEdgeTemp;
+            }
+          }
+
+          claimIdsToScore.push(claimEdge.parentId);
+        } //TODO: If an edge changes then modify the existing scores to match
+
+
+        if (action.type == 'modify_claimEdge') {
+          let claimEdge = await repository.getClaimEdge(action.dataId);
+          claimEdge = _objectSpread2({}, claimEdge, {}, action.newData);
+
+          if (claimEdge) {
+            action.newData;
+            const scores = await repository.getScoresBySourceId(claimEdge.id);
+
+            for (const score of scores) {
+              //TODO: Where should I put this? It is modifying am object. If it is reactive i should just change the data. If pure it should be a new object.
+              //For now I will modify it but it may not trigger updates in a pure library (React)
+              //This change should also probably be centralized somewhere to reduce the chance of inconsistent bugs. I think it will happen in multiple paces
+              //Nope, it is an action so it should always be a new object. If it goes into a reactive respoitory then it will modify the actual object
+              //Should I group these actions or just throw them in one at a time like I am doing
+              if (score.pro != claimEdge.pro || score.affects != claimEdge.affects) {
+                const action = new Action({
+                  pro: claimEdge.pro,
+                  affects: claimEdge.affects,
+                  priority: claimEdge.priority
+                }, score, "modify_score", score.id);
+                scoreActions.push(action);
+                await repository.notify([action]);
+              }
+            }
+          }
+        }
+
+        if (action.type == 'delete_claimEdge') {
+          const oldClaimEdge = action.oldData;
+          claimIdsToScore.push(oldClaimEdge.parentId);
+        }
+      } //Walk up the scores for each claim to the top
+
+
+      for (const claimId of claimIdsToScore) {
+        const scoresForTheClaim = await repository.getScoresBySourceId(claimId);
+
+        for (const claimScore of scoresForTheClaim) {
+          // for each score, walk up the tree looking for the top (the first score to not have a parentId)
+          let currentScore = claimScore;
+          let topScoreId = claimScore.id;
+
+          do {
+            var _currentScore;
+
+            if (currentScore.parentScoreId) {
+              currentScore = await repository.getScore(currentScore.parentScoreId);
+            }
+
+            if (currentScore) {
+              topScoreId = currentScore.id;
+            }
+          } while ((_currentScore = currentScore) === null || _currentScore === void 0 ? void 0 : _currentScore.parentScoreId);
+
+          if (topScoreId && topScoreIds.indexOf(topScoreId) == -1) {
+            topScoreIds.push(topScoreId);
+          }
+        }
+      } //Re-calc all top scores with possible changed claims
+
+
+      for (const topScoreId of topScoreIds) {
+        const topScore = await repository.getScore(topScoreId);
+
+        if (topScore) {
+          const tempMissingScoreActions = [];
+          await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId);
+
+          if (tempMissingScoreActions.length > 0) {
+            await repository.notify(tempMissingScoreActions);
+          }
+
+          const tempcalculateScoreTreeActions = [];
+          await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
+          scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
+        }
+      } //TODO: Review this decision: Feed the score actions back into the repository so this repository is up to date in case it is used 
+
+
+      await repository.notify(scoreActions);
+      return scoreActions;
+    } //Create Blank Missing Scores
+
+    async function createBlankMissingScores(repository, currentScoreId, currentClaimId, actions, topScoreId) {
+      const edges = await repository.getClaimEdgesByParentId(currentClaimId);
+      const scores = await repository.getChildrenByScoreId(currentScoreId);
+
+      for (const edge of edges) {
+        //see if there is a matching child score for the child edge
+        let score = scores.find(({
+          sourceClaimId
+        }) => sourceClaimId === edge.childId);
+
+        if (!score) {
+          //Create a new Score and attach it to it's parent
+          const u = undefined;
+          score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects, u, u, u, edge.priority);
+          actions.push(new Action(score, undefined, "add_score", score.id));
+        } //Recurse and through children
+
+
+        await createBlankMissingScores(repository, score.id, edge.childId, actions, topScoreId);
+      }
+    } //This function assume that all scores already exist
+
+
+    async function calculateScoreTree(repository, currentScore, calculator = calculateScore, actions) {
+      const oldScores = await repository.getChildrenByScoreId(currentScore.id);
+      const newScores = [];
+
+      for (const oldScore of oldScores) {
+        //Calculate Children
+        //TODO: remove any scores to calculate based on formulas that exclude scores
+        newScores.push((await calculateScoreTree(repository, oldScore, calculator, actions)));
+      }
+
+      const newScoreFragment = calculator({
+        childScores: newScores,
+        reversible: currentScore.reversible
+      }); //TODO: Modify the newScore based on any formulas
+
+      const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment);
+
+      if (differentScores(currentScore, newScore)) {
+        actions.push(new Action(newScore, undefined, "modify_score", newScore.id));
+      }
+
+      return newScore;
     }
 
     /**

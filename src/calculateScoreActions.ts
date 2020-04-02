@@ -3,7 +3,7 @@ import { Action } from "./dataModels/Action";
 import { iCalculateScore, calculateScore } from "./calculateScore";
 import { iRepository } from "./dataModels/iRepository";
 import { ClaimEdge, iClaimEdge } from "./dataModels/ClaimEdge";
-import { RepositoryLocalPure } from ".";
+import { RepositoryLocalPure } from "./repositories/RepositoryLocalPure";
 
 /**
  * Calculates the score actions based on a list of actions
