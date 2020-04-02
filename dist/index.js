@@ -39,11 +39,16 @@ var reasonscore_core = (function (exports) {
         }
 
         if (score.affects === 'relevance') {
-          // Process Relevance child claims
+          debugger; // Process Relevance child claims
+
+          if (newScore.relevance == undefined) {
+            newScore.relevance = 1;
+          }
+
           if (score.pro) {
-            score.relevance += score.confidence; // Add up all the strength of the children
+            newScore.relevance += score.confidence; // Add up all the strength of the children
           } else {
-            score.relevance -= score.confidence;
+            newScore.relevance -= score.confidence;
           }
         }
       });
@@ -465,7 +470,8 @@ var reasonscore_core = (function (exports) {
         case "delete_claimEdge":
           {
             const claimEdge = state.items[action.dataId]; //TODO: Check that I'm not deleting anythign I shouldn't or deleting something twice?
-            //TODO: Probably comment what this is doing
+            //TODO: This leaves a lot of orphaned scores and claim and claimedges
+            //TODO: Probably should comment what this is doing
 
             delete state.items[action.dataId];
             state = IndexDelete(state, state.claimEdgeIdsByChildId, claimEdge.childId, action.dataId);
@@ -485,7 +491,6 @@ var reasonscore_core = (function (exports) {
               state = IndexDelete(state, state.scoreIdsBySourceId, score.sourceClaimId, scoreId);
             }
 
-            debugger;
             return state;
           }
 
