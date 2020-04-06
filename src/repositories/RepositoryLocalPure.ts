@@ -5,6 +5,7 @@ import { claims } from "./reducers/claims";
 import { claimEdges } from "./reducers/claimEdges";
 import { RepositoryLocalBase } from "./RepositoryLocalBase";
 import { scores } from "./reducers/scores";
+import { scoreTrees } from "./reducers/scoresTrees";
 
 
 export class RepositoryLocalPure extends RepositoryLocalBase implements iRepository {
@@ -16,12 +17,12 @@ export class RepositoryLocalPure extends RepositoryLocalBase implements iReposit
     }
 
     async notify(actions: iAction[]) {
-        //this.rsData.actionsLog.push({actions:actions}); //TODO: put logs back is
+        //this.rsData.actionsLog.push({actions:actions}); TODO: put logs back in
         for (const action of actions) {
-            //TODO: add more reducers
             this.rsData = claims(this.rsData, action);
             this.rsData = claimEdges(this.rsData, action);
             this.rsData = scores(this.rsData, action);
+            this.rsData = scoreTrees(this.rsData, action);
         }
     }
 

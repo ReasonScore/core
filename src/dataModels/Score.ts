@@ -12,7 +12,7 @@ export class Score implements iScore, iScoreFragment, Item {
         /** The claim to which this score belongs */
         public sourceClaimId: string,
         /** The top of the tree of scores that this belongs to. Used for indexing */
-        public topScoreId: string,
+        public scoreTreeId: string,
         /** The parent of this score in the score tree graph */
         public parentScoreId: string | undefined = undefined,
         /** The Edge to which this score belongs */
@@ -30,6 +30,7 @@ export class Score implements iScore, iScoreFragment, Item {
         public relevance: number = 1,
         public id: string = newId(),
         public priority: string = "",
+        public content: string = "",
     ) {
     }
 }
@@ -52,7 +53,7 @@ export interface iScore {
     /** The Edge to which this score belongs */
     sourceEdgeId?: string,
     /** The top of the tree of scores that this belongs to. Used for indexing */
-    topScoreId: string,
+    scoreTreeId: string,
     /** The parent of this score in the score tree graph */
     parentScoreId?: string,
     reversible: boolean,
@@ -69,6 +70,7 @@ export interface iScore {
     id: string,
     type: ItemTypes,
     priority: string,
+    content: string,
 
     /** allow for other properties by external implementations */
     [others: string]: any;

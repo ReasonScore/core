@@ -3,6 +3,7 @@ import { iScore } from "../dataModels/Score";
 import { RsData, iRsData } from "../dataModels/RsData";
 import { iAction } from "../dataModels/Action";
 import { iClaim } from "../dataModels/Claim";
+import { iScoreTree } from "../dataModels/ScoreTree";
 
 
 export class RepositoryLocalBase {
@@ -20,6 +21,9 @@ export class RepositoryLocalBase {
     }
     async getScore(id: string): Promise<iScore | undefined> {
         return this.rsData.items[id] as iScore;
+    }
+    async getScoreTree(id: string): Promise<iScoreTree | undefined> {
+        return this.rsData.items[id] as iScoreTree;
     }
     async getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]> {
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];

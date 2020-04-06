@@ -1,4 +1,5 @@
 import { iAction, Item } from "..";
+import { ScoreTree } from "./ScoreTree";
 
 export interface Index { [searchIndex: string]: string; } //Store the string for the ID
 export interface IndexArray { [searchIndex: string]: string[]; } //Store the string for the ID
@@ -17,6 +18,7 @@ export interface iRsData {
     //Score Indexes - Local
     scoreIdsBySourceId: IndexArray,
     childIdsByScoreId: IndexArray,
+    ScoreTreeIds: string[],
 }
 
 export class RsData implements iRsData {
@@ -33,6 +35,7 @@ export class RsData implements iRsData {
         //Score Indexes - Local
         public scoreIdsBySourceId: IndexArray = {},
         public childIdsByScoreId: IndexArray = {},
+        public ScoreTreeIds: string[] = [],
     ) {
     }
 }

@@ -5,4 +5,5 @@
 export type ItemTypes =
     "claim" |
     "claimEdge" |
-    "score" ;
+    "score" |
+    "scoreTree" ;

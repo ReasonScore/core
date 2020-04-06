@@ -4,6 +4,7 @@ import { iCalculateScore, calculateScore } from "./calculateScore";
 import { iRepository } from "./dataModels/iRepository";
 import { ClaimEdge, iClaimEdge } from "./dataModels/ClaimEdge";
 import { RepositoryLocalPure } from "./repositories/RepositoryLocalPure";
+import { ScoreTree } from ".";
 
 /**
  * Calculates the score actions based on a list of actions
@@ -19,7 +20,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
 ) {
     const scoreActions: Action[] = [];
     const claimIdsToScore: string[] = [];
-    const topScoreIds: string[] = [];
+    const ScoreTreeIds: string[] = [];
 
     await repository.notify(actions);
     for (const action of actions) {
@@ -84,42 +85,40 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             const oldClaimEdge = action.oldData as ClaimEdge;
             claimIdsToScore.push(oldClaimEdge.parentId)
         }
+
+        if (action.type == 'add_scoreTree') {
+            const scoreTree = action.newData as ScoreTree;
+            ScoreTreeIds.push(scoreTree.id)
+        }
         
     }
 
     //Walk up the scores for each claim to the top
     for (const claimId of claimIdsToScore) {
-        const scoresForTheClaim = await repository.getScoresBySourceId(claimId)
-
-        for (const claimScore of scoresForTheClaim) {
-            // for each score, walk up the tree looking for the top (the first score to not have a parentId)
-            let currentScore: iScore | undefined = claimScore;
-            let topScoreId = claimScore.id;
-            do {
-                if (currentScore.parentScoreId) {
-                    currentScore = await repository.getScore(currentScore.parentScoreId);
-                }
-                if (currentScore) {
-                    topScoreId = currentScore.id;
-                }
-            } while (currentScore?.parentScoreId)
-
-            if (topScoreId && topScoreIds.indexOf(topScoreId) == -1) {
-                topScoreIds.push(topScoreId)
-            }
+        for (const claimScore of await repository.getScoresBySourceId(claimId)) {
+                ScoreTreeIds.push(claimScore.scoreTreeId)
         }
     }
 
-    //Re-calc all top scores with possible changed claims
-    for (const topScoreId of topScoreIds) {
-        const topScore = await repository.getScore(topScoreId)
-        if (topScore) {
+    //Re-calc all Score Trees with possible changed claims
+    for (const scoreTreeId of ScoreTreeIds) {
+        const scoreTree = await repository.getScoreTree(scoreTreeId)
+        if (scoreTree) {
             const tempMissingScoreActions: Action[] = [];
-            await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId)
+
+            let topScore = await repository.getScore(scoreTree.topScoreId);
+            if (!topScore){
+                topScore = new Score(scoreTree.sourceClaimId,scoreTree.id);
+                topScore.id = scoreTree.topScoreId;
+                tempMissingScoreActions.push(new Action(topScore,undefined,"add_score"));
+            }
+
+            await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", tempMissingScoreActions, scoreTreeId)
             if (tempMissingScoreActions.length > 0) {
                 await repository.notify(tempMissingScoreActions)
             }
             const tempcalculateScoreTreeActions: Action[] = [];
+
             await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
             scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions)
         }
@@ -132,7 +131,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
 }
 
 //Create Blank Missing Scores
-async function createBlankMissingScores(repository: iRepository, currentScoreId: string, currentClaimId: string, actions: Action[], topScoreId: string) {
+async function createBlankMissingScores(repository: iRepository, currentScoreId: string, currentClaimId: string, actions: Action[], scoreTreeId: string) {
     const edges = await repository.getClaimEdgesByParentId(currentClaimId)
     const scores = await repository.getChildrenByScoreId(currentScoreId)
     for (const edge of edges) {
@@ -141,11 +140,11 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
         if (!score) {
             //Create a new Score and attach it to it's parent
             const u = undefined;
-            score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects,u,u,u,edge.priority);
+            score = new Score(edge.childId, scoreTreeId, currentScoreId, edge.id, undefined, edge.pro, edge.affects,u,u,u,edge.priority);
             actions.push(new Action(score, undefined, "add_score", score.id));
         }
         //Recurse and through children
-        await createBlankMissingScores(repository, score.id, edge.childId, actions, topScoreId);
+        await createBlankMissingScores(repository, score.id, edge.childId, actions, scoreTreeId);
     }
 }
 
