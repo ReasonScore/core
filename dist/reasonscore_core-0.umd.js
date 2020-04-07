@@ -177,9 +177,9 @@ function newId(when = new Date()) {
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  */
 class Score {
-  constructor(sourceClaimId, topScoreId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "") {
+  constructor(sourceClaimId, scoreTreeId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "") {
     this.sourceClaimId = sourceClaimId;
-    this.topScoreId = topScoreId;
+    this.scoreTreeId = scoreTreeId;
     this.parentScoreId = parentScoreId;
     this.sourceEdgeId = sourceEdgeId;
     this.reversible = reversible;
@@ -189,6 +189,7 @@ class Score {
     this.relevance = relevance;
     this.id = id;
     this.priority = priority;
+    this.content = content;
 
     _defineProperty(this, "type", 'score');
   }
@@ -219,13 +220,14 @@ class Action {
 //Store the string for the ID
 //Store the string for the ID
 class RsData {
-  constructor(actionsLog = [], items = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}) {
+  constructor(actionsLog = [], items = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}, ScoreTreeIds = []) {
     this.actionsLog = actionsLog;
     this.items = items;
     this.claimEdgeIdsByParentId = claimEdgeIdsByParentId;
     this.claimEdgeIdsByChildId = claimEdgeIdsByChildId;
     this.scoreIdsBySourceId = scoreIdsBySourceId;
     this.childIdsByScoreId = childIdsByScoreId;
+    this.ScoreTreeIds = ScoreTreeIds;
   }
 
 }
@@ -351,6 +353,10 @@ class RepositoryLocalBase {
     return this.rsData.items[id];
   }
 
+  async getScoreTree(id) {
+    return this.rsData.items[id];
+  }
+
   async getClaimEdgesByParentId(parentId) {
     const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];
     const claimEdges = [];
@@ -437,6 +443,39 @@ function scores(state, action, reverse = false) {
   }
 }
 
+function scoreTrees(state, action, reverse = false) {
+  switch (action.type) {
+    case "add_scoreTree":
+    case "modify_score":
+      {
+        // Since the score data might just be some of the data we need to get the current score and combine them
+        const originalItem = state.items[action.dataId];
+        let newItem = action.newData;
+
+        if (originalItem) {
+          newItem = _objectSpread2({}, originalItem, {}, newItem);
+        }
+
+        state = _objectSpread2({}, state, {
+          items: _objectSpread2({}, state.items, {
+            [action.dataId]: newItem
+          })
+        });
+
+        if (state.ScoreTreeIds.indexOf(action.dataId) == -1) {
+          state = _objectSpread2({}, state, {
+            ScoreTreeIds: [...state.ScoreTreeIds, action.dataId]
+          });
+        }
+
+        return state;
+      }
+
+    default:
+      return state;
+  }
+}
+
 class RepositoryLocalPure extends RepositoryLocalBase {
   constructor(rsData = new RsData()) {
     super(rsData);
@@ -444,12 +483,12 @@ class RepositoryLocalPure extends RepositoryLocalBase {
   }
 
   async notify(actions) {
-    //this.rsData.actionsLog.push({actions:actions}); //TODO: put logs back is
+    //this.rsData.actionsLog.push({actions:actions}); TODO: put logs back in
     for (const action of actions) {
-      //TODO: add more reducers
       this.rsData = claims(this.rsData, action);
       this.rsData = claimEdges(this.rsData, action);
       this.rsData = scores(this.rsData, action);
+      this.rsData = scoreTrees(this.rsData, action);
     }
   }
 
@@ -458,7 +497,6 @@ class RepositoryLocalPure extends RepositoryLocalBase {
 /**
  * Calculates the score actions based on a list of actions
  */
-
 async function calculateScoreActions({
   actions = [],
   repository = new RepositoryLocalPure(),
@@ -466,7 +504,7 @@ async function calculateScoreActions({
 } = {}) {
   const scoreActions = [];
   const claimIdsToScore = [];
-  const topScoreIds = [];
+  const ScoreTreeIds = [];
   await repository.notify(actions);
 
   for (const action of actions) {
@@ -536,42 +574,35 @@ async function calculateScoreActions({
       const oldClaimEdge = action.oldData;
       claimIdsToScore.push(oldClaimEdge.parentId);
     }
+
+    if (action.type == 'add_scoreTree') {
+      const scoreTree = action.newData;
+      ScoreTreeIds.push(scoreTree.id);
+    }
   } //Walk up the scores for each claim to the top
 
 
   for (const claimId of claimIdsToScore) {
-    const scoresForTheClaim = await repository.getScoresBySourceId(claimId);
-
-    for (const claimScore of scoresForTheClaim) {
-      // for each score, walk up the tree looking for the top (the first score to not have a parentId)
-      let currentScore = claimScore;
-      let topScoreId = claimScore.id;
-
-      do {
-        var _currentScore;
-
-        if (currentScore.parentScoreId) {
-          currentScore = await repository.getScore(currentScore.parentScoreId);
-        }
-
-        if (currentScore) {
-          topScoreId = currentScore.id;
-        }
-      } while ((_currentScore = currentScore) === null || _currentScore === void 0 ? void 0 : _currentScore.parentScoreId);
-
-      if (topScoreId && topScoreIds.indexOf(topScoreId) == -1) {
-        topScoreIds.push(topScoreId);
-      }
+    for (const claimScore of await repository.getScoresBySourceId(claimId)) {
+      ScoreTreeIds.push(claimScore.scoreTreeId);
     }
-  } //Re-calc all top scores with possible changed claims
+  } //Re-calc all Score Trees with possible changed claims
 
 
-  for (const topScoreId of topScoreIds) {
-    const topScore = await repository.getScore(topScoreId);
+  for (const scoreTreeId of ScoreTreeIds) {
+    const scoreTree = await repository.getScoreTree(scoreTreeId);
 
-    if (topScore) {
+    if (scoreTree) {
       const tempMissingScoreActions = [];
-      await createBlankMissingScores(repository, topScoreId, topScore.sourceClaimId || "", tempMissingScoreActions, topScoreId);
+      let topScore = await repository.getScore(scoreTree.topScoreId);
+
+      if (!topScore) {
+        topScore = new Score(scoreTree.sourceClaimId, scoreTree.id);
+        topScore.id = scoreTree.topScoreId;
+        tempMissingScoreActions.push(new Action(topScore, undefined, "add_score"));
+      }
+
+      await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", tempMissingScoreActions, scoreTreeId);
 
       if (tempMissingScoreActions.length > 0) {
         await repository.notify(tempMissingScoreActions);
@@ -588,7 +619,7 @@ async function calculateScoreActions({
   return scoreActions;
 } //Create Blank Missing Scores
 
-async function createBlankMissingScores(repository, currentScoreId, currentClaimId, actions, topScoreId) {
+async function createBlankMissingScores(repository, currentScoreId, currentClaimId, actions, scoreTreeId) {
   const edges = await repository.getClaimEdgesByParentId(currentClaimId);
   const scores = await repository.getChildrenByScoreId(currentScoreId);
 
@@ -601,12 +632,12 @@ async function createBlankMissingScores(repository, currentScoreId, currentClaim
     if (!score) {
       //Create a new Score and attach it to it's parent
       const u = undefined;
-      score = new Score(edge.childId, topScoreId, currentScoreId, edge.id, undefined, edge.pro, edge.affects, u, u, u, edge.priority);
+      score = new Score(edge.childId, scoreTreeId, currentScoreId, edge.id, undefined, edge.pro, edge.affects, u, u, u, edge.priority);
       actions.push(new Action(score, undefined, "add_score", score.id));
     } //Recurse and through children
 
 
-    await createBlankMissingScores(repository, score.id, edge.childId, actions, topScoreId);
+    await createBlankMissingScores(repository, score.id, edge.childId, actions, scoreTreeId);
   }
 } //This function assume that all scores already exist
 
@@ -656,6 +687,21 @@ class ClaimEdge {
 
 }
 
+/**
+ * Represents an intentional top of a tree of scores.
+ */
+class ScoreTree {
+  constructor(sourceClaimId, topScoreId, confidence = 1, id = newId()) {
+    this.sourceClaimId = sourceClaimId;
+    this.topScoreId = topScoreId;
+    this.confidence = confidence;
+    this.id = id;
+
+    _defineProperty(this, "type", 'scoreTree');
+  }
+
+}
+
 class Claim {
   constructor(content = "", id = newId(), reversible = false) {
     this.content = content;
@@ -674,6 +720,7 @@ exports.Messenger = Messenger;
 exports.RepositoryLocalPure = RepositoryLocalPure;
 exports.RsData = RsData;
 exports.Score = Score;
+exports.ScoreTree = ScoreTree;
 exports.calculateScore = calculateScore;
 exports.calculateScoreActions = calculateScoreActions;
 exports.differentScores = differentScores;

@@ -18,6 +18,7 @@ export interface iRsData {
     claimEdgeIdsByChildId: IndexArray;
     scoreIdsBySourceId: IndexArray;
     childIdsByScoreId: IndexArray;
+    ScoreTreeIds: string[];
 }
 export declare class RsData implements iRsData {
     actionsLog: {
@@ -31,11 +32,12 @@ export declare class RsData implements iRsData {
     claimEdgeIdsByChildId: IndexArray;
     scoreIdsBySourceId: IndexArray;
     childIdsByScoreId: IndexArray;
+    ScoreTreeIds: string[];
     constructor(actionsLog?: {
         actions: iAction[];
     }[], 
     /** Stores all the current items */
     items?: {
         [idString: string]: Item;
-    }, claimEdgeIdsByParentId?: IndexArray, claimEdgeIdsByChildId?: IndexArray, scoreIdsBySourceId?: IndexArray, childIdsByScoreId?: IndexArray);
+    }, claimEdgeIdsByParentId?: IndexArray, claimEdgeIdsByChildId?: IndexArray, scoreIdsBySourceId?: IndexArray, childIdsByScoreId?: IndexArray, ScoreTreeIds?: string[]);
 }

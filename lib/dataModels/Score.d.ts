@@ -8,7 +8,7 @@ export declare class Score implements iScore, iScoreFragment, Item {
     /** The claim to which this score belongs */
     sourceClaimId: string;
     /** The top of the tree of scores that this belongs to. Used for indexing */
-    topScoreId: string;
+    scoreTreeId: string;
     /** The parent of this score in the score tree graph */
     parentScoreId: string | undefined;
     /** The Edge to which this score belongs */
@@ -25,12 +25,13 @@ export declare class Score implements iScore, iScoreFragment, Item {
     relevance: number;
     id: string;
     priority: string;
+    content: string;
     type: ItemTypes;
     constructor(
     /** The claim to which this score belongs */
     sourceClaimId: string, 
     /** The top of the tree of scores that this belongs to. Used for indexing */
-    topScoreId: string, 
+    scoreTreeId: string, 
     /** The parent of this score in the score tree graph */
     parentScoreId?: string | undefined, 
     /** The Edge to which this score belongs */
@@ -42,7 +43,7 @@ export declare class Score implements iScore, iScoreFragment, Item {
     affects?: Affects, confidence?: number, 
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
-    relevance?: number, id?: string, priority?: string);
+    relevance?: number, id?: string, priority?: string, content?: string);
 }
 /** Compare two scores to see if they are different in what the score is.
  *  Just compares confidence and relavance
@@ -54,7 +55,7 @@ export interface iScore {
     /** The Edge to which this score belongs */
     sourceEdgeId?: string;
     /** The top of the tree of scores that this belongs to. Used for indexing */
-    topScoreId: string;
+    scoreTreeId: string;
     /** The parent of this score in the score tree graph */
     parentScoreId?: string;
     reversible: boolean;
@@ -71,6 +72,7 @@ export interface iScore {
     id: string;
     type: ItemTypes;
     priority: string;
+    content: string;
     /** allow for other properties by external implementations */
     [others: string]: any;
 }
