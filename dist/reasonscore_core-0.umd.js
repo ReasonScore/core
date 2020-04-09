@@ -44,6 +44,8 @@ function calculateScore({
 
     if (score.affects === 'relevance') {
       // Process Relevance child claims
+      debugger;
+
       if (newScore.relevance == undefined) {
         newScore.relevance = 1;
       }
@@ -51,7 +53,7 @@ function calculateScore({
       if (score.pro) {
         newScore.relevance += score.confidence; // Add up all the strength of the children
       } else {
-        newScore.relevance -= score.confidence;
+        newScore.relevance -= score.confidence / 2;
       }
     }
   });
