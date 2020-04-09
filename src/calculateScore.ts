@@ -57,13 +57,14 @@ export function calculateScore({ childScores = [], reversible = true }: {
 
         if (score.affects === 'relevance') {
             // Process Relevance child claims
+            debugger
             if (newScore.relevance == undefined){
                 newScore.relevance = 1;
             }
             if (score.pro) {
                 newScore.relevance += score.confidence; // Add up all the strength of the children
             } else {
-                newScore.relevance -= score.confidence;
+                newScore.relevance -= score.confidence/2;
             }
         }
     });
