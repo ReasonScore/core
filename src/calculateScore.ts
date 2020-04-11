@@ -57,7 +57,6 @@ export function calculateScore({ childScores = [], reversible = true }: {
 
         if (score.affects === 'relevance') {
             // Process Relevance child claims
-            debugger
             if (newScore.relevance == undefined){
                 newScore.relevance = 1;
             }

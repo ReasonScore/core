@@ -22,7 +22,6 @@ test('add a new scoretree', async () => {
     calculator: calculateScore
   })
 var test =       new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree");
-debugger
   expect(repository.rsData.scoreIdsBySourceId["topTestClaim"].length).toEqual(1)
 });
 
@@ -76,7 +75,6 @@ test('Changing a child pro value should change the top score', async () => {
     ],
     repository: repository
   })
-  debugger
 
   const result = await calculateScoreActions({
     actions: [
@@ -142,7 +140,6 @@ test('Add a child that reverses the top score', async () => {
     repository: repository,
     calculator: calculateScore
   })
-debugger
   expect(result).toMatchObject(
     [
       {
