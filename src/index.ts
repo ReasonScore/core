@@ -3,6 +3,7 @@ export * from "./Messenger";
 export * from "./newId";
 export * from "./calculateScoreActions";
 export * from "./repositories/RepositoryLocalPure"
+export * from "./utils/deepClone"
 
 // Data Models
 export * from "./dataModels/Action";

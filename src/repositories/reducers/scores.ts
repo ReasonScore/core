@@ -7,6 +7,7 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
     switch (action.type) {
         case "add_score":
         case "modify_score":
+        case "sync_score":
             {
                 // Since the score data might just be some of the data we need to get the current score and combine them
                 const originalScore = state.items[action.dataId];

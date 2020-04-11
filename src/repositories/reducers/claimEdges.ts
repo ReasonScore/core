@@ -8,6 +8,7 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
     switch (action.type) {
         case "add_claimEdge":
         case "modify_claimEdge":
+        case "sync_claimEdge":
             {
                 state = {
                     ...state,

@@ -4,6 +4,7 @@ import { iRsData } from "../../dataModels/RsData"
 export function claims(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
     switch (action.type) {
         case "add_claim":
+        case "sync_claim":
             {
                 return {
                     ...state,
