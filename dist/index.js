@@ -43,8 +43,6 @@ var reasonscore_core = (function (exports) {
 
         if (score.affects === 'relevance') {
           // Process Relevance child claims
-          debugger;
-
           if (newScore.relevance == undefined) {
             newScore.relevance = 1;
           }
@@ -236,6 +234,7 @@ var reasonscore_core = (function (exports) {
     function claims(state, action, reverse = false) {
       switch (action.type) {
         case "add_claim":
+        case "sync_claim":
           {
             return _objectSpread2({}, state, {
               items: _objectSpread2({}, state.items, {
@@ -282,6 +281,7 @@ var reasonscore_core = (function (exports) {
       switch (action.type) {
         case "add_claimEdge":
         case "modify_claimEdge":
+        case "sync_claimEdge":
           {
             state = _objectSpread2({}, state, {
               items: _objectSpread2({}, state.items, {
@@ -418,6 +418,7 @@ var reasonscore_core = (function (exports) {
       switch (action.type) {
         case "add_score":
         case "modify_score":
+        case "sync_score":
           {
             // Since the score data might just be some of the data we need to get the current score and combine them
             const originalScore = state.items[action.dataId];
@@ -667,6 +668,10 @@ var reasonscore_core = (function (exports) {
       return newScore;
     }
 
+    function deepClone(item) {
+      return JSON.parse(JSON.stringify(item));
+    }
+
     /**
      * Stores the relationship between a claim and an item (usually another claim).
      * This is directional as the edge points from one claim to it's parent.
@@ -724,6 +729,7 @@ var reasonscore_core = (function (exports) {
     exports.ScoreTree = ScoreTree;
     exports.calculateScore = calculateScore;
     exports.calculateScoreActions = calculateScoreActions;
+    exports.deepClone = deepClone;
     exports.differentScores = differentScores;
     exports.newId = newId;
 
