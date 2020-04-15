@@ -29,9 +29,8 @@ function calculateScore({
 
     if (!score.reversible && score.confidence < 0) {
       confidence = 0;
-    }
+    } // Loop through the child scores and determine the score of the parent.
 
-    debugger; // Loop through the child scores and determine the score of the parent.
 
     if (score.affects === 'confidence') {
       //calculate the reduction of the relevance bease on the distance of the confidence from zero
