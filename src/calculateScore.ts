@@ -1,12 +1,10 @@
 import { iScore, iScoreFragment } from "./dataModels/Score";
 
 export interface iCalculateScore {
-    ({ childScores , reversible }: {
+    ({ childScores }: {
         /** An array of grouped edges and claims*/
         childScores?: iScore[];
-        /** Can this score fall below a 0 confidence (have a negative confidence) */
-        reversible?: boolean
-    }) : iScoreFragment
+    }): iScoreFragment
 }
 
 /**
@@ -18,13 +16,13 @@ export function calculateScore({ childScores = [], reversible = true }: {
     /** Can this score fall below a 0 confidence (have a negative confidence) */
     reversible?: boolean
 } = {},
-) : iScoreFragment {
-    
+): iScoreFragment {
+
     const newScore: iScoreFragment = {
         confidence: 1,
         relevance: 1,
     };
-    
+
     let childrenConfidence = 0
     let childrenRelevance = 0
 
@@ -36,6 +34,12 @@ export function calculateScore({ childScores = [], reversible = true }: {
     }
 
     childScores.forEach(score => {
+        //Ensure calculations for non-reversible scores don't allow the confident to be below 0
+        let confidence = score.confidence
+        if (!score.reversible && score.confidence < 0) {
+            confidence = 0
+        }
+debugger
         // Loop through the child scores and determine the score of the parent.
         if (score.affects === 'confidence') {
 
@@ -43,27 +47,27 @@ export function calculateScore({ childScores = [], reversible = true }: {
             //TODO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
             //Like "This claim should require supporting evidence"
             let confidenceRelevanceAdjustment = 1
-            confidenceRelevanceAdjustment = Math.abs(score.confidence)
+            confidenceRelevanceAdjustment = Math.abs(confidence)
 
             // Process edges that affect confidence
             if (score.pro) {
-                childrenConfidence += score.confidence * score.relevance * confidenceRelevanceAdjustment; // Add up all the strength of the children
+                childrenConfidence += confidence * score.relevance * confidenceRelevanceAdjustment; // Add up all the strength of the children
                 childrenRelevance += score.relevance * confidenceRelevanceAdjustment; //Add up the relevance separately so we can do a weighted agerage later
             } else {
-                childrenConfidence -= score.confidence * score.relevance * confidenceRelevanceAdjustment;
+                childrenConfidence -= confidence * score.relevance * confidenceRelevanceAdjustment;
                 childrenRelevance += score.relevance * confidenceRelevanceAdjustment;
             }
         }
 
         if (score.affects === 'relevance') {
             // Process Relevance child claims
-            if (newScore.relevance == undefined){
+            if (newScore.relevance == undefined) {
                 newScore.relevance = 1;
             }
             if (score.pro) {
-                newScore.relevance += score.confidence; // Add up all the strength of the children
+                newScore.relevance += confidence; // Add up all the strength of the children
             } else {
-                newScore.relevance -= score.confidence/2;
+                newScore.relevance -= confidence / 2;
             }
         }
     });
@@ -74,11 +78,6 @@ export function calculateScore({ childScores = [], reversible = true }: {
     } else {
         //Calculate the score
         newScore.confidence = childrenConfidence / childrenRelevance;
-    }
-
-    if (!reversible && newScore.confidence < 0) {
-        // If it is not reversible then do not let it go negative
-        newScore.confidence = 0
     }
 
     if (Object.is(newScore.confidence, -0)) {

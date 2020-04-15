@@ -111,7 +111,7 @@ test('Changing a child pro value should change the top score', async () => {
           "reversible": false,
           "pro": true,
           "affects": "confidence",
-          "confidence": 0,
+          "confidence": -1,
           "relevance": 1,
           "id": "testTopScore"
         },
@@ -126,16 +126,16 @@ test('Add a child that reverses the top score', async () => {
   const repository = new RepositoryLocalPure();
   const temp = await calculateScoreActions({
     actions: [
-      new Action(new Claim("", "topTestClaim"), undefined, "add_claim"),
-      new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree"),
-      new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
+      new Action(new Claim("", "topTestClaim"), u, "add_claim"),
+      new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), u, "add_scoreTree"),
+      new Action(new Claim("", "ChildClaim1"), u, "add_claim"),
     ],
     repository: repository
   })
-
+debugger
   const result = await calculateScoreActions({
     actions: [
-      new Action(new ClaimEdge("topTestClaim", "ChildClaim1", undefined, false, "ChildClaim1Edge"), undefined, "add_claimEdge")
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, false, "ChildClaim1Edge"), u, "add_claimEdge")
     ],
     repository: repository,
     calculator: calculateScore
@@ -163,7 +163,7 @@ test('Add a child that reverses the top score', async () => {
           "reversible": false,
           "pro": true,
           "affects": "confidence",
-          "confidence": 0,
+          "confidence": -1,
           "relevance": 1,
         }, "oldData": undefined,
         "type": "modify_score",
@@ -220,7 +220,7 @@ test('Adding a grandchild score Reverses Scores 2 levels', async () => {
           "reversible": false,
           "pro": false,
           "affects": "confidence",
-          "confidence": 0,
+          "confidence": -1,
           "relevance": 1,
         },
         "type": "modify_score",
@@ -336,7 +336,7 @@ test('Partial Claim Edge Grandchild Update', async () => {
     repository: repository
   })
   await repository.notify(result);
-  expect(repository.rsData.items["testTopScore"].confidence).toEqual(0);
+  expect(repository.rsData.items["testTopScore"].confidence).toEqual(-1);
 
   const result2 = await calculateScoreActions({
     actions: [
@@ -377,7 +377,7 @@ test('Partial Claim Edge Child Update', async () => {
     repository: repository
   })
   //await repository.notify(result);
-  expect(repository.rsData.items["testTopScore"].confidence).toEqual(0);
+  expect(repository.rsData.items["testTopScore"].confidence).toEqual(-1);
 
   const result2 = await calculateScoreActions({
     actions: [
@@ -401,7 +401,7 @@ test('Deleting an edge should reverses the top score', async () => {
     ], repository: repository
   })
 
-  expect(repository.rsData.items["testTopScore"].confidence).toEqual(0);
+  expect(repository.rsData.items["testTopScore"].confidence).toEqual(-1);
 
   await calculateScoreActions({
     actions: [
