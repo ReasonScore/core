@@ -132,7 +132,6 @@ test('Add a child that reverses the top score', async () => {
     ],
     repository: repository
   })
-debugger
   const result = await calculateScoreActions({
     actions: [
       new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, false, "ChildClaim1Edge"), u, "add_claimEdge")

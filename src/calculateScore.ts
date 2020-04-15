@@ -39,7 +39,7 @@ export function calculateScore({ childScores = [], reversible = true }: {
         if (!score.reversible && score.confidence < 0) {
             confidence = 0
         }
-debugger
+
         // Loop through the child scores and determine the score of the parent.
         if (score.affects === 'confidence') {
 
