@@ -160,7 +160,6 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
 
     const newScoreFragment = calculator({
         childScores: newScores,
-        reversible: currentScore.reversible,
     })
 
     //TODO: Modify the newScore based on any formulas
