@@ -5,7 +5,7 @@ import { iScoreTree } from "../../dataModels/ScoreTree";
 export function scoreTrees(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
     switch (action.type) {
         case "add_scoreTree":
-        case "modify_score":
+        case "modify_scoreTree":
             {
                 // Since the score data might just be some of the data we need to get the current score and combine them
                 const originalItem = state.items[action.dataId];
