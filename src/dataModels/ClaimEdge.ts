@@ -40,5 +40,5 @@ export interface iClaimEdge {
     priority: string,
 
     /** allow for other properties by external implementations */
-    [others: string]: any;
+    // [others: string]: any;
 }

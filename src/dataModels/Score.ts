@@ -31,6 +31,9 @@ export class Score implements iScore, iScoreFragment, Item {
         public id: string = newId(),
         public priority: string = "",
         public content: string = "",
+        /** What fraction of tree is this score and it's descendants responsible for */
+        public fraction: number = 1,
+        public descendantCount: number = 0,
     ) {
     }
 }
@@ -39,11 +42,10 @@ export class Score implements iScore, iScoreFragment, Item {
  *  Just compares confidence and relavance
  */
 export function differentScores(scoreA: iScore, scoreB: iScore) {
+
     return !(
-        scoreA.confidence == scoreB.confidence
-        && scoreA.relevance == scoreB.relevance
-        && scoreA.pro == scoreB.pro
-        && scoreA.priority == scoreB.priority
+        JSON.stringify(scoreA, Object.keys(scoreA).sort()) ===
+        JSON.stringify(scoreB, Object.keys(scoreB).sort())
     )
 }
 
@@ -72,8 +74,12 @@ export interface iScore {
     priority: string,
     content: string,
 
+    /** What fraction of tree is this score and it's descendants responsible for */
+    fraction: number, // TODO: Consider moving outside the standard score. Is this a rare case?
+    descendantCount: number, // TODO: Consider moving outside the standard score. Is this a rare case?
+
     /** allow for other properties by external implementations */
-    [others: string]: any;
+    // [others: string]: any;
 }
 
 export interface iScoreFragment {
@@ -88,7 +94,9 @@ export interface iScoreFragment {
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance?: number,
     priority?: string,
-
+    /** What fraction of tree is this score and it's descendants responsible for */
+    fraction?: number,
+    descendantCount?: number,
     /** allow for other properties by external implementations */
-    [others: string]: any;
+    // [others: string]: any;
 }

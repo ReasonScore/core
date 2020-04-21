@@ -18,7 +18,7 @@ export interface iClaim {
     id: string,
     reversible: boolean,
     /** allow for other properties by external implementations */
-    [others: string]: any;
+    // [others: string]: any;
 }
 
 
