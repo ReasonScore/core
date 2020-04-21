@@ -201,7 +201,7 @@ async function calculateFractions(repository: iRepository, parentScore: iScore, 
     //Count up total relevance
     let totalRelevance = 0
     for (const oldScore of oldChildScores) {
-        if (oldScore.affects = "confidence") {
+        if (oldScore.affects === "confidence") {
             totalRelevance += oldScore.relevance
         }
     }

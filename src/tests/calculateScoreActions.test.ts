@@ -396,173 +396,6 @@ test('Multi level relevance delete test', async () => {
 
 });
 
-test('Con Relevancy test', async () => {
-  const repository = new RepositoryLocalPure();
-
-  repository.rsData = {
-    "actionsLog": [],
-    "items": {
-      "topClaim": {
-        "content": "Should [Denver](https://m.wikidata.org/wiki/Q16554) pass bill [20-0071](https://denver.legistar.com/LegislationDetail.aspx?ID=4348531&GUID=B44E6268-3326-4061-8F8B-F241193F0204) replacing it's \"pit-bull ban\" with [breed\nrestricted-license](https://www.facebook.com/photo?fbid=2682351831848354&set=a.465539280196298)?",
-        "id": "topClaim",
-        "reversible": false,
-        "type": "claim"
-      },
-      "ScoreTree": {
-        "sourceClaimId": "topClaim",
-        "topScoreId": "topScore",
-        "confidence": 1,
-        "id": "ScoreTree",
-        "type": "scoreTree"
-      },
-      "Y63AM1RDq02V": {
-        "content": "Pit bulls are disproportionately dangerous compared with other dog breeds.",
-        "id": "Y63AM1RDq02V",
-        "reversible": false,
-        "type": "claim"
-      },
-      "Y63AM1MmXgnN": {
-        "parentId": "topClaim",
-        "childId": "Y63AM1RDq02V",
-        "affects": "confidence",
-        "pro": false,
-        "id": "Y63AM1MmXgnN",
-        "priority": "",
-        "type": "claimEdge"
-      },
-      "Y63yE1vOJxR7": {
-        "content": " Over 100 cities have repealed their bans entirely.",
-        "id": "Y63yE1vOJxR7",
-        "reversible": false,
-        "type": "claim"
-      },
-      "Y63yE1timgKf": {
-        "parentId": "topClaim",
-        "childId": "Y63yE1vOJxR7",
-        "affects": "confidence",
-        "pro": true,
-        "id": "Y63yE1timgKf",
-        "priority": "",
-        "type": "claimEdge"
-      },
-      "Y63xF7JifLHA": {
-        "content": " A [review of controlled studies](https://www.avma.org/resources-tools/literature-reviews/dog-bite-risk-and-prevention-role-breed) documents that pit bulls are not disproportionately dangerous compared with other dog breeds.",
-        "id": "Y63xF7JifLHA",
-        "reversible": false,
-        "type": "claim"
-      },
-      "Y63xF7JBOjng": {
-        "parentId": "Y63AM1RDq02V",
-        "childId": "Y63xF7JifLHA",
-        "affects": "confidence",
-        "pro": false,
-        "id": "Y63xF7JBOjng",
-        "priority": "",
-        "type": "claimEdge"
-      },
-      "Y63vLOi2FItk": {
-        "content": "In the 14-year period of 2005 through 2018, canines killed 471 Americans. Pit bulls contributed to 66% (311) of these deaths. Combined, pit bulls and rottweilers contributed to 76% of the total recorded deaths. [dogsbite.org](https://www.dogsbite.org/dog-bite-statistics-fatalities-2018.php)",
-        "id": "Y63vLOi2FItk",
-        "reversible": false,
-        "type": "claim"
-      },
-      "Y63vLOig6YjJ": {
-        "parentId": "Y63AM1RDq02V",
-        "childId": "Y63vLOi2FItk",
-        "affects": "confidence",
-        "pro": true,
-        "id": "Y63vLOig6YjJ",
-        "priority": "",
-        "type": "claimEdge"
-      },
-      "Y63v8y8WWeSO": {
-        "content": "It is more important to make decisions based on evidence rather than the decisions other have made. [argumentum ad populum](https://en.wikipedia.org/wiki/Argumentum_ad_populum)",
-        "id": "Y63v8y8WWeSO",
-        "reversible": false,
-        "type": "claim"
-      },
-      "Y63v8y8hSG0g": {
-        "parentId": "Y63yE1vOJxR7",
-        "childId": "Y63v8y8WWeSO",
-        "affects": "relevance",
-        "pro": false,
-        "id": "Y63v8y8hSG0g",
-        "priority": "",
-        "type": "claimEdge"
-      },
-      "Y63uvoffmLhz": {
-        "content": "Over 100 cities have repealed their bans entirely.",
-        "id": "Y63uvoffmLhz",
-        "reversible": false,
-        "type": "claim"
-      },
-      "Y63uvofvcxwn": {
-        "parentId": "Y63yE1vOJxR7",
-        "childId": "Y63uvoffmLhz",
-        "affects": "confidence",
-        "pro": true,
-        "id": "Y63uvofvcxwn",
-        "priority": "",
-        "type": "claimEdge"
-      }
-    },
-    "claimEdgeIdsByParentId": {
-      "topClaim": [
-        "Y63AM1MmXgnN",
-        "Y63yE1timgKf"
-      ],
-      "Y63AM1RDq02V": [
-        "Y63xF7JBOjng",
-        "Y63vLOig6YjJ"
-      ],
-      "Y63yE1vOJxR7": [
-        "Y63v8y8hSG0g",
-        "Y63uvofvcxwn"
-      ]
-    },
-    "claimEdgeIdsByChildId": {
-      "Y63AM1RDq02V": [
-        "Y63AM1MmXgnN"
-      ],
-      "Y63yE1vOJxR7": [
-        "Y63yE1timgKf"
-      ],
-      "Y63xF7JifLHA": [
-        "Y63xF7JBOjng"
-      ],
-      "Y63vLOi2FItk": [
-        "Y63vLOig6YjJ"
-      ],
-      "Y63v8y8WWeSO": [
-        "Y63v8y8hSG0g"
-      ],
-      "Y63uvoffmLhz": [
-        "Y63uvofvcxwn"
-      ]
-    },
-    "scoreIdsBySourceId": {},
-    "childIdsByScoreId": {},
-    "ScoreTreeIds": [
-      "ScoreTree",
-      "Y63Aa5pAzqYf",
-      "topScore",
-      "Y63xDeJrapEH",
-      "Y63yx1IBTebP",
-      "Y63uCZC7cXrd"
-    ]
-  }
-
-  const result = await calculateScoreActions({
-    actions: [
-      new Action({ id: "ScoreTree" }, u, "add_scoreTree")
-    ], repository: repository
-  })
-
-  expect((await repository.getScoresBySourceId("topClaim"))[0].confidence).toEqual(1);
-
-
-});
-
 test('Fractions and Descendant Counts', async () => {
   const repository = new RepositoryLocalPure();
   let result;
@@ -647,3 +480,39 @@ test('Fractions from relevance', async () => {
   expect(results).toMatchObject(expectations);
 });
 
+test.only('Relevance test', async () => {
+  const repository = new RepositoryLocalPure();
+  let result;
+  await calculateScoreActions({
+    actions: [
+      new Action(new Claim("Top Claim", "topTestClaim"), u, "add_claim"),
+      new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+      new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, pro, "ChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim2", u, con, "ChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild1", "relevance", pro, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree"),
+    ],
+    repository: repository
+  })
+
+  let results: [string, any][], expectations: [string, any][]
+
+  // Check descendantCount
+  debugger
+  results = []
+  expectations = [
+    ["topTestClaim.confidence", 0.3333333333333333],
+    ["grandChild1.affects", "relevance"],
+  ]
+  for (const expectation of expectations) {
+    const source = expectation[0].split(".");
+    const tempResult = (await repository.getScoresBySourceId(source[0])) as any;
+    results.push([
+      expectation[0],
+      (tempResult[0])[source[1]]
+    ])
+  }
+  expect(results).toMatchObject(expectations);
+});
