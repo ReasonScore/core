@@ -628,7 +628,6 @@ var reasonscore_core = (function (exports) {
             await repository.notify(fractionActions);
           }
 
-          debugger;
           scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions);
         }
       } //TODO: Review this decision: Feed the score actions back into the repository so this repository is up to date in case it is used 
@@ -695,7 +694,7 @@ var reasonscore_core = (function (exports) {
       let totalRelevance = 0;
 
       for (const oldScore of oldChildScores) {
-        if (oldScore.affects = "confidence") {
+        if (oldScore.affects === "confidence") {
           totalRelevance += oldScore.relevance;
         }
       }
@@ -703,8 +702,6 @@ var reasonscore_core = (function (exports) {
       if (totalRelevance === 0) {
         totalRelevance = 1;
       }
-
-      debugger;
 
       for (const oldChildScore of oldChildScores) {
         const newChildFraction = oldChildScore.relevance / totalRelevance * parentScore.fraction;

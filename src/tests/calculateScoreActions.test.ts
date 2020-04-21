@@ -500,7 +500,6 @@ test.only('Relevance test', async () => {
   let results: [string, any][], expectations: [string, any][]
 
   // Check descendantCount
-  debugger
   results = []
   expectations = [
     ["topTestClaim.confidence", 0.3333333333333333],

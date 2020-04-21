@@ -130,7 +130,6 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             if (fractionActions.length > 0) {
                 await repository.notify(fractionActions)
             }
-debugger
             scoreActions.push(
                 ...missingScoreActions,
                 ...scoreTreeActions,
@@ -209,7 +208,6 @@ async function calculateFractions(repository: iRepository, parentScore: iScore, 
         totalRelevance = 1;
     }
 
-    debugger
     for (const oldChildScore of oldChildScores) {
         const newChildFraction = (oldChildScore.relevance / totalRelevance) * parentScore.fraction
         const newChildScore = { ...oldChildScore, fraction: newChildFraction }
