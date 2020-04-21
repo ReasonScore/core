@@ -40,6 +40,4 @@ export interface iClaimEdge {
     pro: boolean;
     id: string;
     priority: string;
-    /** allow for other properties by external implementations */
-    [others: string]: any;
 }

@@ -179,7 +179,7 @@ function newId(when = new Date()) {
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  */
 class Score {
-  constructor(sourceClaimId, scoreTreeId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "") {
+  constructor(sourceClaimId, scoreTreeId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "", fraction = 1, descendantCount = 0) {
     this.sourceClaimId = sourceClaimId;
     this.scoreTreeId = scoreTreeId;
     this.parentScoreId = parentScoreId;
@@ -192,6 +192,8 @@ class Score {
     this.id = id;
     this.priority = priority;
     this.content = content;
+    this.fraction = fraction;
+    this.descendantCount = descendantCount;
 
     _defineProperty(this, "type", 'score');
   }
@@ -202,7 +204,7 @@ class Score {
  */
 
 function differentScores(scoreA, scoreB) {
-  return !(scoreA.confidence == scoreB.confidence && scoreA.relevance == scoreB.relevance && scoreA.pro == scoreB.pro && scoreA.priority == scoreB.priority);
+  return !(JSON.stringify(scoreA, Object.keys(scoreA).sort()) === JSON.stringify(scoreB, Object.keys(scoreB).sort()));
 }
 
 class Action {
@@ -521,7 +523,7 @@ async function calculateScoreActions({
     if (action.type == "add_score") {
       let score = action.newData;
 
-      if (!score.parentId) {
+      if (!score.parentScoreId) {
         const scoreTemp = await repository.getScore(action.dataId);
 
         if (scoreTemp) {
@@ -598,24 +600,37 @@ async function calculateScoreActions({
     const scoreTree = await repository.getScoreTree(scoreTreeId);
 
     if (scoreTree) {
-      const tempMissingScoreActions = [];
+      const missingScoreActions = [];
       let topScore = await repository.getScore(scoreTree.topScoreId);
 
       if (!topScore) {
         topScore = new Score(scoreTree.sourceClaimId, scoreTree.id);
         topScore.id = scoreTree.topScoreId;
-        tempMissingScoreActions.push(new Action(topScore, undefined, "add_score"));
+        missingScoreActions.push(new Action(topScore, undefined, "add_score"));
       }
 
-      await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", tempMissingScoreActions, scoreTreeId);
+      await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", missingScoreActions, scoreTreeId);
 
-      if (tempMissingScoreActions.length > 0) {
-        await repository.notify(tempMissingScoreActions);
+      if (missingScoreActions.length > 0) {
+        await repository.notify(missingScoreActions);
       }
 
-      const tempcalculateScoreTreeActions = [];
-      await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions);
-      scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions);
+      const scoreTreeActions = [];
+      await calculateScoreTree(repository, topScore, calculator, scoreTreeActions);
+
+      if (missingScoreActions.length > 0) {
+        await repository.notify(scoreTreeActions);
+      }
+
+      const fractionActions = [];
+      await calculateFractions(repository, topScore, fractionActions);
+
+      if (fractionActions.length > 0) {
+        await repository.notify(fractionActions);
+      }
+
+      debugger;
+      scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions);
     }
   } //TODO: Review this decision: Feed the score actions back into the repository so this repository is up to date in case it is used 
 
@@ -650,24 +665,61 @@ async function createBlankMissingScores(repository, currentScoreId, currentClaim
 async function calculateScoreTree(repository, currentScore, calculator = calculateScore, actions) {
   const oldScores = await repository.getChildrenByScoreId(currentScore.id);
   const newScores = [];
+  let newDescendantCount = 0;
 
   for (const oldScore of oldScores) {
     //Calculate Children
     //TODO: remove any scores to calculate based on formulas that exclude scores
-    newScores.push((await calculateScoreTree(repository, oldScore, calculator, actions)));
+    const newScore = await calculateScoreTree(repository, oldScore, calculator, actions);
+    newScores.push(newScore);
+    newDescendantCount += newScore.descendantCount + 1;
   }
 
   const newScoreFragment = calculator({
     childScores: newScores
   }); //TODO: Modify the newScore based on any formulas
 
-  const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment);
+  const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment, {
+    descendantCount: newDescendantCount
+  });
 
   if (differentScores(currentScore, newScore)) {
     actions.push(new Action(newScore, undefined, "modify_score", newScore.id));
   }
 
   return newScore;
+}
+
+async function calculateFractions(repository, parentScore, actions) {
+  const oldChildScores = await repository.getChildrenByScoreId(parentScore.id);
+
+  let totalRelevance = 0;
+
+  for (const oldScore of oldChildScores) {
+    if (oldScore.affects = "confidence") {
+      totalRelevance += oldScore.relevance;
+    }
+  }
+
+  if (totalRelevance === 0) {
+    totalRelevance = 1;
+  }
+
+  debugger;
+
+  for (const oldChildScore of oldChildScores) {
+    const newChildFraction = oldChildScore.relevance / totalRelevance * parentScore.fraction;
+
+    const newChildScore = _objectSpread2({}, oldChildScore, {
+      fraction: newChildFraction
+    });
+
+    if (newChildFraction != oldChildScore.fraction) {
+      actions.push(new Action(newChildScore, undefined, "modify_score"));
+    }
+
+    await calculateFractions(repository, newChildScore, actions);
+  }
 }
 
 function deepClone(item) {

@@ -29,6 +29,4 @@ export interface iScoreTree {
     confidence: number;
     id: string;
     type: ItemTypes;
-    /** allow for other properties by external implementations */
-    [others: string]: any;
 }
