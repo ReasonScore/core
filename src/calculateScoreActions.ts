@@ -101,26 +101,40 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
     }
 
     //Re-calc all Score Trees with possible changed claims
+
     for (const scoreTreeId of ScoreTreeIds) {
         const scoreTree = await repository.getScoreTree(scoreTreeId)
         if (scoreTree) {
-            const tempMissingScoreActions: Action[] = [];
+            const missingScoreActions: Action[] = [];
 
             let topScore = await repository.getScore(scoreTree.topScoreId);
             if (!topScore) {
                 topScore = new Score(scoreTree.sourceClaimId, scoreTree.id);
                 topScore.id = scoreTree.topScoreId;
-                tempMissingScoreActions.push(new Action(topScore, undefined, "add_score"));
+                missingScoreActions.push(new Action(topScore, undefined, "add_score"));
             }
 
-            await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", tempMissingScoreActions, scoreTreeId)
-            if (tempMissingScoreActions.length > 0) {
-                await repository.notify(tempMissingScoreActions)
+            await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", missingScoreActions, scoreTreeId)
+            if (missingScoreActions.length > 0) {
+                await repository.notify(missingScoreActions)
             }
-            const tempcalculateScoreTreeActions: Action[] = [];
 
-            await calculateScoreTree(repository, topScore, calculator, tempMissingScoreActions, 1);
-            scoreActions.push(...tempMissingScoreActions, ...tempcalculateScoreTreeActions)
+            const scoreTreeActions: Action[] = [];
+            await calculateScoreTree(repository, topScore, calculator, scoreTreeActions);
+            if (missingScoreActions.length > 0) {
+                await repository.notify(scoreTreeActions)
+            }
+
+            const fractionActions: Action[] = [];
+            await calculateFractions(repository, topScore, fractionActions)
+            if (fractionActions.length > 0) {
+                await repository.notify(fractionActions)
+            }
+debugger
+            scoreActions.push(
+                ...missingScoreActions,
+                ...scoreTreeActions,
+                ...fractionActions)
         }
     }
 
@@ -149,7 +163,7 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
 }
 
 //This function assume that all scores already exist
-async function calculateScoreTree(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[], fraction: number) {
+async function calculateScoreTree(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[]) {
     const oldScores = await repository.getChildrenByScoreId(currentScore.id)
     const newScores: iScore[] = [];
     let newDescendantCount = 0;
@@ -158,7 +172,7 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
 
     for (const oldScore of oldScores) { //Calculate Children
         //TODO: remove any scores to calculate based on formulas that exclude scores
-        const newScore = await calculateScoreTree(repository, oldScore, calculator, actions, fraction / oldScores.length);
+        const newScore = await calculateScoreTree(repository, oldScore, calculator, actions);
         newScores.push(newScore);
         newDescendantCount += newScore.descendantCount + 1;
     }
@@ -171,7 +185,6 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
     const newScore = {
         ...currentScore,
         ...newScoreFragment,
-        fraction: fraction,
         descendantCount: newDescendantCount
     }
     if (differentScores(currentScore, newScore)) {
@@ -181,34 +194,29 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
     return newScore;
 }
 
-async function calculateFractions(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[], fraction: number) {
-    const oldScores = await repository.getChildrenByScoreId(currentScore.id)
+async function calculateFractions(repository: iRepository, parentScore: iScore, actions: Action[]) {
+    const oldChildScores = await repository.getChildrenByScoreId(parentScore.id)
     const newScores: iScore[] = [];
-    let newDescendantCount = 0;
 
-    
-
-    for (const oldScore of oldScores) { //Calculate Children
-        //TODO: remove any scores to calculate based on formulas that exclude scores
-        const newScore = await calculateScoreTree(repository, oldScore, calculator, actions, fraction / oldScores.length);
-        newScores.push(newScore);
-        newDescendantCount += newScore.descendantCount + 1;
+    //Count up total relevance
+    let totalRelevance = 0
+    for (const oldScore of oldChildScores) {
+        if (oldScore.affects = "confidence") {
+            totalRelevance += oldScore.relevance
+        }
+    }
+    if (totalRelevance === 0) {
+        totalRelevance = 1;
     }
 
-    const newScoreFragment = calculator({
-        childScores: newScores,
-    })
+    debugger
+    for (const oldChildScore of oldChildScores) {
+        const newChildFraction = (oldChildScore.relevance / totalRelevance) * parentScore.fraction
+        const newChildScore = { ...oldChildScore, fraction: newChildFraction }
+        if (newChildFraction != oldChildScore.fraction) {
+            actions.push(new Action(newChildScore, undefined, "modify_score"));
+        }
+        await calculateFractions(repository, newChildScore, actions)
 
-    //TODO: Modify the newScore based on any formulas
-    const newScore = {
-        ...currentScore,
-        ...newScoreFragment,
-        fraction: fraction,
-        descendantCount: newDescendantCount
     }
-    if (differentScores(currentScore, newScore)) {
-        actions.push(new Action(newScore, undefined, "modify_score", newScore.id));
-    }
-
-    return newScore;
 }

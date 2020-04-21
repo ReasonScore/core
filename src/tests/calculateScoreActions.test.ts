@@ -609,7 +609,7 @@ test('Fractions and Descendant Counts', async () => {
   expect(results).toMatchObject(expectations);
 });
 
-test.only('Fractions from relevance', async () => {
+test('Fractions from relevance', async () => {
   const repository = new RepositoryLocalPure();
   let result;
   await calculateScoreActions({
@@ -633,8 +633,8 @@ test.only('Fractions from relevance', async () => {
   // Check descendantCount
   results = []
   expectations = [
-    ["ChildClaim1.fraction", .25],
-    ["ChildClaim2.fraction", .75],
+    ["ChildClaim1.fraction", 0.3333333333333333],
+    ["ChildClaim2.fraction", 0.6666666666666666],
   ]
   for (const expectation of expectations) {
     const source = expectation[0].split(".");
