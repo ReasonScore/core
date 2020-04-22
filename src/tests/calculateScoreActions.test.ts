@@ -480,7 +480,7 @@ test('Fractions from relevance', async () => {
   expect(results).toMatchObject(expectations);
 });
 
-test.only('Relevance test', async () => {
+test('Relevance test', async () => {
   const repository = new RepositoryLocalPure();
   let result;
   await calculateScoreActions({

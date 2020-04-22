@@ -36,6 +36,13 @@ export class Score implements iScore, iScoreFragment, Item {
         public descendantCount: number = 0,
     ) {
     }
+
+    public childrenAveragingWeight: number = 1;
+    public childrenConfidenceWeight: number = 1;
+    public childrenRelevanceWeight: number = 1;
+    public childrenWeight: number = 1;
+    public weight: number = 1;
+    public percentOfWeight: number = 1;
 }
 
 /** Compare two scores to see if they are different in what the score is.
@@ -80,6 +87,13 @@ export interface iScore {
 
     /** allow for other properties by external implementations */
     // [others: string]: any;
+
+    childrenAveragingWeight: number,
+    childrenConfidenceWeight: number,
+    childrenRelevanceWeight: number,
+    childrenWeight: number;
+    weight: number,
+    percentOfWeight: number,
 }
 
 export interface iScoreFragment {
@@ -99,4 +113,11 @@ export interface iScoreFragment {
     descendantCount?: number,
     /** allow for other properties by external implementations */
     // [others: string]: any;
+
+    childrenAveragingWeight?: number,
+    childrenConfidenceWeight?: number,
+    childrenRelevanceWeight?: number,
+    childrenWeight?: number;
+    weight?: number,
+    percentOfWeight?: number,
 }
