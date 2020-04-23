@@ -64,43 +64,7 @@ test('Changing a child pro value should change the top score', async () => {
     repository: repository
   })
 
-  expect(result).toMatchObject(
-    [
-      {
-        "newData": {
-          "pro": false,
-          "affects": "confidence"
-        },
-        "oldData": {
-          "sourceClaimId": "ChildClaim1",
-          "scoreTreeId": "testScoreTree",
-          "parentScoreId": "testTopScore",
-          "sourceEdgeId": "ChildClaim1Edge",
-          "reversible": false,
-          "pro": true,
-          "affects": "confidence",
-          "confidence": 1,
-          "relevance": 1,
-        },
-        "type": "modify_score",
-      },
-      {
-        "newData": {
-          "sourceClaimId": "topTestClaim",
-          "scoreTreeId": "testScoreTree",
-          "parentScoreId": undefined,
-          "reversible": false,
-          "pro": true,
-          "affects": "confidence",
-          "confidence": -1,
-          "relevance": 1,
-          "id": "testTopScore"
-        },
-        "type": "modify_score",
-        "dataId": "testTopScore"
-      }
-    ])
-
+  expect((await repository.getScoresBySourceId("topTestClaim"))[0].confidence).toEqual(-1);
 });
 
 test('Add a child that reverses the top score', async () => {
@@ -120,37 +84,8 @@ test('Add a child that reverses the top score', async () => {
     repository: repository,
     calculator: calculateScore
   })
-  expect(result).toMatchObject(
-    [
-      {
-        "newData":
-        {
-          "sourceClaimId": "ChildClaim1",
-          "reversible": false,
-          "pro": false,
-          "affects": "confidence",
-          "confidence": 1,
-          "relevance": 1,
-          "parentScoreId": "testTopScore"
-        }, "oldData": undefined,
-        "type": "add_score",
-      },
-      {
-        "newData":
-        {
-          "sourceClaimId": "topTestClaim",
-          "parentScoreId": undefined,
-          "reversible": false,
-          "pro": true,
-          "affects": "confidence",
-          "confidence": -1,
-          "relevance": 1,
-        }, "oldData": undefined,
-        "type": "modify_score",
-      }
-    ]
-  )
 
+  expect((await repository.getScoresBySourceId("topTestClaim"))[0].confidence).toEqual(-1);
 });
 
 test('Adding a grandchild score Reverses Scores 2 levels', async () => {
@@ -516,7 +451,7 @@ test('Relevance test', async () => {
   expect(results).toMatchObject(expectations);
 });
 
-test.only('Points Tests', async () => {
+test('Points Tests', async () => {
   const repository = new RepositoryLocalPure();
   let result;
   await calculateScoreActions({
@@ -539,16 +474,17 @@ test.only('Points Tests', async () => {
     repository: repository
   })
 
-  let results: [string, any][], expectations: [string, any][]
+  debugger
 
+  let results: [string, any][], expectations: [string, any][]
   results = []
   expectations = [
     ["grandChild1.childrenPointsPro", 1],
     ["grandChild1.childrenPointsCon", 0],
     ["grandChild1.pointsPro", 0.3333333333333333],
     ["grandChild1.pointsCon", 0],
-    ["ChildClaim1.childrenPointsPro", 0.6666666666666666 ],
-    ["ChildClaim1.childrenPointsCon", 0.3333333333333333 ],
+    ["ChildClaim1.childrenPointsPro", 0.6666666666666666],
+    ["ChildClaim1.childrenPointsCon", 0.3333333333333333],
     ["ChildClaim1.pointsPro", 0.09523809523809525],
     ["ChildClaim1.pointsCon", 0.04761904761904762],
     ["topTestClaim.childrenPointsPro", 0.5238095238095238],

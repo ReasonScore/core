@@ -85,7 +85,6 @@ export function calculateScore({ childScores = [], reversible = true }: {
                     childScore.percentOfWeight *
                     childScore.confidence * polarity;
 
-                // if (childScore.descendantCount) {
                 if (childScore.pro) {
                     childScore.pointsPro = childScore.childrenPointsPro * childScore.percentOfWeight;
                     childScore.pointsCon = childScore.childrenPointsCon * childScore.percentOfWeight;

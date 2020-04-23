@@ -49,6 +49,16 @@ export declare class Score implements iScore, iScoreFragment, Item {
     relevance?: number, id?: string, priority?: string, content?: string, 
     /** What fraction of tree is this score and it's descendants responsible for */
     fraction?: number, descendantCount?: number);
+    childrenAveragingWeight: number;
+    childrenConfidenceWeight: number;
+    childrenRelevanceWeight: number;
+    childrenWeight: number;
+    weight: number;
+    percentOfWeight: number;
+    pointsPro: number;
+    pointsCon: number;
+    childrenPointsPro: number;
+    childrenPointsCon: number;
 }
 /** Compare two scores to see if they are different in what the score is.
  *  Just compares confidence and relavance
@@ -81,6 +91,17 @@ export interface iScore {
     /** What fraction of tree is this score and it's descendants responsible for */
     fraction: number;
     descendantCount: number;
+    /** allow for other properties by external implementations */
+    childrenAveragingWeight: number;
+    childrenConfidenceWeight: number;
+    childrenRelevanceWeight: number;
+    childrenWeight: number;
+    weight: number;
+    percentOfWeight: number;
+    pointsPro: number;
+    pointsCon: number;
+    childrenPointsPro: number;
+    childrenPointsCon: number;
 }
 export interface iScoreFragment {
     reversible?: boolean;
@@ -97,4 +118,15 @@ export interface iScoreFragment {
     /** What fraction of tree is this score and it's descendants responsible for */
     fraction?: number;
     descendantCount?: number;
+    /** allow for other properties by external implementations */
+    childrenAveragingWeight?: number;
+    childrenConfidenceWeight?: number;
+    childrenRelevanceWeight?: number;
+    childrenWeight?: number;
+    weight?: number;
+    percentOfWeight?: number;
+    pointsPro?: number;
+    pointsCon?: number;
+    childrenPointsPro?: number;
+    childrenPointsCon?: number;
 }
