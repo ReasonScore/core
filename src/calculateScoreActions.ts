@@ -120,7 +120,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             }
 
             const scoreTreeActions: Action[] = [];
-            await calculateScoreTree(repository, topScore, calculator, scoreTreeActions);
+            await calculateScoreDescendants(repository, topScore, calculator, scoreTreeActions);
             if (missingScoreActions.length > 0) {
                 await repository.notify(scoreTreeActions)
             }
@@ -162,23 +162,32 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
 }
 
 //This function assume that all scores already exist
-async function calculateScoreTree(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[]) {
-    const oldScores = await repository.getChildrenByScoreId(currentScore.id)
-    const newScores: iScore[] = [];
+async function calculateScoreDescendants(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[]) {
+    const oldChildScores = await repository.getChildrenByScoreId(currentScore.id)
+    const newChildScores: iScore[] = [];
     let newDescendantCount = 0;
 
 
 
-    for (const oldScore of oldScores) { //Calculate Children
+    for (const oldChildScore of oldChildScores) { //Calculate Children
         //TODO: remove any scores to calculate based on formulas that exclude scores
-        const newScore = await calculateScoreTree(repository, oldScore, calculator, actions);
-        newScores.push(newScore);
+        const newScore = await calculateScoreDescendants(repository, oldChildScore, calculator, actions);
+        newChildScores.push(newScore);
         newDescendantCount += newScore.descendantCount + 1;
     }
 
     const newScoreFragment = calculator({
-        childScores: newScores,
+        childScores: newChildScores,
     })
+
+    //update any newChildScores that changed
+    for (const newChildScore of newChildScores) {
+        // TODO: Is this slow accessing the data store again for this data or do we assume it is cached if it is in an external DB
+        const oldChildScore = await repository.getScore(newChildScore.id);
+        if (oldChildScore && differentScores(oldChildScore, newChildScore)) {
+            actions.push(new Action(newChildScore, undefined, "modify_score"));
+        }
+    }
 
     //TODO: Modify the newScore based on any formulas
     const newScore = {
@@ -187,7 +196,7 @@ async function calculateScoreTree(repository: iRepository, currentScore: iScore,
         descendantCount: newDescendantCount
     }
     if (differentScores(currentScore, newScore)) {
-        actions.push(new Action(newScore, undefined, "modify_score", newScore.id));
+        actions.push(new Action(newScore, undefined, "modify_score"));
     }
 
     return newScore;

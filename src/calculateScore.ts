@@ -17,7 +17,7 @@ export function calculateScore({ childScores = [], reversible = true }: {
     reversible?: boolean
 } = {},
 ): iScoreFragment {
-
+    // TODO: Simplify all this math and maybe break it up between base functionality and additional scoring (like the points)
     const newScore: iScoreFragment = {
         confidence: 0,
         relevance: 1,
@@ -25,24 +25,23 @@ export function calculateScore({ childScores = [], reversible = true }: {
         childrenConfidenceWeight: 0,
         childrenRelevanceWeight: 0,
         childrenWeight: 0,
+        childrenPointsPro: 0,
+        childrenPointsCon: 0,
     };
 
-    // let childrenConfidence = 0;
-    // let childrenRelevance = 0;
-
     if (childScores.filter(s => s.affects === 'confidence').length < 1) {
-        // If there are no children that affect the confidence of the claim
-        // then assume the claim is 100% confident and start strength and relevance at 1
-        newScore.confidence = 1;
-        newScore.relevance = 1;
+        // Defaults if there are no children
+        newScore.confidence = 1; // assume 100% confident
+        newScore.relevance = 1; // assume 100% relevant
         newScore.childrenAveragingWeight = 1;
         newScore.childrenConfidenceWeight = 1;
         newScore.childrenRelevanceWeight = 1;
         newScore.childrenWeight = 1;
+        newScore.childrenPointsPro = 1;
+        newScore.childrenPointsCon = 0;
     }
 
     //Gather children Weights totals for processing further down
-    debugger
     for (const childScore of childScores) {
         //Ensure calculations for non-reversible scores don't allow the confidence to be below 0
         //TODO: Is this needed in the totals seciton?
@@ -52,82 +51,55 @@ export function calculateScore({ childScores = [], reversible = true }: {
         }
 
         childScore.weight = Math.abs(confidence) * childScore.relevance; // confidenceWeight * RelevanceWeight
-
         // @ts-ignore
         newScore.childrenAveragingWeight += 1;
         // @ts-ignore
-        newScore.childrenConfidenceWeight += Math.abs(confidence);
+        newScore.childrenConfidenceWeight +=
+            Math.abs(confidence);
         // @ts-ignore
-        newScore.childrenRelevanceWeight += childScore.relevance;
+        newScore.childrenRelevanceWeight +=
+            childScore.relevance;
         // @ts-ignore
-        newScore.childrenWeight += childScore.weight;
+        newScore.childrenWeight +=
+            childScore.weight;
     }
-
-    // childScores.forEach(score => {
-    //     //Ensure calculations for non-reversible scores don't allow the confidence to be below 0
-    //     let confidence = score.confidence
-    //     if (!score.reversible && score.confidence < 0) {
-    //         confidence = 0
-    //     }
-
-    //     // Loop through the child scores and determine the score of the parent.
-    //     if (score.affects === 'confidence') {
-
-    //         //calculate the reduction of the relevance bease on the distance of the confidence from zero
-    //         //TODO: maybe add a flag on the claimEdge to be able to turn this off in the case of a claim that should draw the parent towards zero
-    //         //Like "This claim should require supporting evidence"
-    //         let confidenceWeight = 1
-    //         confidenceWeight = Math.abs(confidence)
-
-    //         // Process edges that affect confidence
-    //         if (score.pro) {
-    //             childrenConfidence += confidence * score.relevance * confidenceWeight; // Add up all the strength of the children
-    //             childrenRelevance += score.relevance * confidenceWeight; //Add up the relevance separately so we can do a weighted agerage later
-    //         } else {
-    //             childrenConfidence -= confidence * score.relevance * confidenceWeight;
-    //             childrenRelevance += score.relevance * confidenceWeight;
-    //         }
-    //     }
-
-    //     if (score.affects === 'relevance') {
-    //         // Process Relevance child claims
-    //         if (newScore.relevance == undefined) {
-    //             newScore.relevance = 1;
-    //         }
-    //         if (score.pro) {
-    //             newScore.relevance += confidence; // Add up all the strength of the children
-    //         } else {
-    //             newScore.relevance -= confidence / 2;
-    //         }
-    //     }
-    // });
-
-    // if (newScore.childrenRelevanceWeight === 0) {
-    //     // Protect against division by zero
-    //     newScore.confidence = 0;
-    // } else {
-    //     //Calculate the score
-    //     // @ts-ignore
-    //     newScore.confidence = newScore.childrenConfidenceWeight / newScore.childrenRelevanceWeight;
-    // }
 
     // Loop through to calculate the final scores
     for (const childScore of childScores) {
+        const polarity = childScore.pro ? 1 : -1
+
         if (childScore.affects === "confidence") {
             if (newScore.childrenWeight === 0) {
                 childScore.percentOfWeight = 0;
                 newScore.confidence = 0;
             } else {
-                // @ts-ignore
-                childScore.percentOfWeight = childScore.weight / newScore.childrenWeight;
 
+                // @ts-ignore
+                childScore.percentOfWeight =
+                    childScore.weight /
+                    // @ts-ignore
+                    newScore.childrenWeight;
+
+                // @ts-ignore
+                newScore.confidence +=
+                    childScore.percentOfWeight *
+                    childScore.confidence * polarity;
+
+                // if (childScore.descendantCount) {
                 if (childScore.pro) {
-                    // @ts-ignore
-                    newScore.confidence += childScore.percentOfWeight * childScore.confidence;
+                    childScore.pointsPro = childScore.childrenPointsPro * childScore.percentOfWeight;
+                    childScore.pointsCon = childScore.childrenPointsCon * childScore.percentOfWeight;
                 } else {
-                    // @ts-ignore
-                    newScore.confidence -= childScore.percentOfWeight * childScore.confidence;
+                    childScore.pointsPro = childScore.childrenPointsCon * childScore.percentOfWeight;
+                    childScore.pointsCon = childScore.childrenPointsPro * childScore.percentOfWeight;
                 }
+
+                // @ts-ignore
+                newScore.childrenPointsPro +=
+                    childScore.pointsPro;
+                // @ts-ignore
+                newScore.childrenPointsCon +=
+                    childScore.pointsCon;
             }
         }
 
@@ -142,6 +114,7 @@ export function calculateScore({ childScores = [], reversible = true }: {
             if (newScore.relevance == undefined) {
                 newScore.relevance = 1;
             }
+
             if (childScore.pro) {
                 newScore.relevance += confidence;
             } else {

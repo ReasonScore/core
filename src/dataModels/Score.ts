@@ -43,6 +43,10 @@ export class Score implements iScore, iScoreFragment, Item {
     public childrenWeight: number = 1;
     public weight: number = 1;
     public percentOfWeight: number = 1;
+    public pointsPro: number = 1;
+    public pointsCon: number = 0;
+    public childrenPointsPro: number = 0;
+    public childrenPointsCon: number = 0;
 }
 
 /** Compare two scores to see if they are different in what the score is.
@@ -91,9 +95,13 @@ export interface iScore {
     childrenAveragingWeight: number,
     childrenConfidenceWeight: number,
     childrenRelevanceWeight: number,
-    childrenWeight: number;
+    childrenWeight: number,
     weight: number,
     percentOfWeight: number,
+    pointsPro: number,
+    pointsCon: number,
+    childrenPointsPro: number,
+    childrenPointsCon: number,
 }
 
 export interface iScoreFragment {
@@ -117,7 +125,11 @@ export interface iScoreFragment {
     childrenAveragingWeight?: number,
     childrenConfidenceWeight?: number,
     childrenRelevanceWeight?: number,
-    childrenWeight?: number;
+    childrenWeight?: number,
     weight?: number,
     percentOfWeight?: number,
+    pointsPro?: number,
+    pointsCon?: number,
+    childrenPointsPro?: number,
+    childrenPointsCon?: number,
 }
