@@ -1,4 +1,5 @@
-import { hasItemChanged, Score } from "./dataModels/Score";
+import { Score } from "./dataModels/Score";
+import { hasItemChanged } from "./hasItemChanged";
 import { Action } from "./dataModels/Action";
 import { iCalculateScore, calculateScore } from "./calculateScore";
 import { iRepository } from "./dataModels/iRepository";
