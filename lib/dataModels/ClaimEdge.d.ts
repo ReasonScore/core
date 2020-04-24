@@ -28,16 +28,3 @@ export declare class ClaimEdge {
     /** Is the child claim a pro of it's parent (false if it is a con) */
     pro?: boolean, id?: string, priority?: string);
 }
-export interface iClaimEdge {
-    type: ItemTypes;
-    /** The ID for the parent claim this edge points to */
-    parentId: string;
-    /** The ID for the child claim this edge points from */
-    childId: string;
-    /** How the child affects the parent score */
-    affects: Affects;
-    /** Is the child claim a pro of it's parent (false if it is a con) */
-    pro: boolean;
-    id: string;
-    priority: string;
-}

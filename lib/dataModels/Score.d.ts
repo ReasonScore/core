@@ -55,12 +55,4 @@ export declare class Score implements Item {
     childrenWeight: number;
     weight: number;
     percentOfWeight: number;
-    pointsPro: number;
-    pointsCon: number;
-    childrenPointsPro: number;
-    childrenPointsCon: number;
 }
-/** Compare two scores to see if they are different in what the score is.
- *  Just compares confidence and relavance
- */
-export declare function hasItemChanged(scoreA: Item, scoreB: Item): boolean;

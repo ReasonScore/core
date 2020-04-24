@@ -12,9 +12,7 @@ function calculateScore({
     childrenAveragingWeight: 0,
     childrenConfidenceWeight: 0,
     childrenRelevanceWeight: 0,
-    childrenWeight: 0,
-    childrenPointsPro: 0,
-    childrenPointsCon: 0
+    childrenWeight: 0
   };
 
   if (childScores.filter(s => s.affects === 'confidence').length < 1) {
@@ -27,8 +25,6 @@ function calculateScore({
     newScore.childrenConfidenceWeight = 1;
     newScore.childrenRelevanceWeight = 1;
     newScore.childrenWeight = 1;
-    newScore.childrenPointsPro = 1;
-    newScore.childrenPointsCon = 0;
   } //Gather children Weights totals for processing further down
 
 
@@ -67,19 +63,6 @@ function calculateScore({
         newScore.childrenWeight; // @ts-ignore
 
         newScore.confidence += childScore.percentOfWeight * childScore.confidence * polarity;
-
-        if (childScore.pro) {
-          childScore.pointsPro = childScore.childrenPointsPro * childScore.percentOfWeight;
-          childScore.pointsCon = childScore.childrenPointsCon * childScore.percentOfWeight;
-        } else {
-          childScore.pointsPro = childScore.childrenPointsCon * childScore.percentOfWeight;
-          childScore.pointsCon = childScore.childrenPointsPro * childScore.percentOfWeight;
-        } // @ts-ignore
-
-
-        newScore.childrenPointsPro += childScore.pointsPro; // @ts-ignore
-
-        newScore.childrenPointsCon += childScore.pointsCon;
       }
     }
 
@@ -240,21 +223,13 @@ class Score {
     _defineProperty(this, "weight", 1);
 
     _defineProperty(this, "percentOfWeight", 1);
-
-    _defineProperty(this, "pointsPro", 1);
-
-    _defineProperty(this, "pointsCon", 0);
-
-    _defineProperty(this, "childrenPointsPro", 0);
-
-    _defineProperty(this, "childrenPointsCon", 0);
   }
 
 }
+
 /** Compare two scores to see if they are different in what the score is.
  *  Just compares confidence and relavance
  */
-
 function hasItemChanged(scoreA, scoreB) {
   return !(JSON.stringify(scoreA, Object.keys(scoreA).sort()) === JSON.stringify(scoreB, Object.keys(scoreB).sort()));
 }
@@ -843,4 +818,4 @@ class Claim {
 
 }
 
-export { Action, Claim, ClaimEdge, Messenger, RepositoryLocalPure, RsData, Score, ScoreTree, calculateScore, calculateScoreActions, deepClone, hasItemChanged, newId };
+export { Action, Claim, ClaimEdge, Messenger, RepositoryLocalPure, RsData, Score, ScoreTree, calculateScore, calculateScoreActions, deepClone, newId };

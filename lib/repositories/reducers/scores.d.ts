@@ -1,3 +1,3 @@
-import { iAction } from "../../dataModels/Action";
-import { iRsData } from "../../dataModels/RsData";
-export declare function scores(state: iRsData, action: iAction, reverse?: boolean): iRsData;
+import { Action } from "../../dataModels/Action";
+import { RsData } from "../../dataModels/RsData";
+export declare function scores(state: RsData, action: Action, reverse?: boolean): RsData;

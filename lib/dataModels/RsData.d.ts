@@ -1,28 +1,14 @@
-import { iAction, Item } from "..";
+import { Action } from "./Action";
+import { Item } from "./Item";
 export interface Index {
     [searchIndex: string]: string;
 }
 export interface IndexArray {
     [searchIndex: string]: string[];
 }
-export interface iRsData {
-    /** Stores all the actions sent through */
+export declare class RsData implements RsData {
     actionsLog: {
-        actions: iAction[];
-    }[];
-    /** Stores all the current items */
-    items: {
-        [idString: string]: Item;
-    };
-    claimEdgeIdsByParentId: IndexArray;
-    claimEdgeIdsByChildId: IndexArray;
-    scoreIdsBySourceId: IndexArray;
-    childIdsByScoreId: IndexArray;
-    ScoreTreeIds: string[];
-}
-export declare class RsData implements iRsData {
-    actionsLog: {
-        actions: iAction[];
+        actions: Action[];
     }[];
     /** Stores all the current items */
     items: {
@@ -34,7 +20,7 @@ export declare class RsData implements iRsData {
     childIdsByScoreId: IndexArray;
     ScoreTreeIds: string[];
     constructor(actionsLog?: {
-        actions: iAction[];
+        actions: Action[];
     }[], 
     /** Stores all the current items */
     items?: {

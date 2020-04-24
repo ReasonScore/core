@@ -1,3 +1,3 @@
-import { iAction } from "../../dataModels/Action";
-import { iRsData } from "../../dataModels/RsData";
-export declare function actions(state: iRsData, action: iAction[]): iRsData;
+import { Action } from "../../dataModels/Action";
+import { RsData } from "../../dataModels/RsData";
+export declare function actions(state: RsData, action: Action[]): RsData;
