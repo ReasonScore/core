@@ -259,7 +259,7 @@ class Score {
  *  Just compares confidence and relavance
  */
 
-function differentScores(scoreA, scoreB) {
+function hasItemChanged(scoreA, scoreB) {
   return !(JSON.stringify(scoreA, Object.keys(scoreA).sort()) === JSON.stringify(scoreB, Object.keys(scoreB).sort()));
 }
 
@@ -657,12 +657,12 @@ async function calculateScoreActions({
 
     if (scoreTree) {
       const missingScoreActions = [];
-      let topScore = await repository.getScore(scoreTree.topScoreId);
+      let mainScore = await repository.getScore(scoreTree.topScoreId);
 
-      if (!topScore) {
-        topScore = new Score(scoreTree.sourceClaimId, scoreTree.id);
-        topScore.id = scoreTree.topScoreId;
-        missingScoreActions.push(new Action(topScore, undefined, "add_score"));
+      if (!mainScore) {
+        mainScore = new Score(scoreTree.sourceClaimId, scoreTree.id);
+        mainScore.id = scoreTree.topScoreId;
+        missingScoreActions.push(new Action(mainScore, undefined, "add_score"));
       }
 
       await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", missingScoreActions, scoreTreeId);
@@ -672,20 +672,30 @@ async function calculateScoreActions({
       }
 
       const scoreTreeActions = [];
-      await calculateScoreDescendants(repository, topScore, calculator, scoreTreeActions);
+      const newMainScore = await calculateScoreDescendants(repository, mainScore, calculator, scoreTreeActions);
 
       if (missingScoreActions.length > 0) {
         await repository.notify(scoreTreeActions);
       }
 
       const fractionActions = [];
-      await calculateFractions(repository, topScore, fractionActions);
+      await calculateFractions(repository, mainScore, fractionActions);
 
       if (fractionActions.length > 0) {
         await repository.notify(fractionActions);
       }
 
       scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions);
+
+      if (scoreTree.descendantCount != newMainScore.descendantCount) {
+        let newScoreTreePartial = {
+          descendantCount: newMainScore.descendantCount
+        };
+        let oldScoreTreePartial = {
+          descendantCount: scoreTree.descendantCount
+        };
+        scoreActions.push(new Action(newScoreTreePartial, oldScoreTreePartial, "modify_scoreTree", scoreTree.id));
+      }
     }
   } //TODO: Review this decision: Feed the score actions back into the repository so this repository is up to date in case it is used 
 
@@ -738,7 +748,7 @@ async function calculateScoreDescendants(repository, currentScore, calculator = 
     // TODO: Is this slow accessing the data store again for this data or do we assume it is cached if it is in an external DB
     const oldChildScore = await repository.getScore(newChildScore.id);
 
-    if (oldChildScore && differentScores(oldChildScore, newChildScore)) {
+    if (oldChildScore && hasItemChanged(oldChildScore, newChildScore)) {
       actions.push(new Action(newChildScore, undefined, "modify_score"));
     }
   } //TODO: Modify the newScore based on any formulas
@@ -748,7 +758,7 @@ async function calculateScoreDescendants(repository, currentScore, calculator = 
     descendantCount: newDescendantCount
   });
 
-  if (differentScores(currentScore, newScore)) {
+  if (hasItemChanged(currentScore, newScore)) {
     actions.push(new Action(newScore, undefined, "modify_score"));
   }
 
@@ -814,11 +824,12 @@ class ClaimEdge {
  * Represents an intentional top of a tree of scores.
  */
 class ScoreTree {
-  constructor(sourceClaimId, topScoreId, confidence = 1, id = newId()) {
+  constructor(sourceClaimId, topScoreId, confidence = 1, id = newId(), descendantCount = 0) {
     this.sourceClaimId = sourceClaimId;
     this.topScoreId = topScoreId;
     this.confidence = confidence;
     this.id = id;
+    this.descendantCount = descendantCount;
 
     _defineProperty(this, "type", 'scoreTree');
   }
@@ -847,5 +858,5 @@ exports.ScoreTree = ScoreTree;
 exports.calculateScore = calculateScore;
 exports.calculateScoreActions = calculateScoreActions;
 exports.deepClone = deepClone;
-exports.differentScores = differentScores;
+exports.hasItemChanged = hasItemChanged;
 exports.newId = newId;
