@@ -1,19 +1,19 @@
 import { iClaimEdge } from "../dataModels/ClaimEdge";
-import { iScore } from "../dataModels/Score";
+import { Score } from "../dataModels/Score";
 import { iRsData } from "../dataModels/RsData";
 import { iAction } from "../dataModels/Action";
 import { iClaim } from "../dataModels/Claim";
-import { iScoreTree } from "../dataModels/ScoreTree";
+import { ScoreTree } from "../dataModels/ScoreTree";
 export declare class RepositoryLocalBase {
     rsData: iRsData;
     constructor(rsData?: iRsData);
     getClaim(id: string): Promise<iClaim | undefined>;
     getClaimEdge(id: string): Promise<iClaimEdge | undefined>;
-    getScore(id: string): Promise<iScore | undefined>;
-    getScoreTree(id: string): Promise<iScoreTree | undefined>;
+    getScore(id: string): Promise<Score | undefined>;
+    getScoreTree(id: string): Promise<ScoreTree | undefined>;
     getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]>;
     getClaimEdgesByChildId(childId: string): Promise<iClaimEdge[]>;
-    getScoresBySourceId(sourceClaimId: string): Promise<iScore[]>;
-    getChildrenByScoreId(parentScoreId: string): Promise<iScore[]>;
+    getScoresBySourceId(sourceClaimId: string): Promise<Score[]>;
+    getChildrenByScoreId(parentScoreId: string): Promise<Score[]>;
     readonly log: iAction[][];
 }

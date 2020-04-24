@@ -1,6 +1,6 @@
 import { iAction } from "../../dataModels/Action"
 import { iRsData } from "../../dataModels/RsData"
-import { iScore } from "../../dataModels/Score"
+import { Score } from "../../dataModels/Score"
 import { IndexReducer } from "./IndexReducer";
 
 export function scores(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
@@ -11,7 +11,7 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
             {
                 // Since the score data might just be some of the data we need to get the current score and combine them
                 const originalScore = state.items[action.dataId];
-                let score = action.newData as iScore
+                let score = action.newData as Score
                 if (originalScore) {
                     score = { ...originalScore, ...score }
                 }

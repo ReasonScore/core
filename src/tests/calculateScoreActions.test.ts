@@ -4,7 +4,7 @@ import { calculateScore } from "../calculateScore";
 import { Claim } from "../dataModels/Claim";
 import { Action, iAction } from "../dataModels/Action";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { Score, iScore } from "../dataModels/Score";
+import { Score } from "../dataModels/Score";
 import { ScoreTree } from "../dataModels/ScoreTree";
 
 const u = undefined, pro = true, con = false
@@ -130,7 +130,7 @@ test('Complex Test', async () => {
     repository: repository
   })
 
-  expect((repository.rsData.items["testTopScore"] as iScore).confidence).toEqual(1);
+  expect((repository.rsData.items["testTopScore"] as Score).confidence).toEqual(1);
   expect(repository.rsData.scoreIdsBySourceId["topTestClaim"].length).toEqual(1);
 
   //Weird score not changing

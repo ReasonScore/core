@@ -4,7 +4,7 @@ import { ItemTypes } from "..";
 /**
  * Represents an intentional top of a tree of scores.
  */
-export class ScoreTree implements iScoreTree, Item {
+export class ScoreTree implements ScoreTree, Item {
     type: ItemTypes = 'scoreTree'
 
     constructor(
@@ -20,7 +20,7 @@ export class ScoreTree implements iScoreTree, Item {
     }
 }
 
-export interface iScoreTree {
+export interface ScoreTree {
     /** The claim to which this score belongs */
     sourceClaimId: string,
     /** The top of the tree of scores that this belongs to. Used for indexing */

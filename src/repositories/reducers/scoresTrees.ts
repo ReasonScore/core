@@ -1,6 +1,6 @@
 import { iAction } from "../../dataModels/Action"
 import { iRsData } from "../../dataModels/RsData"
-import { iScoreTree } from "../../dataModels/ScoreTree";
+import { ScoreTree } from "../../dataModels/ScoreTree";
 
 export function scoreTrees(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
     switch (action.type) {
@@ -9,7 +9,7 @@ export function scoreTrees(state: iRsData, action: iAction, reverse: boolean = f
             {
                 // Since the score data might just be some of the data we need to get the current score and combine them
                 const originalItem = state.items[action.dataId];
-                let newItem = action.newData as iScoreTree
+                let newItem = action.newData as ScoreTree
                 if (originalItem) {
                     newItem = { ...originalItem, ...newItem }
                 }

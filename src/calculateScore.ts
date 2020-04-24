@@ -1,10 +1,10 @@
-import { iScore} from "./dataModels/Score";
+import { Score} from "./dataModels/Score";
 
 export interface iCalculateScore {
     ({ childScores }: {
         /** An array of grouped edges and claims*/
-        childScores?: iScore[];
-    }): Partial<iScore>
+        childScores?: Score[];
+    }): Partial<Score>
 }
 
 /**
@@ -12,13 +12,13 @@ export interface iCalculateScore {
  */
 export function calculateScore({ childScores = [], reversible = true }: {
     /** An array of grouped edges and claims*/
-    childScores?: iScore[];
+    childScores?: Score[];
     /** Can this score fall below a 0 confidence (have a negative confidence) */
     reversible?: boolean
 } = {},
-): Partial<iScore> {
+): Partial<Score> {
     // TODO: Simplify all this math and maybe break it up between base functionality and additional scoring (like the points)
-    const newScore: Partial<iScore> = {
+    const newScore: Partial<Score> = {
         confidence: 0,
         relevance: 1,
         childrenAveragingWeight: 0,

@@ -1,4 +1,4 @@
-import { Score, hasItemChanged, iScore } from "./dataModels/Score";
+import { hasItemChanged, Score } from "./dataModels/Score";
 import { Action } from "./dataModels/Action";
 import { iCalculateScore, calculateScore } from "./calculateScore";
 import { iRepository } from "./dataModels/iRepository";
@@ -31,7 +31,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
         }
 
         if (action.type == "add_score") {
-            let score = action.newData as iScore;
+            let score = action.newData as Score;
             if (!score.parentScoreId) {
                 const scoreTemp = await repository.getScore(action.dataId)
                 if (scoreTemp) {
@@ -172,9 +172,9 @@ async function createBlankMissingScores(repository: iRepository, currentScoreId:
 }
 
 //This function assume that all scores already exist
-async function calculateScoreDescendants(repository: iRepository, currentScore: iScore, calculator: iCalculateScore = calculateScore, actions: Action[]) {
+async function calculateScoreDescendants(repository: iRepository, currentScore: Score, calculator: iCalculateScore = calculateScore, actions: Action[]) {
     const oldChildScores = await repository.getChildrenByScoreId(currentScore.id)
-    const newChildScores: iScore[] = [];
+    const newChildScores: Score[] = [];
     let newDescendantCount = 0;
 
 
@@ -212,9 +212,9 @@ async function calculateScoreDescendants(repository: iRepository, currentScore: 
     return newScore;
 }
 
-async function calculateFractions(repository: iRepository, parentScore: iScore, actions: Action[]) {
+async function calculateFractions(repository: iRepository, parentScore: Score, actions: Action[]) {
     const oldChildScores = await repository.getChildrenByScoreId(parentScore.id)
-    const newScores: iScore[] = [];
+    const newScores: Score[] = [];
 
     //Count up total relevance
     let totalRelevance = 0

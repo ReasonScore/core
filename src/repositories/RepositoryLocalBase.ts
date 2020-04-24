@@ -1,9 +1,9 @@
 import { iClaimEdge } from "../dataModels/ClaimEdge";
-import { iScore } from "../dataModels/Score";
+import { Score } from "../dataModels/Score";
 import { RsData, iRsData } from "../dataModels/RsData";
 import { iAction } from "../dataModels/Action";
 import { iClaim } from "../dataModels/Claim";
-import { iScoreTree } from "../dataModels/ScoreTree";
+import { ScoreTree } from "../dataModels/ScoreTree";
 
 
 export class RepositoryLocalBase {
@@ -19,11 +19,11 @@ export class RepositoryLocalBase {
     async getClaimEdge(id: string): Promise<iClaimEdge | undefined> {
         return this.rsData.items[id] as iClaimEdge;
     }
-    async getScore(id: string): Promise<iScore | undefined> {
-        return this.rsData.items[id] as iScore;
+    async getScore(id: string): Promise<Score | undefined> {
+        return this.rsData.items[id] as Score;
     }
-    async getScoreTree(id: string): Promise<iScoreTree | undefined> {
-        return this.rsData.items[id] as iScoreTree;
+    async getScoreTree(id: string): Promise<ScoreTree | undefined> {
+        return this.rsData.items[id] as ScoreTree;
     }
     async getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]> {
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];
@@ -45,9 +45,9 @@ export class RepositoryLocalBase {
         }
         return claimEdges
     }
-    async getScoresBySourceId(sourceClaimId: string): Promise<iScore[]> {
+    async getScoresBySourceId(sourceClaimId: string): Promise<Score[]> {
         const scoreIdStrings = this.rsData.scoreIdsBySourceId[sourceClaimId];
-        const scores: iScore[] = [];
+        const scores: Score[] = [];
         if (scoreIdStrings) {
             for (const scoreIdString of scoreIdStrings) {
                 const score = await this.getScore(scoreIdString)
@@ -56,9 +56,9 @@ export class RepositoryLocalBase {
         }
         return scores
     }
-    async getChildrenByScoreId(parentScoreId: string): Promise<iScore[]> {
+    async getChildrenByScoreId(parentScoreId: string): Promise<Score[]> {
         const childIdStrings = this.rsData.childIdsByScoreId[parentScoreId];
-        const scores: iScore[] = [];
+        const scores: Score[] = [];
         if (childIdStrings) {
             for (const scoreIdString of childIdStrings) {
                 const score = await this.getScore(scoreIdString)
