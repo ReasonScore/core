@@ -25,8 +25,6 @@ export function calculateScore({ childScores = [], reversible = true }: {
         childrenConfidenceWeight: 0,
         childrenRelevanceWeight: 0,
         childrenWeight: 0,
-        childrenPointsPro: 0,
-        childrenPointsCon: 0,
     };
 
     if (childScores.filter(s => s.affects === 'confidence').length < 1) {
@@ -37,8 +35,6 @@ export function calculateScore({ childScores = [], reversible = true }: {
         newScore.childrenConfidenceWeight = 1;
         newScore.childrenRelevanceWeight = 1;
         newScore.childrenWeight = 1;
-        newScore.childrenPointsPro = 1;
-        newScore.childrenPointsCon = 0;
     }
 
     //Gather children Weights totals for processing further down
@@ -84,21 +80,6 @@ export function calculateScore({ childScores = [], reversible = true }: {
                 newScore.confidence +=
                     childScore.percentOfWeight *
                     childScore.confidence * polarity;
-
-                if (childScore.pro) {
-                    childScore.pointsPro = childScore.childrenPointsPro * childScore.percentOfWeight;
-                    childScore.pointsCon = childScore.childrenPointsCon * childScore.percentOfWeight;
-                } else {
-                    childScore.pointsPro = childScore.childrenPointsCon * childScore.percentOfWeight;
-                    childScore.pointsCon = childScore.childrenPointsPro * childScore.percentOfWeight;
-                }
-
-                // @ts-ignore
-                newScore.childrenPointsPro +=
-                    childScore.pointsPro;
-                // @ts-ignore
-                newScore.childrenPointsCon +=
-                    childScore.pointsCon;
             }
         }
 

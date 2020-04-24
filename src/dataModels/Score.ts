@@ -43,9 +43,5 @@ export class Score implements Item {
     public childrenWeight: number = 1;
     public weight: number = 1;
     public percentOfWeight: number = 1;
-    public pointsPro: number = 1;
-    public pointsCon: number = 0;
-    public childrenPointsPro: number = 0;
-    public childrenPointsCon: number = 0;
 }
 
