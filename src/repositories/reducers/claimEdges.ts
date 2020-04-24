@@ -1,10 +1,10 @@
-import { iAction } from "../../dataModels/Action"
-import { iRsData, IndexArray } from "../../dataModels/RsData"
+import { Action } from "../../dataModels/Action"
+import { RsData, IndexArray } from "../../dataModels/RsData"
 import { IndexReducer } from "./IndexReducer"
 import { ClaimEdge } from "../../dataModels/ClaimEdge";
 import { Score } from "../../dataModels/Score";
 
-export function claimEdges(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
+export function claimEdges(state: RsData, action: Action, reverse: boolean = false): RsData {
     switch (action.type) {
         case "add_claimEdge":
         case "modify_claimEdge":
@@ -21,7 +21,7 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
                 state = IndexReducer(state, "claimEdgeIdsByChildId", action.newData.childId, action.dataId);
                 state = IndexReducer(state, "claimEdgeIdsByParentId", action.newData.parentId, action.dataId);
 
-                return state as iRsData
+                return state as RsData
             }
         case "delete_claimEdge":
             {
@@ -44,14 +44,14 @@ export function claimEdges(state: iRsData, action: iAction, reverse: boolean = f
                     }
                     state = IndexDelete(state, state.scoreIdsBySourceId, score.sourceClaimId, scoreId);
                 }
-                return state as iRsData
+                return state as RsData
             }
         default:
             return state
     }
 }
 
-export function IndexDelete(state: any, index: IndexArray, keyId: string, id: string): iRsData {
+export function IndexDelete(state: any, index: IndexArray, keyId: string, id: string): RsData {
     const internalIndex = index[keyId]
     const location = internalIndex.indexOf(id, 0);
     if (location > -1) {

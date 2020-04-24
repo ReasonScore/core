@@ -1,9 +1,9 @@
 import { Score } from "./dataModels/Score";
-import { hasItemChanged } from "./hasItemChanged";
+import { hasItemChanged } from "./utils/hasItemChanged";
 import { Action } from "./dataModels/Action";
 import { iCalculateScore, calculateScore } from "./calculateScore";
 import { iRepository } from "./dataModels/iRepository";
-import { ClaimEdge, iClaimEdge } from "./dataModels/ClaimEdge";
+import { ClaimEdge } from "./dataModels/ClaimEdge";
 import { RepositoryLocalPure } from "./repositories/RepositoryLocalPure";
 import { ScoreTree } from ".";
 
@@ -45,7 +45,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
 
         //Add scores if edges adds new children to claims in score trees
         if (action.type == 'add_claimEdge' || action.type == 'modify_claimEdge') {
-            let claimEdge = action.newData as iClaimEdge;
+            let claimEdge = action.newData as ClaimEdge;
             if (!claimEdge.parentId) {
                 const claimEdgeTemp = await repository.getClaimEdge(action.dataId)
                 if (claimEdgeTemp) {

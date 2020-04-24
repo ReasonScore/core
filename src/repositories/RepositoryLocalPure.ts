@@ -1,5 +1,5 @@
-import { iAction } from "../dataModels/Action";
-import { RsData, iRsData } from "../dataModels/RsData";
+import { Action } from "../dataModels/Action";
+import { RsData } from "../dataModels/RsData";
 import { iRepository } from "../dataModels/iRepository";
 import { claims } from "./reducers/claims";
 import { claimEdges } from "./reducers/claimEdges";
@@ -11,12 +11,12 @@ import { scoreTrees } from "./reducers/scoresTrees";
 export class RepositoryLocalPure extends RepositoryLocalBase implements iRepository {
 
     constructor(
-        public rsData: iRsData = new RsData()
+        public rsData: RsData = new RsData()
     ) {
         super(rsData);
     }
 
-    async notify(actions: iAction[]) {
+    async notify(actions: Action[]) {
         //this.rsData.actionsLog.push({actions:actions}); TODO: put logs back in
         for (const action of actions) {
             this.rsData = claims(this.rsData, action);

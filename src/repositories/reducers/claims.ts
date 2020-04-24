@@ -1,7 +1,7 @@
-import { iAction } from "../../dataModels/Action"
-import { iRsData } from "../../dataModels/RsData"
+import { Action } from "../../dataModels/Action"
+import { RsData } from "../../dataModels/RsData"
 
-export function claims(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
+export function claims(state: RsData, action: Action, reverse: boolean = false): RsData {
     switch (action.type) {
         case "add_claim":
         case "sync_claim":
@@ -12,7 +12,7 @@ export function claims(state: iRsData, action: iAction, reverse: boolean = false
                         ...state.items,
                         [action.dataId]: action.newData
                     }
-                } as iRsData
+                } as RsData
             }
         case "modify_claim":
             {
@@ -25,7 +25,7 @@ export function claims(state: iRsData, action: iAction, reverse: boolean = false
                             ...action.newData,
                         }
                     }
-                } as iRsData
+                } as RsData
             }
 
         // TODO: Handle reverse (Or save state somewhere, would that be too large?)

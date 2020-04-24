@@ -1,23 +1,23 @@
-import { iClaimEdge } from "../dataModels/ClaimEdge";
+import { ClaimEdge } from "../dataModels/ClaimEdge";
 import { Score } from "../dataModels/Score";
-import { RsData, iRsData } from "../dataModels/RsData";
-import { iAction } from "../dataModels/Action";
-import { iClaim } from "../dataModels/Claim";
+import { RsData } from "../dataModels/RsData";
+import { Action } from "../dataModels/Action";
+import { Claim } from "../dataModels/Claim";
 import { ScoreTree } from "../dataModels/ScoreTree";
 
 
 export class RepositoryLocalBase {
 
     constructor(
-        public rsData: iRsData = new RsData()
+        public rsData: RsData = new RsData()
     ) {
     }
 
-    async getClaim(id: string): Promise<iClaim | undefined> {
-        return this.rsData.items[id] as iClaim;
+    async getClaim(id: string): Promise<Claim | undefined> {
+        return this.rsData.items[id] as Claim;
     }
-    async getClaimEdge(id: string): Promise<iClaimEdge | undefined> {
-        return this.rsData.items[id] as iClaimEdge;
+    async getClaimEdge(id: string): Promise<ClaimEdge | undefined> {
+        return this.rsData.items[id] as ClaimEdge;
     }
     async getScore(id: string): Promise<Score | undefined> {
         return this.rsData.items[id] as Score;
@@ -25,9 +25,9 @@ export class RepositoryLocalBase {
     async getScoreTree(id: string): Promise<ScoreTree | undefined> {
         return this.rsData.items[id] as ScoreTree;
     }
-    async getClaimEdgesByParentId(parentId: string): Promise<iClaimEdge[]> {
+    async getClaimEdgesByParentId(parentId: string): Promise<ClaimEdge[]> {
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByParentId[parentId];
-        const claimEdges: iClaimEdge[] = [];
+        const claimEdges: ClaimEdge[] = [];
         if (claimEdgeIdStrings) {
             for (const claimEdgeIdString of claimEdgeIdStrings) {
                 const claimEdge = await this.getClaimEdge(claimEdgeIdString)
@@ -36,9 +36,9 @@ export class RepositoryLocalBase {
         }
         return claimEdges
     }
-    async getClaimEdgesByChildId(childId: string): Promise<iClaimEdge[]> {
+    async getClaimEdgesByChildId(childId: string): Promise<ClaimEdge[]> {
         const claimEdgeIdStrings = this.rsData.claimEdgeIdsByChildId[childId];
-        const claimEdges: iClaimEdge[] = [];
+        const claimEdges: ClaimEdge[] = [];
         for (const claimEdgeIdString of claimEdgeIdStrings) {
             const claimEdge = await this.getClaimEdge(claimEdgeIdString)
             if (claimEdge) claimEdges.push(claimEdge)
@@ -67,6 +67,6 @@ export class RepositoryLocalBase {
         }
         return scores
     }
-    public readonly log: iAction[][] = [];
+    public readonly log: Action[][] = [];
 
 }

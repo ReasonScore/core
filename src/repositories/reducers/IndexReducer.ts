@@ -1,5 +1,5 @@
-import { iRsData } from "../../dataModels/RsData";
-export function IndexReducer(state: any, index: string, keyId: string | undefined, id: string): iRsData {
+import { RsData } from "../../dataModels/RsData";
+export function IndexReducer(state: any, index: string, keyId: string | undefined, id: string): RsData {
     if (keyId) {
         //TODO: remove this, can I use "...state[index][keyId] || []" below?
         if (!state[index][keyId]) {

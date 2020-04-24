@@ -1,9 +1,9 @@
-import { iAction } from "../../dataModels/Action"
-import { iRsData } from "../../dataModels/RsData"
+import { Action } from "../../dataModels/Action"
+import { RsData } from "../../dataModels/RsData"
 import { Score } from "../../dataModels/Score"
 import { IndexReducer } from "./IndexReducer";
 
-export function scores(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
+export function scores(state: RsData, action: Action, reverse: boolean = false): RsData {
     switch (action.type) {
         case "add_score":
         case "modify_score":
@@ -28,7 +28,7 @@ export function scores(state: iRsData, action: iAction, reverse: boolean = false
                 state = IndexReducer(state, "childIdsByScoreId", score.parentScoreId, action.dataId);
                 state = IndexReducer(state, "scoreIdsBySourceId", score.sourceClaimId, action.dataId);
                 state = IndexReducer(state, "scoreIdsBySourceId", score.sourceEdgeId, action.dataId);
-                return state as iRsData
+                return state as RsData
             }
         default:
             return state

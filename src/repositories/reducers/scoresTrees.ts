@@ -1,8 +1,8 @@
-import { iAction } from "../../dataModels/Action"
-import { iRsData } from "../../dataModels/RsData"
+import { Action } from "../../dataModels/Action"
+import { RsData } from "../../dataModels/RsData"
 import { ScoreTree } from "../../dataModels/ScoreTree";
 
-export function scoreTrees(state: iRsData, action: iAction, reverse: boolean = false): iRsData {
+export function scoreTrees(state: RsData, action: Action, reverse: boolean = false): RsData {
     switch (action.type) {
         case "add_scoreTree":
         case "modify_scoreTree":
@@ -32,7 +32,7 @@ export function scoreTrees(state: iRsData, action: iAction, reverse: boolean = f
                     };
                 }
         
-                return state as iRsData
+                return state as RsData
             }
         default:
             return state

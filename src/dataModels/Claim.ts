@@ -1,8 +1,8 @@
 import { ItemTypes } from "./ItemTypes";
 import { newId } from "../newId";
-import { Item } from "..";
+import { Item } from "./Item";
 
-export class Claim implements iClaim, Item {
+export class Claim implements Item {
     type: ItemTypes = 'claim'
 
     constructor(
@@ -12,13 +12,3 @@ export class Claim implements iClaim, Item {
     ) {
     }
 }
-
-export interface iClaim {
-    type: ItemTypes,
-    id: string,
-    reversible: boolean,
-    /** allow for other properties by external implementations */
-    // [others: string]: any;
-}
-
-

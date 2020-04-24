@@ -1,4 +1,4 @@
-import { Item } from "./dataModels/Item";
+import { Item } from "../dataModels/Item";
 /** Compare two scores to see if they are different in what the score is.
  *  Just compares confidence and relavance
  */
