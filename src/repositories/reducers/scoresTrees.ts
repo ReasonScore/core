@@ -1,18 +1,19 @@
 import { Action } from "../../dataModels/Action"
 import { RsData } from "../../dataModels/RsData"
 import { ScoreTree } from "../../dataModels/ScoreTree";
+import { IndexReducer } from "./IndexReducer";
 
 export function scoreTrees(state: RsData, action: Action, reverse: boolean = false): RsData {
     switch (action.type) {
         case "add_scoreTree":
         case "modify_scoreTree":
             {
-                // Since the score data might just be some of the data we need to get the current score and combine them
-                const originalItem = state.items[action.dataId];
-                let newItem = action.newData as ScoreTree
-                if (originalItem) {
-                    newItem = { ...originalItem, ...newItem }
+                let newItem = state.items[action.dataId] as ScoreTree
+                if (!newItem) {
+                    newItem = new ScoreTree("", "")
+                    newItem.id = action.dataId
                 }
+                newItem = { ...newItem, ...action.newData }
 
                 state = {
                     ...state,
@@ -22,16 +23,8 @@ export function scoreTrees(state: RsData, action: Action, reverse: boolean = fal
                     }
                 }
 
-                if (state.ScoreTreeIds.indexOf(action.dataId) == -1) {
-                    state = {
-                        ...state,
-                        ScoreTreeIds: [
-                            ...state.ScoreTreeIds,
-                            action.dataId
-                        ]
-                    };
-                }
-        
+                //TODO: Do I need to stop recreating the state so many times in this reducer?
+                state = IndexReducer(state, "ScoreTreeIds", newItem.id, action.dataId);
                 return state as RsData
             }
         default:

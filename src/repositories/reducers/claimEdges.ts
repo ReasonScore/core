@@ -10,18 +10,24 @@ export function claimEdges(state: RsData, action: Action, reverse: boolean = fal
         case "modify_claimEdge":
         case "sync_claimEdge":
             {
+                let newItem = state.items[action.dataId] as ClaimEdge
+                if (!newItem){
+                    newItem = new ClaimEdge("","")
+                    newItem.id = action.dataId
+                }
+                newItem = {...newItem, ...action.newData}
+
                 state = {
                     ...state,
                     items: {
                         ...state.items,
-                        [action.dataId]: { ...state.items[action.dataId], ...action.newData },
+                        [action.dataId]: newItem,
                     }
                 }
 
-                state = IndexReducer(state, "claimEdgeIdsByChildId", action.newData.childId, action.dataId);
-                state = IndexReducer(state, "claimEdgeIdsByParentId", action.newData.parentId, action.dataId);
-
-                return state as RsData
+                state = IndexReducer(state, "claimEdgeIdsByChildId", newItem.childId, action.dataId);
+                state = IndexReducer(state, "claimEdgeIdsByParentId", newItem.parentId, action.dataId);
+                return state
             }
         case "delete_claimEdge":
             {
@@ -44,7 +50,7 @@ export function claimEdges(state: RsData, action: Action, reverse: boolean = fal
                     }
                     state = IndexDelete(state, state.scoreIdsBySourceId, score.sourceClaimId, scoreId);
                 }
-                return state as RsData
+                return state
             }
         default:
             return state

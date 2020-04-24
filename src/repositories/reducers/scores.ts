@@ -9,26 +9,26 @@ export function scores(state: RsData, action: Action, reverse: boolean = false):
         case "modify_score":
         case "sync_score":
             {
-                // Since the score data might just be some of the data we need to get the current score and combine them
-                const originalScore = state.items[action.dataId];
-                let score = action.newData as Score
-                if (originalScore) {
-                    score = { ...originalScore, ...score }
+                let newItem = state.items[action.dataId] as Score
+                if (!newItem){
+                    newItem = new Score("","")
+                    newItem.id = action.dataId
                 }
+                newItem = {...newItem, ...action.newData}
 
                 state = {
                     ...state,
                     items: {
                         ...state.items,
-                        [action.dataId]: score,
+                        [action.dataId]: newItem,
                     }
                 }
 
                 //TODO: Do I need to stop recreating the state so many times in this reducer?
-                state = IndexReducer(state, "childIdsByScoreId", score.parentScoreId, action.dataId);
-                state = IndexReducer(state, "scoreIdsBySourceId", score.sourceClaimId, action.dataId);
-                state = IndexReducer(state, "scoreIdsBySourceId", score.sourceEdgeId, action.dataId);
-                return state as RsData
+                state = IndexReducer(state, "childIdsByScoreId", newItem.parentScoreId, action.dataId);
+                state = IndexReducer(state, "scoreIdsBySourceId", newItem.sourceClaimId, action.dataId);
+                state = IndexReducer(state, "scoreIdsBySourceId", newItem.sourceEdgeId, action.dataId);
+                return state
             }
         default:
             return state
