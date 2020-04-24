@@ -11,6 +11,7 @@ export declare class ScoreTree implements iScoreTree, Item {
     /** how confident we sould be in the claim. (AKA True) */
     confidence: number;
     id: string;
+    descendantCount: number;
     type: ItemTypes;
     constructor(
     /** The claim to which this score belongs */
@@ -18,7 +19,7 @@ export declare class ScoreTree implements iScoreTree, Item {
     /** The top of the tree of scores that this belongs to. Used for indexing */
     topScoreId: string, 
     /** how confident we sould be in the claim. (AKA True) */
-    confidence?: number, id?: string);
+    confidence?: number, id?: string, descendantCount?: number);
 }
 export interface iScoreTree {
     /** The claim to which this score belongs */
@@ -29,4 +30,5 @@ export interface iScoreTree {
     confidence: number;
     id: string;
     type: ItemTypes;
+    descendantCount: number;
 }

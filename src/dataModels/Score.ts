@@ -5,7 +5,7 @@ import { ItemTypes } from "..";
 /**
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  */
-export class Score implements iScore, iScoreFragment, Item {
+export class Score implements iScore, Item {
     type: ItemTypes = 'score'
 
     constructor(
@@ -101,34 +101,4 @@ export interface iScore {
     pointsCon: number,
     childrenPointsPro: number,
     childrenPointsCon: number,
-}
-
-export interface iScoreFragment {
-    reversible?: boolean,
-    /** Is this score a pro of it's parent (false if it is a con) */
-    pro?: boolean,
-    /** How the child affects the parent score */
-    affects?: Affects,
-    /** how confident we sould be in the claim. (AKA True) */
-    confidence?: number,
-    /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
-     * A multiplier set by all the child edges that affect 'relevance'*/
-    relevance?: number,
-    priority?: string,
-    /** What fraction of tree is this score and it's descendants responsible for */
-    fraction?: number,
-    descendantCount?: number,
-    /** allow for other properties by external implementations */
-    // [others: string]: any;
-
-    childrenAveragingWeight?: number,
-    childrenConfidenceWeight?: number,
-    childrenRelevanceWeight?: number,
-    childrenWeight?: number,
-    weight?: number,
-    percentOfWeight?: number,
-    pointsPro?: number,
-    pointsCon?: number,
-    childrenPointsPro?: number,
-    childrenPointsCon?: number,
 }

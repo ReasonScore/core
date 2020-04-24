@@ -4,7 +4,7 @@ import { calculateScore } from "../calculateScore";
 import { Claim } from "../dataModels/Claim";
 import { Action, iAction } from "../dataModels/Action";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { Score, iScoreFragment, iScore } from "../dataModels/Score";
+import { Score, iScore } from "../dataModels/Score";
 import { ScoreTree } from "../dataModels/ScoreTree";
 
 const u = undefined, pro = true, con = false
