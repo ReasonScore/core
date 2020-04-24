@@ -6,7 +6,6 @@ import { Action, iAction } from "../dataModels/Action";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
 import { Score, iScoreFragment, iScore } from "../dataModels/Score";
 import { ScoreTree } from "../dataModels/ScoreTree";
-//import { RepositoryLocalReactive } from "../repositories/RepositoryLocalReactive";
 
 const u = undefined, pro = true, con = false
 
@@ -131,10 +130,8 @@ test('Complex Test', async () => {
     repository: repository
   })
 
-  //await repository.notify(changedScores);
   expect((repository.rsData.items["testTopScore"] as iScore).confidence).toEqual(1);
   expect(repository.rsData.scoreIdsBySourceId["topTestClaim"].length).toEqual(1);
-
 
   //Weird score not changing
   const ChildClaim1ScoresInitial = await repository.getScoresBySourceId("ChildClaim1")
@@ -169,15 +166,8 @@ test('Complex Test', async () => {
     repository: repository
   })
 
-  //await repository.notify(changedScores2);
   const ChildClaim1Scores = await repository.getScoresBySourceId("ChildClaim1")
   expect(ChildClaim1Scores[0].pro).toEqual(true);
-
-  expect(changedScores2.length).toEqual(1);
-
-
-  //TODO: Do I want to check all indexes for duplicate indexed items?
-
 });
 
 test('Partial Claim Edge Grandchild Update', async () => {
@@ -474,8 +464,6 @@ test('Points Tests', async () => {
     repository: repository
   })
 
-  debugger
-
   let results: [string, any][], expectations: [string, any][]
   results = []
   expectations = [
@@ -489,6 +477,49 @@ test('Points Tests', async () => {
     ["ChildClaim1.pointsCon", 0.04761904761904762],
     ["topTestClaim.childrenPointsPro", 0.5238095238095238],
     ["topTestClaim.childrenPointsCon", 0.4761904761904762],
+  ]
+  for (const expectation of expectations) {
+    const source = expectation[0].split(".");
+    const tempResult = (await repository.getScoresBySourceId(source[0])) as any;
+    results.push([
+      expectation[0],
+      (tempResult[0])[source[1]]
+    ])
+  }
+  expect(results).toMatchObject(expectations);
+});
+
+test('Descendant Count Tests', async () => {
+  const repository = new RepositoryLocalPure();
+  let result;
+  await calculateScoreActions({
+    actions: [
+      new Action(new Claim("Top Claim", "topTestClaim"), u, "add_claim"),
+      new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+      new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+      new Action(new Claim("Child Claim 3", "ChildClaim3"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 2", "grandChild2"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 3", "grandChild3"), u, "add_claim"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, pro, "ChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim2", u, pro, "ChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim3", u, con, "ChildClaim3Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild1", u, pro, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild2", u, pro, "GrandChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild3", u, con, "GrandChildClaim3Edge"), u, "add_claimEdge"),
+      new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree"),
+    ],
+    repository: repository
+  })
+
+  expect((repository.rsData.items["testScoreTree"] as ScoreTree).descendantCount).toEqual(6);
+
+  let results: [string, any][], expectations: [string, any][]
+  results = []
+  expectations = [
+    ["topTestClaim.descendantCount", 6],
+    ["ChildClaim1.descendantCount", 3],
+    ["ChildClaim2.descendantCount", 0],
   ]
   for (const expectation of expectations) {
     const source = expectation[0].split(".");

@@ -15,6 +15,7 @@ export class ScoreTree implements iScoreTree, Item {
         /** how confident we sould be in the claim. (AKA True) */
         public confidence: number = 1,
         public id: string = newId(),
+        public descendantCount: number = 0,
     ) {
     }
 }
@@ -28,6 +29,8 @@ export interface iScoreTree {
     confidence: number,
     id: string,
     type: ItemTypes,
+    descendantCount: number,
+
     /** allow for other properties by external implementations */
     // [others: string]: any;
 }

@@ -52,8 +52,7 @@ export class Score implements iScore, iScoreFragment, Item {
 /** Compare two scores to see if they are different in what the score is.
  *  Just compares confidence and relavance
  */
-export function differentScores(scoreA: iScore, scoreB: iScore) {
-
+export function hasItemChanged(scoreA: Item, scoreB: Item) {
     return !(
         JSON.stringify(scoreA, Object.keys(scoreA).sort()) ===
         JSON.stringify(scoreB, Object.keys(scoreB).sort())

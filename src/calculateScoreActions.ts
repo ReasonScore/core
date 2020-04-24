@@ -1,4 +1,4 @@
-import { Score, differentScores, iScore } from "./dataModels/Score";
+import { Score, hasItemChanged, iScore } from "./dataModels/Score";
 import { Action } from "./dataModels/Action";
 import { iCalculateScore, calculateScore } from "./calculateScore";
 import { iRepository } from "./dataModels/iRepository";
@@ -107,11 +107,11 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
         if (scoreTree) {
             const missingScoreActions: Action[] = [];
 
-            let topScore = await repository.getScore(scoreTree.topScoreId);
-            if (!topScore) {
-                topScore = new Score(scoreTree.sourceClaimId, scoreTree.id);
-                topScore.id = scoreTree.topScoreId;
-                missingScoreActions.push(new Action(topScore, undefined, "add_score"));
+            let mainScore = await repository.getScore(scoreTree.topScoreId);
+            if (!mainScore) {
+                mainScore = new Score(scoreTree.sourceClaimId, scoreTree.id);
+                mainScore.id = scoreTree.topScoreId;
+                missingScoreActions.push(new Action(mainScore, undefined, "add_score"));
             }
 
             await createBlankMissingScores(repository, scoreTree.topScoreId, scoreTree.sourceClaimId || "", missingScoreActions, scoreTreeId)
@@ -120,20 +120,30 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             }
 
             const scoreTreeActions: Action[] = [];
-            await calculateScoreDescendants(repository, topScore, calculator, scoreTreeActions);
+            const newMainScore = await calculateScoreDescendants(repository, mainScore, calculator, scoreTreeActions);
             if (missingScoreActions.length > 0) {
                 await repository.notify(scoreTreeActions)
             }
 
             const fractionActions: Action[] = [];
-            await calculateFractions(repository, topScore, fractionActions)
+            await calculateFractions(repository, mainScore, fractionActions)
             if (fractionActions.length > 0) {
                 await repository.notify(fractionActions)
             }
+
             scoreActions.push(
                 ...missingScoreActions,
                 ...scoreTreeActions,
-                ...fractionActions)
+                ...fractionActions,
+            )
+
+            if (scoreTree.descendantCount != newMainScore.descendantCount){
+                let newScoreTreePartial: Partial<ScoreTree> = { descendantCount: newMainScore.descendantCount}
+                let oldScoreTreePartial: Partial<ScoreTree> = { descendantCount: scoreTree.descendantCount}
+                scoreActions.push(
+                    new Action(newScoreTreePartial,oldScoreTreePartial,"modify_scoreTree",scoreTree.id)
+                )
+            }
         }
     }
 
@@ -184,7 +194,7 @@ async function calculateScoreDescendants(repository: iRepository, currentScore: 
     for (const newChildScore of newChildScores) {
         // TODO: Is this slow accessing the data store again for this data or do we assume it is cached if it is in an external DB
         const oldChildScore = await repository.getScore(newChildScore.id);
-        if (oldChildScore && differentScores(oldChildScore, newChildScore)) {
+        if (oldChildScore && hasItemChanged(oldChildScore, newChildScore)) {
             actions.push(new Action(newChildScore, undefined, "modify_score"));
         }
     }
@@ -195,7 +205,7 @@ async function calculateScoreDescendants(repository: iRepository, currentScore: 
         ...newScoreFragment,
         descendantCount: newDescendantCount
     }
-    if (differentScores(currentScore, newScore)) {
+    if (hasItemChanged(currentScore, newScore)) {
         actions.push(new Action(newScore, undefined, "modify_score"));
     }
 
