@@ -132,17 +132,24 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
                 await repository.notify(fractionActions)
             }
 
+            const generationActions: Action[] = [];
+            await calculateGenerations(repository, mainScore.id, generationActions,0)
+            if (generationActions.length > 0) {
+                await repository.notify(generationActions)
+            }
+
             scoreActions.push(
                 ...missingScoreActions,
                 ...scoreTreeActions,
                 ...fractionActions,
+                ...generationActions,
             )
 
-            if (scoreTree.descendantCount != newMainScore.descendantCount){
-                let newScoreTreePartial: Partial<ScoreTree> = { descendantCount: newMainScore.descendantCount}
-                let oldScoreTreePartial: Partial<ScoreTree> = { descendantCount: scoreTree.descendantCount}
+            if (scoreTree.descendantCount != newMainScore.descendantCount) {
+                let newScoreTreePartial: Partial<ScoreTree> = { descendantCount: newMainScore.descendantCount }
+                let oldScoreTreePartial: Partial<ScoreTree> = { descendantCount: scoreTree.descendantCount }
                 scoreActions.push(
-                    new Action(newScoreTreePartial,oldScoreTreePartial,"modify_scoreTree",scoreTree.id)
+                    new Action(newScoreTreePartial, oldScoreTreePartial, "modify_scoreTree", scoreTree.id)
                 )
             }
         }
@@ -177,8 +184,6 @@ async function calculateScoreDescendants(repository: iRepository, currentScore: 
     const oldChildScores = await repository.getChildrenByScoreId(currentScore.id)
     const newChildScores: Score[] = [];
     let newDescendantCount = 0;
-
-
 
     for (const oldChildScore of oldChildScores) { //Calculate Children
         //TODO: remove any scores to calculate based on formulas that exclude scores
@@ -215,7 +220,6 @@ async function calculateScoreDescendants(repository: iRepository, currentScore: 
 
 async function calculateFractions(repository: iRepository, parentScore: Score, actions: Action[]) {
     const oldChildScores = await repository.getChildrenByScoreId(parentScore.id)
-    const newScores: Score[] = [];
 
     //Count up total relevance
     let totalRelevance = 0
@@ -229,12 +233,31 @@ async function calculateFractions(repository: iRepository, parentScore: Score, a
     }
 
     for (const oldChildScore of oldChildScores) {
-        const newChildFraction = (oldChildScore.relevance / totalRelevance) * parentScore.fraction
-        const newChildScore = { ...oldChildScore, fraction: newChildFraction }
-        if (newChildFraction != oldChildScore.fraction) {
+        const newChildScore = { ...oldChildScore,
+             fractionOld: (oldChildScore.relevance / totalRelevance) * parentScore.fractionOld,
+            fraction: parentScore.fraction * oldChildScore.percentOfWeight
+        }
+        if (newChildScore.fractionOld != oldChildScore.fractionOld ||
+            newChildScore.fraction != oldChildScore.fraction) {
             actions.push(new Action(newChildScore, undefined, "modify_score"));
         }
         await calculateFractions(repository, newChildScore, actions)
 
+    }
+
+
+}
+
+// TODO: factor out duplicate code of these calculate functions. maybe mae an array of items to process...
+async function calculateGenerations(repository: iRepository, parentScoreId: string, actions: Action[], generation: number) {
+    const oldChildScores = await repository.getChildrenByScoreId(parentScoreId)
+    generation++;
+
+    for (const oldChildScore of oldChildScores) {
+        if (oldChildScore.generation != generation) {
+            const newChildScore = { ...oldChildScore, generation: generation }
+            actions.push(new Action(newChildScore, undefined, "modify_score"));
+        }
+        await calculateGenerations(repository, oldChildScore.id, actions, generation)
     }
 }

@@ -483,3 +483,48 @@ test('Descendant Count Tests', async () => {
   }
   expect(results).toMatchObject(expectations);
 });
+
+test('Generation Count Tests', async () => {
+  const repository = new RepositoryLocalPure();
+  let result;
+  await calculateScoreActions({
+    actions: [
+      new Action(new Claim("Top Claim", "topTestClaim"), u, "add_claim"),
+      new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+      new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+      new Action(new Claim("Child Claim 3", "ChildClaim3"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 2", "grandChild2"), u, "add_claim"),
+      new Action(new Claim("Grandchild Claim 3", "grandChild3"), u, "add_claim"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, pro, "ChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim2", u, pro, "ChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim3", u, con, "ChildClaim3Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild1", u, pro, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild2", u, pro, "GrandChildClaim2Edge"), u, "add_claimEdge"),
+      new Action(new ClaimEdge("ChildClaim1", "grandChild3", u, con, "GrandChildClaim3Edge"), u, "add_claimEdge"),
+      new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree"),
+    ],
+    repository: repository
+  })
+
+  expect((repository.rsData.items["testScoreTree"] as ScoreTree).descendantCount).toEqual(6);
+
+  let results: [string, any][], expectations: [string, any][]
+  results = []
+  expectations = [
+    ["topTestClaim.generation", 0],
+    ["ChildClaim1.generation", 1],
+    ["ChildClaim2.generation", 1],
+    ["grandChild1.generation", 2],
+    ["grandChild2.generation", 2],
+  ]
+  for (const expectation of expectations) {
+    const source = expectation[0].split(".");
+    const tempResult = (await repository.getScoresBySourceId(source[0])) as any;
+    results.push([
+      expectation[0],
+      (tempResult[0])[source[1]]
+    ])
+  }
+  expect(results).toMatchObject(expectations);
+});
