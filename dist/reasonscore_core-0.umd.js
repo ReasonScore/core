@@ -54,6 +54,8 @@ function calculateScore({
   } // Loop through to calculate the final scores
 
 
+  debugger;
+
   for (const childScore of childScores) {
     const polarity = childScore.pro ? 1 : -1;
 
@@ -62,7 +64,6 @@ function calculateScore({
         childScore.percentOfWeight = 0;
         newScore.confidence = 0;
       } else {
-        // @ts-ignore
         childScore.percentOfWeight = childScore.weight / // @ts-ignore
         newScore.childrenWeight; // @ts-ignore
 
@@ -198,7 +199,7 @@ function newId(when = new Date()) {
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  */
 class Score {
-  constructor(sourceClaimId, scoreTreeId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "", fraction = 1, descendantCount = 0) {
+  constructor(sourceClaimId, scoreTreeId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "") {
     this.sourceClaimId = sourceClaimId;
     this.scoreTreeId = scoreTreeId;
     this.parentScoreId = parentScoreId;
@@ -211,10 +212,16 @@ class Score {
     this.id = id;
     this.priority = priority;
     this.content = content;
-    this.fraction = fraction;
-    this.descendantCount = descendantCount;
 
     _defineProperty(this, "type", 'score');
+
+    _defineProperty(this, "descendantCount", 0);
+
+    _defineProperty(this, "generation", 0);
+
+    _defineProperty(this, "fractionSimple", 1);
+
+    _defineProperty(this, "fraction", 1);
 
     _defineProperty(this, "childrenAveragingWeight", 1);
 
@@ -227,6 +234,8 @@ class Score {
     _defineProperty(this, "weight", 1);
 
     _defineProperty(this, "percentOfWeight", 1);
+
+    _defineProperty(this, "cancelledFraction", 0);
   }
 
 }
@@ -267,27 +276,37 @@ class RsData {
 
 }
 
+class Claim {
+  constructor(content = "", id = newId(), reversible = false) {
+    this.content = content;
+    this.id = id;
+    this.reversible = reversible;
+
+    _defineProperty(this, "type", 'claim');
+  }
+
+}
+
 function claims(state, action, reverse = false) {
   switch (action.type) {
     case "add_claim":
     case "sync_claim":
-      {
-        return _objectSpread2({}, state, {
-          items: _objectSpread2({}, state.items, {
-            [action.dataId]: action.newData
-          })
-        });
-      }
-
     case "modify_claim":
       {
+        let newItem = state.items[action.dataId];
+
+        if (!newItem) {
+          newItem = new Claim("", "");
+          newItem.id = action.dataId;
+        }
+
+        newItem = _objectSpread2({}, newItem, {}, action.newData);
         return _objectSpread2({}, state, {
           items: _objectSpread2({}, state.items, {
-            [action.dataId]: _objectSpread2({}, state.items[action.dataId], {}, action.newData)
+            [action.dataId]: newItem
           })
         });
       }
-    // TODO: Handle reverse (Or save state somewhere, would that be too large?)
 
     default:
       return state;
@@ -313,19 +332,48 @@ function IndexReducer(state, index, keyId, id) {
   return state;
 }
 
+/**
+ * Stores the relationship between a claim and an item (usually another claim).
+ * This is directional as the edge points from one claim to it's parent.
+ * This is just a data transfer object so it should have no logic in it
+ * and only JSON compatible types string, number, object, array, boolean
+ */
+
+class ClaimEdge {
+  constructor(parentId, childId, affects = 'confidence', pro = true, id = newId(), priority = "") {
+    this.parentId = parentId;
+    this.childId = childId;
+    this.affects = affects;
+    this.pro = pro;
+    this.id = id;
+    this.priority = priority;
+
+    _defineProperty(this, "type", 'claimEdge');
+  }
+
+}
+
 function claimEdges(state, action, reverse = false) {
   switch (action.type) {
     case "add_claimEdge":
     case "modify_claimEdge":
     case "sync_claimEdge":
       {
+        let newItem = state.items[action.dataId];
+
+        if (!newItem) {
+          newItem = new ClaimEdge("", "");
+          newItem.id = action.dataId;
+        }
+
+        newItem = _objectSpread2({}, newItem, {}, action.newData);
         state = _objectSpread2({}, state, {
           items: _objectSpread2({}, state.items, {
-            [action.dataId]: _objectSpread2({}, state.items[action.dataId], {}, action.newData)
+            [action.dataId]: newItem
           })
         });
-        state = IndexReducer(state, "claimEdgeIdsByChildId", action.newData.childId, action.dataId);
-        state = IndexReducer(state, "claimEdgeIdsByParentId", action.newData.parentId, action.dataId);
+        state = IndexReducer(state, "claimEdgeIdsByChildId", newItem.childId, action.dataId);
+        state = IndexReducer(state, "claimEdgeIdsByParentId", newItem.parentId, action.dataId);
         return state;
       }
 
@@ -456,23 +504,23 @@ function scores(state, action, reverse = false) {
     case "modify_score":
     case "sync_score":
       {
-        // Since the score data might just be some of the data we need to get the current score and combine them
-        const originalScore = state.items[action.dataId];
-        let score = action.newData;
+        let newItem = state.items[action.dataId];
 
-        if (originalScore) {
-          score = _objectSpread2({}, originalScore, {}, score);
+        if (!newItem) {
+          newItem = new Score("", "");
+          newItem.id = action.dataId;
         }
 
+        newItem = _objectSpread2({}, newItem, {}, action.newData);
         state = _objectSpread2({}, state, {
           items: _objectSpread2({}, state.items, {
-            [action.dataId]: score
+            [action.dataId]: newItem
           })
         }); //TODO: Do I need to stop recreating the state so many times in this reducer?
 
-        state = IndexReducer(state, "childIdsByScoreId", score.parentScoreId, action.dataId);
-        state = IndexReducer(state, "scoreIdsBySourceId", score.sourceClaimId, action.dataId);
-        state = IndexReducer(state, "scoreIdsBySourceId", score.sourceEdgeId, action.dataId);
+        state = IndexReducer(state, "childIdsByScoreId", newItem.parentScoreId, action.dataId);
+        state = IndexReducer(state, "scoreIdsBySourceId", newItem.sourceClaimId, action.dataId);
+        state = IndexReducer(state, "scoreIdsBySourceId", newItem.sourceEdgeId, action.dataId);
         return state;
       }
 
@@ -481,31 +529,42 @@ function scores(state, action, reverse = false) {
   }
 }
 
+/**
+ * Represents an intentional top of a tree of scores.
+ */
+class ScoreTree {
+  constructor(sourceClaimId, topScoreId, confidence = 1, id = newId(), descendantCount = 0) {
+    this.sourceClaimId = sourceClaimId;
+    this.topScoreId = topScoreId;
+    this.confidence = confidence;
+    this.id = id;
+    this.descendantCount = descendantCount;
+
+    _defineProperty(this, "type", 'scoreTree');
+  }
+
+}
+
 function scoreTrees(state, action, reverse = false) {
   switch (action.type) {
     case "add_scoreTree":
     case "modify_scoreTree":
       {
-        // Since the score data might just be some of the data we need to get the current score and combine them
-        const originalItem = state.items[action.dataId];
-        let newItem = action.newData;
+        let newItem = state.items[action.dataId];
 
-        if (originalItem) {
-          newItem = _objectSpread2({}, originalItem, {}, newItem);
+        if (!newItem) {
+          newItem = new ScoreTree("", "");
+          newItem.id = action.dataId;
         }
 
+        newItem = _objectSpread2({}, newItem, {}, action.newData);
         state = _objectSpread2({}, state, {
           items: _objectSpread2({}, state.items, {
             [action.dataId]: newItem
           })
-        });
+        }); //TODO: Do I need to stop recreating the state so many times in this reducer?
 
-        if (state.ScoreTreeIds.indexOf(action.dataId) == -1) {
-          state = _objectSpread2({}, state, {
-            ScoreTreeIds: [...state.ScoreTreeIds, action.dataId]
-          });
-        }
-
+        state = IndexReducer(state, "ScoreTreeIds", newItem.id, action.dataId);
         return state;
       }
 
@@ -660,7 +719,14 @@ async function calculateScoreActions({
         await repository.notify(fractionActions);
       }
 
-      scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions);
+      const generationActions = [];
+      await calculateGenerations(repository, mainScore.id, generationActions, 0);
+
+      if (generationActions.length > 0) {
+        await repository.notify(generationActions);
+      }
+
+      scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions, ...generationActions);
 
       if (scoreTree.descendantCount != newMainScore.descendantCount) {
         let newScoreTreePartial = {
@@ -741,7 +807,7 @@ async function calculateScoreDescendants(repository, currentScore, calculator = 
 }
 
 async function calculateFractions(repository, parentScore, actions) {
-  const oldChildScores = await repository.getChildrenByScoreId(parentScore.id);
+  const oldChildScores = await repository.getChildrenByScoreId(parentScore.id); //Count up total relevance
 
   let totalRelevance = 0;
 
@@ -756,70 +822,39 @@ async function calculateFractions(repository, parentScore, actions) {
   }
 
   for (const oldChildScore of oldChildScores) {
-    const newChildFraction = oldChildScore.relevance / totalRelevance * parentScore.fraction;
-
     const newChildScore = _objectSpread2({}, oldChildScore, {
-      fraction: newChildFraction
+      fractionSimple: oldChildScore.relevance / totalRelevance * parentScore.fractionSimple,
+      fraction: parentScore.fraction * oldChildScore.percentOfWeight
     });
 
-    if (newChildFraction != oldChildScore.fraction) {
+    if (newChildScore.fractionSimple != oldChildScore.fractionSimple || newChildScore.fraction != oldChildScore.fraction) {
       actions.push(new Action(newChildScore, undefined, "modify_score"));
     }
 
     await calculateFractions(repository, newChildScore, actions);
   }
+} // TODO: factor out duplicate code of these calculate functions. maybe mae an array of items to process...
+
+
+async function calculateGenerations(repository, parentScoreId, actions, generation) {
+  const oldChildScores = await repository.getChildrenByScoreId(parentScoreId);
+  generation++;
+
+  for (const oldChildScore of oldChildScores) {
+    if (oldChildScore.generation != generation) {
+      const newChildScore = _objectSpread2({}, oldChildScore, {
+        generation: generation
+      });
+
+      actions.push(new Action(newChildScore, undefined, "modify_score"));
+    }
+
+    await calculateGenerations(repository, oldChildScore.id, actions, generation);
+  }
 }
 
 function deepClone(item) {
   return JSON.parse(JSON.stringify(item));
-}
-
-/**
- * Stores the relationship between a claim and an item (usually another claim).
- * This is directional as the edge points from one claim to it's parent.
- * This is just a data transfer object so it should have no logic in it
- * and only JSON compatible types string, number, object, array, boolean
- */
-
-class ClaimEdge {
-  constructor(parentId, childId, affects = 'confidence', pro = true, id = newId(), priority = "") {
-    this.parentId = parentId;
-    this.childId = childId;
-    this.affects = affects;
-    this.pro = pro;
-    this.id = id;
-    this.priority = priority;
-
-    _defineProperty(this, "type", 'claimEdge');
-  }
-
-}
-
-/**
- * Represents an intentional top of a tree of scores.
- */
-class ScoreTree {
-  constructor(sourceClaimId, topScoreId, confidence = 1, id = newId(), descendantCount = 0) {
-    this.sourceClaimId = sourceClaimId;
-    this.topScoreId = topScoreId;
-    this.confidence = confidence;
-    this.id = id;
-    this.descendantCount = descendantCount;
-
-    _defineProperty(this, "type", 'scoreTree');
-  }
-
-}
-
-class Claim {
-  constructor(content = "", id = newId(), reversible = false) {
-    this.content = content;
-    this.id = id;
-    this.reversible = reversible;
-
-    _defineProperty(this, "type", 'claim');
-  }
-
 }
 
 exports.Action = Action;
