@@ -37,8 +37,8 @@ export class Score implements Item {
     public descendantCount: number = 0;
     public generation: number = 0;
 
-    /** What fraction of tree is this if all scores are even */
-    public fractionOld: number = 1;
+    /** What fraction of tree is this disregarding all scores */
+    public fractionSimple: number = 1;
     /** What fraction of mainScore is this score and it's descendants responsible for */
     public fraction: number = 1;
     
@@ -48,5 +48,6 @@ export class Score implements Item {
     public childrenWeight: number = 1;
     public weight: number = 1;
     public percentOfWeight: number = 1;
+    public cancelledFraction: number = 0;
 }
 

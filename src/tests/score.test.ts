@@ -142,7 +142,7 @@ test('Fractions', async () => {
     expect(results).toMatchObject(expectations);
 });
 
-test.only('Deep fraction', async () => {
+test('Deep fraction', async () => {
     const repository = new RepositoryLocalPure();
     const actionsDeepScores: Action[] = [
         new Action(new Claim('mainClaim', 'mainClaim'), u, 'add_claim'), new Action(new ScoreTree('mainClaim', 'mainClaim-score', u, 'ScoreTree'), u, 'add_scoreTree'),
@@ -172,17 +172,17 @@ test.only('Deep fraction', async () => {
         ['getScoresBySourceId.02-4.confidence', 1], ['getScoresBySourceId.02-4.fraction', 0.15000000000000002],
         ['getScoresBySourceId.02-4-1.confidence', 1], ['getScoresBySourceId.02-4-1.fraction', 0.15000000000000002],
         ['getScoresBySourceId.03.confidence', 1], ['getScoresBySourceId.03.fraction', 0.625],
-        ['getScoresBySourceId.mainClaim.fractionOld', 1],
-        ['getScoresBySourceId.01.fractionOld', 0.3333333333333333],
-        ['getScoresBySourceId.01-1.fractionOld', 0.16666666666666666],
-        ['getScoresBySourceId.01-2.fractionOld', 0.16666666666666666],
-        ['getScoresBySourceId.02.fractionOld', 0.3333333333333333],
-        ['getScoresBySourceId.02-1.fractionOld',  0.06666666666666667],
-        ['getScoresBySourceId.02-2.fractionOld', 0.06666666666666667],
-        ['getScoresBySourceId.02-3.fractionOld', 0.06666666666666667],
-        ['getScoresBySourceId.02-4.fractionOld', 0.13333333333333333],
-        ['getScoresBySourceId.02-4-1.fractionOld', 0.13333333333333333],
-        ['getScoresBySourceId.03.fractionOld', 0.3333333333333333],
+        ['getScoresBySourceId.mainClaim.fractionSimple', 1],
+        ['getScoresBySourceId.01.fractionSimple', 0.3333333333333333],
+        ['getScoresBySourceId.01-1.fractionSimple', 0.16666666666666666],
+        ['getScoresBySourceId.01-2.fractionSimple', 0.16666666666666666],
+        ['getScoresBySourceId.02.fractionSimple', 0.3333333333333333],
+        ['getScoresBySourceId.02-1.fractionSimple',  0.06666666666666667],
+        ['getScoresBySourceId.02-2.fractionSimple', 0.06666666666666667],
+        ['getScoresBySourceId.02-3.fractionSimple', 0.06666666666666667],
+        ['getScoresBySourceId.02-4.fractionSimple', 0.13333333333333333],
+        ['getScoresBySourceId.02-4-1.fractionSimple', 0.13333333333333333],
+        ['getScoresBySourceId.03.fractionSimple', 0.3333333333333333],
     ]
     const results = await buildResults(expectations, repository)
     debugger

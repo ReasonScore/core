@@ -234,10 +234,10 @@ async function calculateFractions(repository: iRepository, parentScore: Score, a
 
     for (const oldChildScore of oldChildScores) {
         const newChildScore = { ...oldChildScore,
-             fractionOld: (oldChildScore.relevance / totalRelevance) * parentScore.fractionOld,
+            fractionSimple: (oldChildScore.relevance / totalRelevance) * parentScore.fractionSimple,
             fraction: parentScore.fraction * oldChildScore.percentOfWeight
         }
-        if (newChildScore.fractionOld != oldChildScore.fractionOld ||
+        if (newChildScore.fractionSimple != oldChildScore.fractionSimple ||
             newChildScore.fraction != oldChildScore.fraction) {
             actions.push(new Action(newChildScore, undefined, "modify_score"));
         }
