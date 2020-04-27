@@ -108,7 +108,6 @@ test('Original Scores', async () => {
         ['getScoresBySourceId.12-6.confidence', 1],
     ]
     const results = await buildResults(expectations, repository)
-    debugger
     expect(results).toMatchObject(expectations);
 });
 
@@ -138,7 +137,6 @@ test('Fractions', async () => {
         ['getScoresBySourceId.12-6.fraction', 0.23076923076923078],
     ]
     const results = await buildResults(expectations, repository)
-    debugger
     expect(results).toMatchObject(expectations);
 });
 
@@ -185,6 +183,5 @@ test('Deep fraction', async () => {
         ['getScoresBySourceId.03.fractionSimple', 0.3333333333333333],
     ]
     const results = await buildResults(expectations, repository)
-    debugger
     expect(results).toMatchObject(expectations);
 });

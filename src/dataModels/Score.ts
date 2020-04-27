@@ -48,6 +48,5 @@ export class Score implements Item {
     public childrenWeight: number = 1;
     public weight: number = 1;
     public percentOfWeight: number = 1;
-    public cancelledFraction: number = 0;
 }
 

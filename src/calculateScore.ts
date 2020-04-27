@@ -61,7 +61,6 @@ export function calculateScore({ childScores = [], reversible = true }: {
     }
 
     // Loop through to calculate the final scores
-    debugger
     for (const childScore of childScores) {
         const polarity = childScore.pro ? 1 : -1
 

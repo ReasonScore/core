@@ -54,8 +54,6 @@ function calculateScore({
   } // Loop through to calculate the final scores
 
 
-  debugger;
-
   for (const childScore of childScores) {
     const polarity = childScore.pro ? 1 : -1;
 
@@ -234,8 +232,6 @@ class Score {
     _defineProperty(this, "weight", 1);
 
     _defineProperty(this, "percentOfWeight", 1);
-
-    _defineProperty(this, "cancelledFraction", 0);
   }
 
 }
