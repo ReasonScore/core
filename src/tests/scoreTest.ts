@@ -3,11 +3,10 @@ import { calculateScoreActions } from "../calculateScoreActions";
 import { Action } from "../dataModels/Action";
 import { Claim } from "../dataModels/Claim";
 import { ScoreTree } from "../dataModels/ScoreTree";
-import { calculateScore } from "../calculateScore";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
 import { iRepository } from "../dataModels/iRepository";
 
-describe("", () => {
+export function scoreTests() {
 
     const u = undefined, pro = true, con = false
 
@@ -187,4 +186,4 @@ describe("", () => {
         const results = await buildResults(expectations, repository)
         expect(results).toMatchObject(expectations);
     });
-});
+}

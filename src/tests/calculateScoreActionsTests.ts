@@ -7,7 +7,7 @@ import { ClaimEdge } from "../dataModels/ClaimEdge";
 import { Score } from "../dataModels/Score";
 import { ScoreTree } from "../dataModels/ScoreTree";
 
-describe("", () => {
+export function calculateScoreActionTests() {
   const u = undefined, pro = true, con = false
 
   test('add a new scoretree', async () => {
@@ -445,4 +445,4 @@ describe("", () => {
     }
     expect(results).toMatchObject(expectations);
   });
-})
+}
