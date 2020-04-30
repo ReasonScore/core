@@ -236,13 +236,6 @@ class Score {
 
 }
 
-/** Compare two scores to see if they are different in what the score is.
- *  Just compares confidence and relavance
- */
-function hasItemChanged(scoreA, scoreB) {
-  return !(JSON.stringify(scoreA, Object.keys(scoreA).sort()) === JSON.stringify(scoreB, Object.keys(scoreB).sort()));
-}
-
 class Action {
   constructor(newData, oldData, type, dataId = "") {
     this.newData = newData;
@@ -255,6 +248,13 @@ class Action {
     }
   }
 
+}
+
+/** Compare two scores to see if they are different in what the score is.
+ *  Just compares confidence and relavance
+ */
+function hasItemChanged(scoreA, scoreB) {
+  return !(JSON.stringify(scoreA, Object.keys(scoreA).sort()) === JSON.stringify(scoreB, Object.keys(scoreB).sort()));
 }
 
 //Store the string for the ID
@@ -296,9 +296,9 @@ function claims(state, action, reverse = false) {
           newItem.id = action.dataId;
         }
 
-        newItem = _objectSpread2({}, newItem, {}, action.newData);
-        return _objectSpread2({}, state, {
-          items: _objectSpread2({}, state.items, {
+        newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+        return _objectSpread2(_objectSpread2({}, state), {}, {
+          items: _objectSpread2(_objectSpread2({}, state.items), {}, {
             [action.dataId]: newItem
           })
         });
@@ -317,8 +317,8 @@ function IndexReducer(state, index, keyId, id) {
     }
 
     if (state[index][keyId].indexOf(id) == -1) {
-      state = _objectSpread2({}, state, {
-        [index]: _objectSpread2({}, state[index], {
+      state = _objectSpread2(_objectSpread2({}, state), {}, {
+        [index]: _objectSpread2(_objectSpread2({}, state[index]), {}, {
           [keyId]: [...state[index][keyId], id]
         })
       });
@@ -362,9 +362,9 @@ function claimEdges(state, action, reverse = false) {
           newItem.id = action.dataId;
         }
 
-        newItem = _objectSpread2({}, newItem, {}, action.newData);
-        state = _objectSpread2({}, state, {
-          items: _objectSpread2({}, state.items, {
+        newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+        state = _objectSpread2(_objectSpread2({}, state), {}, {
+          items: _objectSpread2(_objectSpread2({}, state.items), {}, {
             [action.dataId]: newItem
           })
         });
@@ -507,9 +507,9 @@ function scores(state, action, reverse = false) {
           newItem.id = action.dataId;
         }
 
-        newItem = _objectSpread2({}, newItem, {}, action.newData);
-        state = _objectSpread2({}, state, {
-          items: _objectSpread2({}, state.items, {
+        newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+        state = _objectSpread2(_objectSpread2({}, state), {}, {
+          items: _objectSpread2(_objectSpread2({}, state.items), {}, {
             [action.dataId]: newItem
           })
         }); //TODO: Do I need to stop recreating the state so many times in this reducer?
@@ -553,9 +553,9 @@ function scoreTrees(state, action, reverse = false) {
           newItem.id = action.dataId;
         }
 
-        newItem = _objectSpread2({}, newItem, {}, action.newData);
-        state = _objectSpread2({}, state, {
-          items: _objectSpread2({}, state.items, {
+        newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+        state = _objectSpread2(_objectSpread2({}, state), {}, {
+          items: _objectSpread2(_objectSpread2({}, state.items), {}, {
             [action.dataId]: newItem
           })
         }); //TODO: Do I need to stop recreating the state so many times in this reducer?
@@ -638,7 +638,7 @@ async function calculateScoreActions({
 
     if (action.type == 'modify_claimEdge') {
       let claimEdge = await repository.getClaimEdge(action.dataId);
-      claimEdge = _objectSpread2({}, claimEdge, {}, action.newData);
+      claimEdge = _objectSpread2(_objectSpread2({}, claimEdge), action.newData);
 
       if (claimEdge) {
         action.newData;
@@ -791,7 +791,7 @@ async function calculateScoreDescendants(repository, currentScore, calculator = 
   } //TODO: Modify the newScore based on any formulas
 
 
-  const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment, {
+  const newScore = _objectSpread2(_objectSpread2(_objectSpread2({}, currentScore), newScoreFragment), {}, {
     descendantCount: newDescendantCount
   });
 
@@ -818,7 +818,7 @@ async function calculateFractions(repository, parentScore, actions) {
   }
 
   for (const oldChildScore of oldChildScores) {
-    const newChildScore = _objectSpread2({}, oldChildScore, {
+    const newChildScore = _objectSpread2(_objectSpread2({}, oldChildScore), {}, {
       fractionSimple: oldChildScore.relevance / totalRelevance * parentScore.fractionSimple,
       fraction: parentScore.fraction * oldChildScore.percentOfWeight
     });
@@ -838,7 +838,7 @@ async function calculateGenerations(repository, parentScoreId, actions, generati
 
   for (const oldChildScore of oldChildScores) {
     if (oldChildScore.generation != generation) {
-      const newChildScore = _objectSpread2({}, oldChildScore, {
+      const newChildScore = _objectSpread2(_objectSpread2({}, oldChildScore), {}, {
         generation: generation
       });
 
@@ -853,6 +853,39 @@ function deepClone(item) {
   return JSON.parse(JSON.stringify(item));
 }
 
+function selectNode(selectedId, rsData) {
+  var _ref;
+
+  const result = [];
+  result.push({
+    itemId: selectedId,
+    status: "selected"
+  }); // Walk up the tree and get ancestors
+  let parentScoreId = (_ref = rsData.items[selectedId]) === null || _ref === void 0 ? void 0 : _ref.parentScoreId;
+
+  while (parentScoreId != undefined) {
+    result.push({
+      itemId: parentScoreId,
+      status: "ancestor"
+    });
+    parentScoreId = rsData.items[parentScoreId].parentScoreId;
+  } //get the children
+
+
+  const children = rsData.childIdsByScoreId[selectedId];
+
+  if (children) {
+    for (const childId of rsData.childIdsByScoreId[selectedId]) {
+      result.push({
+        itemId: childId,
+        status: "child"
+      });
+    }
+  }
+
+  return result;
+}
+
 exports.Action = Action;
 exports.Claim = Claim;
 exports.ClaimEdge = ClaimEdge;
@@ -865,3 +898,4 @@ exports.calculateScore = calculateScore;
 exports.calculateScoreActions = calculateScoreActions;
 exports.deepClone = deepClone;
 exports.newId = newId;
+exports.selectNode = selectNode;

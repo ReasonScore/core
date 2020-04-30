@@ -4,6 +4,7 @@ export * from "./newId";
 export * from "./calculateScoreActions";
 export * from "./repositories/RepositoryLocalPure"
 export * from "./utils/deepClone"
+export * from "./utils/selectNode"
 
 // Data Models
 export * from "./dataModels/Action";

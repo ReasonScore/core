@@ -4,7 +4,7 @@ import { Action } from "../dataModels/Action";
 import { Claim } from "../dataModels/Claim";
 import { ScoreTree } from "../dataModels/ScoreTree";
 import { ClaimEdge } from "../dataModels/ClaimEdge";
-import { iRepository } from "../dataModels/iRepository";
+import { buildTestResults } from "./buildTestResults";
 
 export function scoreTests() {
 
@@ -47,23 +47,6 @@ export function scoreTests() {
         new Action(new Claim('12-5', '12-5'), u, 'add_claim'), new Action(new ClaimEdge('12-4', '12-5', u, pro, '12-5-edge'), u, 'add_claimEdge'),
         new Action(new Claim('12-6', '12-6'), u, 'add_claim'), new Action(new ClaimEdge('12-5', '12-6', u, pro, '12-6-edge'), u, 'add_claimEdge'),
     ]
-
-    async function buildResults(expectations: (string | any)[][], repository: iRepository) {
-        const results = []
-        for (const expectation of expectations) {
-            const pathItems = expectation[0].split(".");
-            let result: any;
-            if (pathItems[0] === "getScoresBySourceId") {
-                result = ((await repository.getScoresBySourceId(pathItems[1]))[0] as any)[pathItems[2]];
-            }
-
-            results.push([
-                expectation[0],
-                result
-            ])
-        }
-        return results;
-    }
 
     test('Original Scores', async () => {
         const repository = new RepositoryLocalPure();
@@ -108,7 +91,7 @@ export function scoreTests() {
             ['getScoresBySourceId.12-5.confidence', 1],
             ['getScoresBySourceId.12-6.confidence', 1],
         ]
-        const results = await buildResults(expectations, repository)
+        const results = await buildTestResults(expectations, repository)
         expect(results).toMatchObject(expectations);
     });
 
@@ -137,7 +120,7 @@ export function scoreTests() {
             ['getScoresBySourceId.12-5.fraction', 0.23076923076923078],
             ['getScoresBySourceId.12-6.fraction', 0.23076923076923078],
         ]
-        const results = await buildResults(expectations, repository)
+        const results = await buildTestResults(expectations, repository)
         expect(results).toMatchObject(expectations);
     });
 
@@ -183,7 +166,7 @@ export function scoreTests() {
             ['getScoresBySourceId.02-4-1.fractionSimple', 0.13333333333333333],
             ['getScoresBySourceId.03.fractionSimple', 0.3333333333333333],
         ]
-        const results = await buildResults(expectations, repository)
+        const results = await buildTestResults(expectations, repository)
         expect(results).toMatchObject(expectations);
     });
 }

@@ -235,13 +235,6 @@ var reasonscore_core = (function (exports) {
 
     }
 
-    /** Compare two scores to see if they are different in what the score is.
-     *  Just compares confidence and relavance
-     */
-    function hasItemChanged(scoreA, scoreB) {
-      return !(JSON.stringify(scoreA, Object.keys(scoreA).sort()) === JSON.stringify(scoreB, Object.keys(scoreB).sort()));
-    }
-
     class Action {
       constructor(newData, oldData, type, dataId = "") {
         this.newData = newData;
@@ -254,6 +247,13 @@ var reasonscore_core = (function (exports) {
         }
       }
 
+    }
+
+    /** Compare two scores to see if they are different in what the score is.
+     *  Just compares confidence and relavance
+     */
+    function hasItemChanged(scoreA, scoreB) {
+      return !(JSON.stringify(scoreA, Object.keys(scoreA).sort()) === JSON.stringify(scoreB, Object.keys(scoreB).sort()));
     }
 
     //Store the string for the ID
@@ -295,9 +295,9 @@ var reasonscore_core = (function (exports) {
               newItem.id = action.dataId;
             }
 
-            newItem = _objectSpread2({}, newItem, {}, action.newData);
-            return _objectSpread2({}, state, {
-              items: _objectSpread2({}, state.items, {
+            newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+            return _objectSpread2(_objectSpread2({}, state), {}, {
+              items: _objectSpread2(_objectSpread2({}, state.items), {}, {
                 [action.dataId]: newItem
               })
             });
@@ -316,8 +316,8 @@ var reasonscore_core = (function (exports) {
         }
 
         if (state[index][keyId].indexOf(id) == -1) {
-          state = _objectSpread2({}, state, {
-            [index]: _objectSpread2({}, state[index], {
+          state = _objectSpread2(_objectSpread2({}, state), {}, {
+            [index]: _objectSpread2(_objectSpread2({}, state[index]), {}, {
               [keyId]: [...state[index][keyId], id]
             })
           });
@@ -361,9 +361,9 @@ var reasonscore_core = (function (exports) {
               newItem.id = action.dataId;
             }
 
-            newItem = _objectSpread2({}, newItem, {}, action.newData);
-            state = _objectSpread2({}, state, {
-              items: _objectSpread2({}, state.items, {
+            newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+            state = _objectSpread2(_objectSpread2({}, state), {}, {
+              items: _objectSpread2(_objectSpread2({}, state.items), {}, {
                 [action.dataId]: newItem
               })
             });
@@ -506,9 +506,9 @@ var reasonscore_core = (function (exports) {
               newItem.id = action.dataId;
             }
 
-            newItem = _objectSpread2({}, newItem, {}, action.newData);
-            state = _objectSpread2({}, state, {
-              items: _objectSpread2({}, state.items, {
+            newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+            state = _objectSpread2(_objectSpread2({}, state), {}, {
+              items: _objectSpread2(_objectSpread2({}, state.items), {}, {
                 [action.dataId]: newItem
               })
             }); //TODO: Do I need to stop recreating the state so many times in this reducer?
@@ -552,9 +552,9 @@ var reasonscore_core = (function (exports) {
               newItem.id = action.dataId;
             }
 
-            newItem = _objectSpread2({}, newItem, {}, action.newData);
-            state = _objectSpread2({}, state, {
-              items: _objectSpread2({}, state.items, {
+            newItem = _objectSpread2(_objectSpread2({}, newItem), action.newData);
+            state = _objectSpread2(_objectSpread2({}, state), {}, {
+              items: _objectSpread2(_objectSpread2({}, state.items), {}, {
                 [action.dataId]: newItem
               })
             }); //TODO: Do I need to stop recreating the state so many times in this reducer?
@@ -637,7 +637,7 @@ var reasonscore_core = (function (exports) {
 
         if (action.type == 'modify_claimEdge') {
           let claimEdge = await repository.getClaimEdge(action.dataId);
-          claimEdge = _objectSpread2({}, claimEdge, {}, action.newData);
+          claimEdge = _objectSpread2(_objectSpread2({}, claimEdge), action.newData);
 
           if (claimEdge) {
             action.newData;
@@ -790,7 +790,7 @@ var reasonscore_core = (function (exports) {
       } //TODO: Modify the newScore based on any formulas
 
 
-      const newScore = _objectSpread2({}, currentScore, {}, newScoreFragment, {
+      const newScore = _objectSpread2(_objectSpread2(_objectSpread2({}, currentScore), newScoreFragment), {}, {
         descendantCount: newDescendantCount
       });
 
@@ -817,7 +817,7 @@ var reasonscore_core = (function (exports) {
       }
 
       for (const oldChildScore of oldChildScores) {
-        const newChildScore = _objectSpread2({}, oldChildScore, {
+        const newChildScore = _objectSpread2(_objectSpread2({}, oldChildScore), {}, {
           fractionSimple: oldChildScore.relevance / totalRelevance * parentScore.fractionSimple,
           fraction: parentScore.fraction * oldChildScore.percentOfWeight
         });
@@ -837,7 +837,7 @@ var reasonscore_core = (function (exports) {
 
       for (const oldChildScore of oldChildScores) {
         if (oldChildScore.generation != generation) {
-          const newChildScore = _objectSpread2({}, oldChildScore, {
+          const newChildScore = _objectSpread2(_objectSpread2({}, oldChildScore), {}, {
             generation: generation
           });
 
@@ -852,6 +852,39 @@ var reasonscore_core = (function (exports) {
       return JSON.parse(JSON.stringify(item));
     }
 
+    function selectNode(selectedId, rsData) {
+      var _ref;
+
+      const result = [];
+      result.push({
+        itemId: selectedId,
+        status: "selected"
+      }); // Walk up the tree and get ancestors
+      let parentScoreId = (_ref = rsData.items[selectedId]) === null || _ref === void 0 ? void 0 : _ref.parentScoreId;
+
+      while (parentScoreId != undefined) {
+        result.push({
+          itemId: parentScoreId,
+          status: "ancestor"
+        });
+        parentScoreId = rsData.items[parentScoreId].parentScoreId;
+      } //get the children
+
+
+      const children = rsData.childIdsByScoreId[selectedId];
+
+      if (children) {
+        for (const childId of rsData.childIdsByScoreId[selectedId]) {
+          result.push({
+            itemId: childId,
+            status: "child"
+          });
+        }
+      }
+
+      return result;
+    }
+
     exports.Action = Action;
     exports.Claim = Claim;
     exports.ClaimEdge = ClaimEdge;
@@ -864,6 +897,7 @@ var reasonscore_core = (function (exports) {
     exports.calculateScoreActions = calculateScoreActions;
     exports.deepClone = deepClone;
     exports.newId = newId;
+    exports.selectNode = selectNode;
 
     return exports;
 
