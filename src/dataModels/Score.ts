@@ -14,9 +14,9 @@ export class Score implements Item {
         /** The top of the tree of scores that this belongs to. Used for indexing */
         public scoreTreeId: string,
         /** The parent of this score in the score tree graph */
-        public parentScoreId: string | undefined = undefined,
+        public parentScoreId: string | null = null, // Use null because Firestore does not allow undefined
         /** The Edge to which this score belongs */
-        public sourceEdgeId: string | undefined = undefined,
+        public sourceEdgeId: string | null = null,
 
         public reversible: boolean = false,
         /** Is this score a pro of it's parent (false if it is a con) */

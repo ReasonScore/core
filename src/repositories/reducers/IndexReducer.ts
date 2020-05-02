@@ -1,5 +1,5 @@
 import { RsData } from "../../dataModels/RsData";
-export function IndexReducer(state: any, index: string, keyId: string | undefined, id: string): RsData {
+export function IndexReducer(state: any, index: string, keyId: string | null | undefined, id: string): RsData {
     if (keyId) {
         //TODO: remove this, can I use "...state[index][keyId] || []" below?
         if (!state[index][keyId]) {
