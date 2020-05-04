@@ -10,9 +10,9 @@ export declare class Score implements Item {
     /** The top of the tree of scores that this belongs to. Used for indexing */
     scoreTreeId: string;
     /** The parent of this score in the score tree graph */
-    parentScoreId: string | undefined;
+    parentScoreId: string | null;
     /** The Edge to which this score belongs */
-    sourceEdgeId: string | undefined;
+    sourceEdgeId: string | null;
     reversible: boolean;
     /** Is this score a pro of it's parent (false if it is a con) */
     pro: boolean;
@@ -33,9 +33,9 @@ export declare class Score implements Item {
     /** The top of the tree of scores that this belongs to. Used for indexing */
     scoreTreeId: string, 
     /** The parent of this score in the score tree graph */
-    parentScoreId?: string | undefined, 
+    parentScoreId?: string | null, // Use null because Firestore does not allow undefined
     /** The Edge to which this score belongs */
-    sourceEdgeId?: string | undefined, reversible?: boolean, 
+    sourceEdgeId?: string | null, reversible?: boolean, 
     /** Is this score a pro of it's parent (false if it is a con) */
     pro?: boolean, 
     /** how confident we sould be in the claim. (AKA True) */

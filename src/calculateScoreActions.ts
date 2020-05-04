@@ -133,7 +133,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             }
 
             const generationActions: Action[] = [];
-            await calculateGenerations(repository, mainScore.id, generationActions,0)
+            await calculateGenerations(repository, mainScore.id, generationActions, 0)
             if (generationActions.length > 0) {
                 await repository.notify(generationActions)
             }
@@ -218,33 +218,38 @@ async function calculateScoreDescendants(repository: iRepository, currentScore: 
     return newScore;
 }
 
-async function calculateFractions(repository: iRepository, parentScore: Score, actions: Action[]) {
-    const oldChildScores = await repository.getChildrenByScoreId(parentScore.id)
+async function calculateFractions(repository: iRepository, parentScore: Partial<Score>, actions: Action[]) {
+    if (parentScore.id != undefined &&
+        parentScore.fraction != undefined &&
+        parentScore.fractionSimple != undefined) {
+        const oldChildScores = await repository.getChildrenByScoreId(parentScore.id)
 
-    //Count up total relevance
-    let totalRelevance = 0
-    for (const oldScore of oldChildScores) {
-        if (oldScore.affects === "confidence") {
-            totalRelevance += oldScore.relevance
+        //Count up total relevance
+        let totalRelevance = 0
+        for (const oldScore of oldChildScores) {
+            if (oldScore.affects === "confidence") {
+                totalRelevance += oldScore.relevance
+            }
+        }
+        if (totalRelevance === 0) {
+            totalRelevance = 1;
+        }
+
+        for (const oldChildScore of oldChildScores) {
+            const newChildScore: Partial<Score> = {
+                ...oldChildScore,
+                fractionSimple: (oldChildScore.relevance / totalRelevance) * parentScore.fractionSimple,
+                fraction: parentScore.fraction * oldChildScore.percentOfWeight,
+                // parentFractionSimple: parentScore.fractionSimple,
+            }
+            if (newChildScore.fractionSimple != oldChildScore.fractionSimple ||
+                newChildScore.fraction != oldChildScore.fraction) {
+                actions.push(new Action(newChildScore, undefined, "modify_score"));
+            }
+            await calculateFractions(repository, newChildScore, actions);
+
         }
     }
-    if (totalRelevance === 0) {
-        totalRelevance = 1;
-    }
-
-    for (const oldChildScore of oldChildScores) {
-        const newChildScore = { ...oldChildScore,
-            fractionSimple: (oldChildScore.relevance / totalRelevance) * parentScore.fractionSimple,
-            fraction: parentScore.fraction * oldChildScore.percentOfWeight
-        }
-        if (newChildScore.fractionSimple != oldChildScore.fractionSimple ||
-            newChildScore.fraction != oldChildScore.fraction) {
-            actions.push(new Action(newChildScore, undefined, "modify_score"));
-        }
-        await calculateFractions(repository, newChildScore, actions)
-
-    }
-
 
 }
 

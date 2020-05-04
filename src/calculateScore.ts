@@ -1,4 +1,4 @@
-import { Score} from "./dataModels/Score";
+import { Score } from "./dataModels/Score";
 
 export interface iCalculateScore {
     ({ childScores }: {
@@ -18,14 +18,16 @@ export function calculateScore({ childScores = [], reversible = true }: {
 } = {},
 ): Partial<Score> {
     // TODO: Simplify all this math and maybe break it up between base functionality and additional scoring (like the points)
-    const newScore: Partial<Score> = {
-        confidence: 0,
-        relevance: 1,
-        childrenAveragingWeight: 0,
-        childrenConfidenceWeight: 0,
-        childrenRelevanceWeight: 0,
-        childrenWeight: 0,
-    };
+    const newScore: Partial<Score> = {};
+    newScore.confidence = 0;
+    newScore.relevance = 1;
+    newScore.childrenAveragingWeight = 0;
+    newScore.childrenConfidenceWeight = 0;
+    newScore.childrenRelevanceWeight = 0;
+    newScore.childrenWeight = 0;
+    // newScore.childrenProWeight = 0;
+    // newScore.childrenConWeight = 0;
+
 
     if (childScores.filter(s => s.affects === 'confidence').length < 1) {
         // Defaults if there are no children
@@ -47,17 +49,27 @@ export function calculateScore({ childScores = [], reversible = true }: {
         }
 
         childScore.weight = Math.abs(confidence) * childScore.relevance; // confidenceWeight * RelevanceWeight
-        // @ts-ignore
         newScore.childrenAveragingWeight += 1;
-        // @ts-ignore
-        newScore.childrenConfidenceWeight +=
-            Math.abs(confidence);
-        // @ts-ignore
-        newScore.childrenRelevanceWeight +=
-            childScore.relevance;
-        // @ts-ignore
-        newScore.childrenWeight +=
-            childScore.weight;
+        newScore.childrenConfidenceWeight += Math.abs(confidence);
+        newScore.childrenRelevanceWeight += childScore.relevance;
+        newScore.childrenWeight += childScore.weight;
+
+        // //TODO: Experimantal
+        // if (confidence > 0) {
+        //     if (childScore.pro) {
+        //         newScore.childrenProWeight += confidence
+        //     }
+        //     if (!childScore.pro) {
+        //         newScore.childrenConWeight += confidence
+        //     }
+        // } else if (confidence < 0) {
+        //     if (childScore.pro) {
+        //         newScore.childrenConWeight += confidence
+        //     }
+        //     if (!childScore.pro) {
+        //         newScore.childrenProWeight += confidence
+        //     }
+        // }
     }
 
     // Loop through to calculate the final scores
@@ -100,6 +112,16 @@ export function calculateScore({ childScores = [], reversible = true }: {
                 newScore.relevance -= confidence / 2;
             }
         }
+
+        let confidence = childScore.confidence
+        if (!childScore.reversible && childScore.confidence < 0) {
+            confidence = 0
+        }
+        // if (childScore.pro) {
+        //     childScore.percentAgreeWeight = confidence / newScore.childrenProWeight
+        // } else {
+        //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
+        // }
     }
 
 

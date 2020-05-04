@@ -33,7 +33,7 @@ export class Score implements Item {
         public content: string = "",
     ) {
     }
-    
+
     public descendantCount: number = 0;
     public generation: number = 0;
 
@@ -41,12 +41,18 @@ export class Score implements Item {
     public fractionSimple: number = 1;
     /** What fraction of mainScore is this score and it's descendants responsible for */
     public fraction: number = 1;
-    
+
     public childrenAveragingWeight: number = 1;
     public childrenConfidenceWeight: number = 1;
     public childrenRelevanceWeight: number = 1;
     public childrenWeight: number = 1;
     public weight: number = 1;
     public percentOfWeight: number = 1;
+
+    // //TODO:Experimental
+    // public childrenProWeight: number = 0;
+    // public childrenConWeight: number = 0;
+    // public percentAgreeWeight: number = 0;
+    // public parentFractionSimple: number = 0;
 }
 
