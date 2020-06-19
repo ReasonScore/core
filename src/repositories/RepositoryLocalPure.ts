@@ -17,7 +17,7 @@ export class RepositoryLocalPure extends RepositoryLocalBase implements iReposit
     }
 
     async notify(actions: Action[]) {
-        //this.rsData.actionsLog.push({actions:actions}); TODO: put logs back in
+        this.rsData.actionsLog.push({actions:actions}); //TODO: put logs back in
         for (const action of actions) {
             this.rsData = claims(this.rsData, action);
             this.rsData = claimEdges(this.rsData, action);
