@@ -9,14 +9,14 @@ var reasonscore_core = (function (exports) {
       reversible = true
     } = {}) {
       // TODO: Simplify all this math and maybe break it up between base functionality and additional scoring (like the points)
-      const newScore = {
-        confidence: 0,
-        relevance: 1,
-        childrenAveragingWeight: 0,
-        childrenConfidenceWeight: 0,
-        childrenRelevanceWeight: 0,
-        childrenWeight: 0
-      };
+      const newScore = {};
+      newScore.confidence = 0;
+      newScore.relevance = 1;
+      newScore.childrenAveragingWeight = 0;
+      newScore.childrenConfidenceWeight = 0;
+      newScore.childrenRelevanceWeight = 0;
+      newScore.childrenWeight = 0; // newScore.childrenProWeight = 0;
+      // newScore.childrenConWeight = 0;
 
       if (childScores.filter(s => s.affects === 'confidence').length < 1) {
         // Defaults if there are no children
@@ -41,15 +41,26 @@ var reasonscore_core = (function (exports) {
         }
 
         childScore.weight = Math.abs(confidence) * childScore.relevance; // confidenceWeight * RelevanceWeight
-        // @ts-ignore
 
-        newScore.childrenAveragingWeight += 1; // @ts-ignore
-
-        newScore.childrenConfidenceWeight += Math.abs(confidence); // @ts-ignore
-
-        newScore.childrenRelevanceWeight += childScore.relevance; // @ts-ignore
-
-        newScore.childrenWeight += childScore.weight;
+        newScore.childrenAveragingWeight += 1;
+        newScore.childrenConfidenceWeight += Math.abs(confidence);
+        newScore.childrenRelevanceWeight += childScore.relevance;
+        newScore.childrenWeight += childScore.weight; // //TODO: Experimantal
+        // if (confidence > 0) {
+        //     if (childScore.pro) {
+        //         newScore.childrenProWeight += confidence
+        //     }
+        //     if (!childScore.pro) {
+        //         newScore.childrenConWeight += confidence
+        //     }
+        // } else if (confidence < 0) {
+        //     if (childScore.pro) {
+        //         newScore.childrenConWeight += confidence
+        //     }
+        //     if (!childScore.pro) {
+        //         newScore.childrenProWeight += confidence
+        //     }
+        // }
       } // Loop through to calculate the final scores
 
 
@@ -86,6 +97,17 @@ var reasonscore_core = (function (exports) {
             newScore.relevance -= confidence / 2;
           }
         }
+
+        let confidence = childScore.confidence;
+
+        if (!childScore.reversible && childScore.confidence < 0) {
+          confidence = 0;
+        } // if (childScore.pro) {
+        //     childScore.percentAgreeWeight = confidence / newScore.childrenProWeight
+        // } else {
+        //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
+        // }
+
       }
 
       if (Object.is(newScore.confidence, -0)) {
@@ -196,7 +218,7 @@ var reasonscore_core = (function (exports) {
      * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
      */
     class Score {
-      constructor(sourceClaimId, scoreTreeId, parentScoreId = undefined, sourceEdgeId = undefined, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "") {
+      constructor(sourceClaimId, scoreTreeId, parentScoreId = null, sourceEdgeId = null, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "") {
         this.sourceClaimId = sourceClaimId;
         this.scoreTreeId = scoreTreeId;
         this.parentScoreId = parentScoreId;
@@ -231,7 +253,12 @@ var reasonscore_core = (function (exports) {
         _defineProperty(this, "weight", 1);
 
         _defineProperty(this, "percentOfWeight", 1);
-      }
+      } // //TODO:Experimental
+      // public childrenProWeight: number = 0;
+      // public childrenConWeight: number = 0;
+      // public percentAgreeWeight: number = 0;
+      // public parentFractionSimple: number = 0;
+
 
     }
 
@@ -575,7 +602,10 @@ var reasonscore_core = (function (exports) {
       }
 
       async notify(actions) {
-        //this.rsData.actionsLog.push({actions:actions}); TODO: put logs back in
+        this.rsData.actionsLog.push({
+          actions: actions
+        }); //TODO: put logs back in
+
         for (const action of actions) {
           this.rsData = claims(this.rsData, action);
           this.rsData = claimEdges(this.rsData, action);
@@ -802,31 +832,34 @@ var reasonscore_core = (function (exports) {
     }
 
     async function calculateFractions(repository, parentScore, actions) {
-      const oldChildScores = await repository.getChildrenByScoreId(parentScore.id); //Count up total relevance
+      if (parentScore.id != undefined && parentScore.fraction != undefined && parentScore.fractionSimple != undefined) {
+        const oldChildScores = await repository.getChildrenByScoreId(parentScore.id); //Count up total relevance
 
-      let totalRelevance = 0;
+        let totalRelevance = 0;
 
-      for (const oldScore of oldChildScores) {
-        if (oldScore.affects === "confidence") {
-          totalRelevance += oldScore.relevance;
-        }
-      }
-
-      if (totalRelevance === 0) {
-        totalRelevance = 1;
-      }
-
-      for (const oldChildScore of oldChildScores) {
-        const newChildScore = _objectSpread2(_objectSpread2({}, oldChildScore), {}, {
-          fractionSimple: oldChildScore.relevance / totalRelevance * parentScore.fractionSimple,
-          fraction: parentScore.fraction * oldChildScore.percentOfWeight
-        });
-
-        if (newChildScore.fractionSimple != oldChildScore.fractionSimple || newChildScore.fraction != oldChildScore.fraction) {
-          actions.push(new Action(newChildScore, undefined, "modify_score"));
+        for (const oldScore of oldChildScores) {
+          if (oldScore.affects === "confidence") {
+            totalRelevance += oldScore.relevance;
+          }
         }
 
-        await calculateFractions(repository, newChildScore, actions);
+        if (totalRelevance === 0) {
+          totalRelevance = 1;
+        }
+
+        for (const oldChildScore of oldChildScores) {
+          const newChildScore = _objectSpread2(_objectSpread2({}, oldChildScore), {}, {
+            fractionSimple: oldChildScore.relevance / totalRelevance * parentScore.fractionSimple,
+            fraction: parentScore.fraction * oldChildScore.percentOfWeight // parentFractionSimple: parentScore.fractionSimple,
+
+          });
+
+          if (newChildScore.fractionSimple != oldChildScore.fractionSimple || newChildScore.fraction != oldChildScore.fraction) {
+            actions.push(new Action(newChildScore, undefined, "modify_score"));
+          }
+
+          await calculateFractions(repository, newChildScore, actions);
+        }
       }
     } // TODO: factor out duplicate code of these calculate functions. maybe mae an array of items to process...
 
