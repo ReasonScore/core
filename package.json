@@ -1,7 +1,7 @@
 {
   "name": "@reasonscore/core",
   "main": "lib/index.js",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "Core code for Reason Score http://ReasonScore.com",
   "scripts": {
     "type-check": "tsc --noEmit",
@@ -29,23 +29,23 @@
   },
   "homepage": "https://github.com/ReasonScore/core#readme",
   "devDependencies": {
-    "@babel/cli": "^7.10.4",
-    "@babel/core": "^7.10.4",
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.4",
     "@babel/plugin-proposal-class-properties": "^7.10.4",
-    "@babel/plugin-proposal-object-rest-spread": "^7.10.4",
-    "@babel/preset-env": "^7.10.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
+    "@babel/preset-env": "^7.11.0",
     "@babel/preset-typescript": "^7.10.4",
-    "@types/jest": "^26.0.4",
-    "jest": "^26.1.0",
+    "@types/jest": "^26.0.10",
+    "jest": "^26.4.2",
     "minimist": ">=1.2.5",
     "mixin-deep": ">=2.0.1",
-    "npm-check-updates": "^7.0.1",
-    "rollup": "^2.21.0",
+    "npm-check-updates": "^8.0.1",
+    "rollup": "^2.26.8",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "set-value": "^3.0.2",
-    "ts-jest": "^26.1.1",
-    "typescript": "^3.9.6"
+    "ts-jest": "^26.3.0",
+    "typescript": "^4.0.2"
   }
 }

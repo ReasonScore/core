@@ -886,14 +886,14 @@ var reasonscore_core = (function (exports) {
     }
 
     function selectNode(selectedId, rsData) {
-      var _ref;
+      var _rsData$items$selecte;
 
       const result = [];
       result.push({
         itemId: selectedId,
         status: "selected"
       }); // Walk up the tree and get ancestors
-      let parentScoreId = (_ref = rsData.items[selectedId]) === null || _ref === void 0 ? void 0 : _ref.parentScoreId;
+      let parentScoreId = (_rsData$items$selecte = rsData.items[selectedId]) === null || _rsData$items$selecte === void 0 ? void 0 : _rsData$items$selecte.parentScoreId;
 
       while (parentScoreId != undefined) {
         result.push({
