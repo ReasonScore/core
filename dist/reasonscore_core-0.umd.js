@@ -99,11 +99,9 @@ function calculateScore({
       }
     }
 
-    let confidence = childScore.confidence;
+    childScore.confidence;
 
-    if (!childScore.reversible && childScore.confidence < 0) {
-      confidence = 0;
-    } // if (childScore.pro) {
+    if (!childScore.reversible && childScore.confidence < 0) ; // if (childScore.pro) {
     //     childScore.percentAgreeWeight = confidence / newScore.childrenProWeight
     // } else {
     //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
@@ -219,7 +217,25 @@ function newId(when = new Date()) {
  * Stores the score for a claim. Just a data transfer object. Does not contain any logic.
  */
 class Score {
-  constructor(sourceClaimId, scoreTreeId, parentScoreId = null, sourceEdgeId = null, reversible = false, pro = true, affects = "confidence", confidence = 1, relevance = 1, id = newId(), priority = "", content = "") {
+  constructor(
+  /** The claim to which this score belongs */
+  sourceClaimId,
+  /** The top of the tree of scores that this belongs to. Used for indexing */
+  scoreTreeId,
+  /** The parent of this score in the score tree graph */
+  parentScoreId = null, // Use null because Firestore does not allow undefined
+
+  /** The Edge to which this score belongs */
+  sourceEdgeId = null, reversible = false,
+  /** Is this score a pro of it's parent (false if it is a con) */
+  pro = true,
+  /** how confident we sould be in the claim. (AKA True) */
+
+  /** How the child affects the parent score */
+  affects = "confidence", confidence = 1,
+  /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
+   * A multiplier set by all the child edges that affect 'relevance'*/
+  relevance = 1, id = newId(), priority = "", content = "") {
     this.sourceClaimId = sourceClaimId;
     this.scoreTreeId = scoreTreeId;
     this.parentScoreId = parentScoreId;
@@ -287,7 +303,12 @@ function hasItemChanged(scoreA, scoreB) {
 //Store the string for the ID
 //Store the string for the ID
 class RsData {
-  constructor(actionsLog = [], items = {}, claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, scoreIdsBySourceId = {}, childIdsByScoreId = {}, ScoreTreeIds = []) {
+  constructor(actionsLog = [], // Claim data
+
+  /** Stores all the current items */
+  items = {}, // Claim Indexes - Local
+  claimEdgeIdsByParentId = {}, claimEdgeIdsByChildId = {}, //Score Indexes - Local
+  scoreIdsBySourceId = {}, childIdsByScoreId = {}, ScoreTreeIds = []) {
     this.actionsLog = actionsLog;
     this.items = items;
     this.claimEdgeIdsByParentId = claimEdgeIdsByParentId;
@@ -363,7 +384,15 @@ function IndexReducer(state, index, keyId, id) {
  */
 
 class ClaimEdge {
-  constructor(parentId, childId, affects = 'confidence', pro = true, id = newId(), priority = "") {
+  constructor(
+  /** The ID for the parent claim this edge points to */
+  parentId,
+  /** The ID for the child claim this edge points from */
+  childId,
+  /** How the child affects the parent score */
+  affects = 'confidence',
+  /** Is the child claim a pro of it's parent (false if it is a con) */
+  pro = true, id = newId(), priority = "") {
     this.parentId = parentId;
     this.childId = childId;
     this.affects = affects;
@@ -556,7 +585,13 @@ function scores(state, action, reverse = false) {
  * Represents an intentional top of a tree of scores.
  */
 class ScoreTree {
-  constructor(sourceClaimId, topScoreId, confidence = 1, id = newId(), descendantCount = 0) {
+  constructor(
+  /** The claim to which this score belongs */
+  sourceClaimId,
+  /** The top of the tree of scores that this belongs to. Used for indexing */
+  topScoreId,
+  /** how confident we sould be in the claim. (AKA True) */
+  confidence = 1, id = newId(), descendantCount = 0) {
     this.sourceClaimId = sourceClaimId;
     this.topScoreId = topScoreId;
     this.confidence = confidence;
