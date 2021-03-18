@@ -15,13 +15,6 @@
     "publish-package": "npm run build && npm run bundle && npm publish",
     "upgrade-all": "ncu -u && npm install"
   },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ReasonScore/core.git"
-  },
   "author": "Bentley Davis <Bentley@BentleyDavis.com> (http://BentleyDavis.com)",
   "license": "ISC",
   "bugs": {
