@@ -45,6 +45,47 @@ export function calculateScoreActionTests() {
     expect((await repository.getScore("testTopScore"))?.confidence).toEqual(1);
   });
 
+  test('Prioity on Add', async () => {
+    const repository = new RepositoryLocalPure();
+    const temp = await calculateScoreActions({
+      actions: [
+        new Action(new Claim("", "topTestClaim"), undefined, "add_claim"),
+        new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
+        new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree"),
+      ],
+      repository: repository
+    })
+
+    const actions = [
+      new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, u, u, "Priority Set"), undefined, "add_claimEdge")
+    ];
+    const result = await calculateScoreActions({
+      actions: actions,
+      repository: repository
+    })
+    expect((await repository.getScoresBySourceId("ChildClaim1"))[0]?.priority).toEqual("Priority Set");
+  });
+
+  test('Prioity on Modify claimEdge', async () => {
+    const repository = new RepositoryLocalPure();
+    const temp = await calculateScoreActions({
+      actions: [
+        new Action(new Claim("", "topTestClaim"), undefined, "add_claim"),
+        new Action(new Claim("", "ChildClaim1"), undefined, "add_claim"),
+        new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree"),
+        new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, u, u), undefined, "add_claimEdge")
+      ],
+      repository: repository
+    })
+
+    const edge = (await repository.getClaimEdgesByChildId("ChildClaim1"))[0];
+    const result = await calculateScoreActions({
+      actions: [new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, u, edge.id,'Priority Modified'), undefined, "modify_claimEdge")],
+      repository: repository
+    })
+    expect((await repository.getScoresBySourceId("ChildClaim1"))[0]?.priority).toEqual("Priority Modified");
+  });
+
   test('Changing a child pro value should change the top score', async () => {
     const repository = new RepositoryLocalPure();
     const temp = await calculateScoreActions({

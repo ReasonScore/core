@@ -21,7 +21,6 @@ export function selectNodeTests() {
         const expected: selectedStatus[] = [
             { itemId: 'main', status: 'selected' },
         ]
-debugger
 
         const result = selectNode('main', repository.rsData)
 
@@ -54,7 +53,6 @@ debugger
             { itemId: '2-1-2', status: 'child' },
         ];
         let result = selectNode('2-1', repository.rsData);
-debugger
         expect(result).toMatchObject(expected)
     });
 }
