@@ -26,6 +26,8 @@ export declare class Score implements Item {
     id: string;
     priority: string;
     content: string;
+    /** the impact/weight of this score on it's parent score but scaled so all the children are less than 1  */
+    scaledWeight: number;
     type: ItemTypes;
     constructor(
     /** The claim to which this score belongs */
@@ -43,7 +45,9 @@ export declare class Score implements Item {
     affects?: Affects, confidence?: number, 
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
-    relevance?: number, id?: string, priority?: string, content?: string);
+    relevance?: number, id?: string, priority?: string, content?: string, 
+    /** the impact/weight of this score on it's parent score but scaled so all the children are less than 1  */
+    scaledWeight?: number);
     descendantCount: number;
     generation: number;
     /** What fraction of tree is this disregarding all scores */

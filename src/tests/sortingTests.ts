@@ -35,12 +35,12 @@ export function sortingTests() {
         )).toEqual(-1)
     });
 
-    test('Count: 0:1', async () => {
-        expect(ScoreSorter(
-            { priority: "", descendantCount:0 } as Score,
-            { priority: "", descendantCount:1 } as Score
-        )).toEqual(1)
-    });
+    // test('Count: 0:1', async () => {
+    //     expect(ScoreSorter(
+    //         { priority: "", descendantCount:0 } as Score,
+    //         { priority: "", descendantCount:1 } as Score
+    //     )).toEqual(1)
+    // });
 }
 
 

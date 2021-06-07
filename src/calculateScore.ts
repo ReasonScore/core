@@ -28,6 +28,8 @@ export function calculateScore({ childScores = [], reversible = true }: {
     // newScore.childrenProWeight = 0;
     // newScore.childrenConWeight = 0;
 
+    let maxChildWeight = 0
+
 
     if (childScores.filter(s => s.affects === 'confidence').length < 1) {
         // Defaults if there are no children
@@ -37,22 +39,26 @@ export function calculateScore({ childScores = [], reversible = true }: {
         newScore.childrenConfidenceWeight = 1;
         newScore.childrenRelevanceWeight = 1;
         newScore.childrenWeight = 1;
+        newScore.weight = 1;
     }
 
     //Gather children Weights totals for processing further down
     for (const childScore of childScores) {
-        //Ensure calculations for non-reversible scores don't allow the confidence to be below 0
-        //TODO: Is this needed in the totals seciton?
-        let confidence = childScore.confidence
-        if (!childScore.reversible && childScore.confidence < 0) {
-            confidence = 0
-        }
+        // //Ensure calculations for non-reversible scores don't allow the confidence to be below 0
+        // //TODO: Is this needed in the totals seciton?
+        // let confidence = childScore.confidence
+        // if (!childScore.reversible && childScore.confidence < 0) {
+        //     confidence = 0
+        // }
 
-        childScore.weight = Math.abs(confidence) * childScore.relevance; // confidenceWeight * RelevanceWeight
+        childScore.weight = calcWeight(childScore); //TODO: Just in case a child score comes in uncalculated - maybe should be removed
         newScore.childrenAveragingWeight += 1;
-        newScore.childrenConfidenceWeight += Math.abs(confidence);
+        newScore.childrenConfidenceWeight += Math.abs(childScore.confidence);
         newScore.childrenRelevanceWeight += childScore.relevance;
         newScore.childrenWeight += childScore.weight;
+        if (childScore.weight > maxChildWeight){
+            maxChildWeight = childScore.weight;
+        }
 
         // //TODO: Experimantal
         // if (confidence > 0) {
@@ -84,10 +90,8 @@ export function calculateScore({ childScores = [], reversible = true }: {
 
                 childScore.percentOfWeight =
                     childScore.weight /
-                    // @ts-ignore
                     newScore.childrenWeight;
 
-                // @ts-ignore
                 newScore.confidence +=
                     childScore.percentOfWeight *
                     childScore.confidence * polarity;
@@ -113,15 +117,14 @@ export function calculateScore({ childScores = [], reversible = true }: {
             }
         }
 
-        let confidence = childScore.confidence
-        if (!childScore.reversible && childScore.confidence < 0) {
-            confidence = 0
-        }
         // if (childScore.pro) {
         //     childScore.percentAgreeWeight = confidence / newScore.childrenProWeight
         // } else {
         //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
         // }
+
+        childScore.scaledWeight = (childScore.weight/maxChildWeight)
+
     }
 
 
@@ -130,6 +133,25 @@ export function calculateScore({ childScores = [], reversible = true }: {
         newScore.confidence = 0;
     }
 
+    let confidence = Math.abs(newScore.confidence)
+    if (!newScore.reversible && newScore.confidence < 0) {
+        confidence = 0
+    }
+
+    newScore.weight = calcWeight(newScore);
+    newScore.scaledWeight = newScore.weight;
+
     return newScore;
 }
 
+function calcWeight(score: Partial<Score>) {
+    if (score.confidence !== undefined && score.relevance !== undefined){
+        let confidence = Math.abs(score.confidence)
+        if (!score.reversible && score.confidence < 0) {
+            confidence = 0
+        }
+        return confidence * score.relevance;
+    } else {
+        return 1;
+    }
+}

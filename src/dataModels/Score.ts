@@ -31,6 +31,8 @@ export class Score implements Item {
         public id: string = newId(),
         public priority: string = "",
         public content: string = "",
+        /** the impact/weight of this score on it's parent score but scaled so all the children are less than 1  */
+        public scaledWeight: number = 0,
     ) {
     }
 
