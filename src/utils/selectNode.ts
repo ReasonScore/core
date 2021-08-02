@@ -10,7 +10,7 @@ export function selectNode(selectedId: string, rsData: RsData) {
     let parentScoreId = (rsData.items[selectedId] as Score)?.parentScoreId
     while (parentScoreId != undefined) {
         result.push({ itemId: parentScoreId, status: "ancestor" })
-        parentScoreId = (rsData.items[parentScoreId] as Score).parentScoreId
+        parentScoreId = (rsData.items[parentScoreId] as Score)?.parentScoreId
     }
 
     //get the children
