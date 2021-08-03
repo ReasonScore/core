@@ -15,5 +15,6 @@ export declare class RepositoryLocalBase {
     getClaimEdgesByChildId(childId: string): Promise<ClaimEdge[]>;
     getScoresBySourceId(sourceClaimId: string): Promise<Score[]>;
     getChildrenByScoreId(parentScoreId: string): Promise<Score[]>;
+    getDescendantScoresById(mainScoreId: string): Promise<Score[]>;
     readonly log: Action[][];
 }

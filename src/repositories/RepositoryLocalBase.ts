@@ -67,6 +67,19 @@ export class RepositoryLocalBase {
         }
         return scores
     }
+    async getDescendantScoresById(mainScoreId: string): Promise<Score[]> {
+        // TODO: This assumes no loops in the tree
+        const scores: Score[] = [];
+        const scoresToProcess = await this.getChildrenByScoreId(mainScoreId);
+        while (scoresToProcess.length > 0) {
+            const currentScore = scoresToProcess.pop();
+            if (currentScore) {
+                scores.push(currentScore);
+                scoresToProcess.push(...await this.getChildrenByScoreId(currentScore.id))
+            }
+        }
+        return scores
+    }
     public readonly log: Action[][] = [];
 
 }
