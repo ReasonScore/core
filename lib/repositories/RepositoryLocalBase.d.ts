@@ -16,5 +16,6 @@ export declare class RepositoryLocalBase {
     getScoresBySourceId(sourceClaimId: string): Promise<Score[]>;
     getChildrenByScoreId(parentScoreId: string): Promise<Score[]>;
     getDescendantScoresById(mainScoreId: string): Promise<Score[]>;
+    getLeafScoresById(mainScoreId: string): Promise<Score[]>;
     readonly log: Action[][];
 }
