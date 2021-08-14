@@ -71,7 +71,7 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
                     if (score.pro != claimEdge.pro
                         || score.affects != claimEdge.affects
                         || score.priority != claimEdge.priority
-                        ) {
+                    ) {
                         const action = new Action({
                             pro: claimEdge.pro,
                             affects: claimEdge.affects,
@@ -140,11 +140,19 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
                 await repository.notify(generationActions)
             }
 
+
+            const proMainActions: Action[] = [];
+            await calculateProMain(repository, mainScore.id, proMainActions, true)
+            if (proMainActions.length > 0) {
+                await repository.notify(proMainActions)
+            }
+
             scoreActions.push(
                 ...missingScoreActions,
                 ...scoreTreeActions,
                 ...fractionActions,
                 ...generationActions,
+                ...proMainActions,
             )
 
             if (scoreTree.descendantCount != newMainScore.descendantCount) {
@@ -255,7 +263,7 @@ async function calculateFractions(repository: iRepository, parentScore: Partial<
 
 }
 
-// TODO: factor out duplicate code of these calculate functions. maybe mae an array of items to process...
+// TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
 async function calculateGenerations(repository: iRepository, parentScoreId: string, actions: Action[], generation: number) {
     const oldChildScores = await repository.getChildrenByScoreId(parentScoreId)
     generation++;
@@ -266,5 +274,28 @@ async function calculateGenerations(repository: iRepository, parentScoreId: stri
             actions.push(new Action(newChildScore, undefined, "modify_score"));
         }
         await calculateGenerations(repository, oldChildScore.id, actions, generation)
+    }
+}
+
+// TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
+async function calculateProMain(repository: iRepository, parentScoreId: string, actions: Action[], proMain: boolean) {
+    const oldChildScores = await repository.getChildrenByScoreId(parentScoreId)
+
+    for (const oldChildScore of oldChildScores) {
+        // const newChildScore = { ...oldChildScore, proMain: false }
+        // actions.push(new Action(newChildScore, undefined, "modify_score"));
+        // await calculateProMain(repository, oldChildScore.id, actions, proMain)
+        if (oldChildScore.pro === true){// && oldChildScore.proMain !== proMain) {
+            const newChildScore = { ...oldChildScore, proMain: proMain }
+            actions.push(new Action(newChildScore, undefined, "modify_score"));
+            await calculateProMain(repository, oldChildScore.id, actions, proMain)
+        }
+
+        if (oldChildScore.pro === false){// && oldChildScore.proMain === proMain) {
+            const newChildScore = { ...oldChildScore, proMain: !proMain }
+            actions.push(new Action(newChildScore, undefined, "modify_score"));
+            await calculateProMain(repository, oldChildScore.id, actions, !proMain)
+        }
+
     }
 }

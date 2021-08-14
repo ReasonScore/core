@@ -50,6 +50,9 @@ export class Score implements Item {
     public childrenWeight: number = 1;
     public weight: number = 1;
     public percentOfWeight: number = 1;
+    /** Is this score pro the main top claim */
+    public proMain: boolean = true; // TODO: should this start undefined?
+
 
     // //TODO:Experimental
     // public childrenProWeight: number = 0;
