@@ -141,7 +141,9 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             }
 
 
-            const proMainActions: Action[] = [];
+            const proMainActions: Action[] = []; 
+            const newChildScore = { ...mainScore, proMain: true }
+            proMainActions.push(new Action(newChildScore, undefined, "modify_score"));
             await calculateProMain(repository, mainScore.id, proMainActions, true)
             if (proMainActions.length > 0) {
                 await repository.notify(proMainActions)
