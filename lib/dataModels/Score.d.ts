@@ -60,4 +60,6 @@ export declare class Score implements Item {
     childrenWeight: number;
     weight: number;
     percentOfWeight: number;
+    /** Is this score pro the main top claim */
+    proMain: boolean;
 }
