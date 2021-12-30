@@ -141,20 +141,20 @@ export async function calculateScoreActions({ actions = [], repository = new Rep
             }
 
 
-            const proMainActions: Action[] = []; 
-            const newChildScore = { ...mainScore, proMain: true }
-            proMainActions.push(new Action(newChildScore, undefined, "modify_score"));
-            await calculateProMain(repository, mainScore.id, proMainActions, true)
-            if (proMainActions.length > 0) {
-                await repository.notify(proMainActions)
-            }
+            // const proMainActions: Action[] = []; 
+            // const newChildScore = { ...mainScore, proMain: true }
+            // proMainActions.push(new Action(newChildScore, undefined, "modify_score"));
+            // await calculateProMain(repository, mainScore.id, proMainActions, true)
+            // if (proMainActions.length > 0) {
+            //     await repository.notify(proMainActions)
+            // }
 
             scoreActions.push(
                 ...missingScoreActions,
                 ...scoreTreeActions,
                 ...fractionActions,
                 ...generationActions,
-                ...proMainActions,
+                // ...proMainActions,
             )
 
             if (scoreTree.descendantCount != newMainScore.descendantCount) {
@@ -279,25 +279,25 @@ async function calculateGenerations(repository: iRepository, parentScoreId: stri
     }
 }
 
-// TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
-async function calculateProMain(repository: iRepository, parentScoreId: string, actions: Action[], proMain: boolean) {
-    const oldChildScores = await repository.getChildrenByScoreId(parentScoreId)
+// // TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
+// async function calculateProMain(repository: iRepository, parentScoreId: string, actions: Action[], proMain: boolean) {
+//     const oldChildScores = await repository.getChildrenByScoreId(parentScoreId)
 
-    for (const oldChildScore of oldChildScores) {
-        // const newChildScore = { ...oldChildScore, proMain: false }
-        // actions.push(new Action(newChildScore, undefined, "modify_score"));
-        // await calculateProMain(repository, oldChildScore.id, actions, proMain)
-        if (oldChildScore.pro === true){// && oldChildScore.proMain !== proMain) {
-            const newChildScore = { ...oldChildScore, proMain: proMain }
-            actions.push(new Action(newChildScore, undefined, "modify_score"));
-            await calculateProMain(repository, oldChildScore.id, actions, proMain)
-        }
+//     for (const oldChildScore of oldChildScores) {
+//         // const newChildScore = { ...oldChildScore, proMain: false }
+//         // actions.push(new Action(newChildScore, undefined, "modify_score"));
+//         // await calculateProMain(repository, oldChildScore.id, actions, proMain)
+//         if (oldChildScore.pro === true){// && oldChildScore.proMain !== proMain) {
+//             const newChildScore = { ...oldChildScore, proMain: proMain }
+//             actions.push(new Action(newChildScore, undefined, "modify_score"));
+//             await calculateProMain(repository, oldChildScore.id, actions, proMain)
+//         }
 
-        if (oldChildScore.pro === false){// && oldChildScore.proMain === proMain) {
-            const newChildScore = { ...oldChildScore, proMain: !proMain }
-            actions.push(new Action(newChildScore, undefined, "modify_score"));
-            await calculateProMain(repository, oldChildScore.id, actions, !proMain)
-        }
+//         if (oldChildScore.pro === false){// && oldChildScore.proMain === proMain) {
+//             const newChildScore = { ...oldChildScore, proMain: !proMain }
+//             actions.push(new Action(newChildScore, undefined, "modify_score"));
+//             await calculateProMain(repository, oldChildScore.id, actions, !proMain)
+//         }
 
-    }
-}
+//     }
+// }
