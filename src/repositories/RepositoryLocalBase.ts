@@ -75,7 +75,8 @@ export class RepositoryLocalBase {
             const currentScore = scoresToProcess.pop();
             if (currentScore) {
                 scores.push(currentScore);
-                scoresToProcess.push(...await this.getChildrenByScoreId(currentScore.id))
+                const childScores = await this.getChildrenByScoreId(currentScore.id);
+                scoresToProcess.push(...childScores)
             }
         }
         return scores
