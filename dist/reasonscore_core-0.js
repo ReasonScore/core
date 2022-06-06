@@ -18,6 +18,8 @@ var reasonscore_core = (function (exports) {
       newScore.childrenWeight = 0; // newScore.childrenProWeight = 0;
       // newScore.childrenConWeight = 0;
 
+      let maxChildWeight = 0;
+
       if (childScores.filter(s => s.affects === 'confidence').length < 1) {
         // Defaults if there are no children
         newScore.confidence = 1; // assume 100% confident
@@ -28,24 +30,27 @@ var reasonscore_core = (function (exports) {
         newScore.childrenConfidenceWeight = 1;
         newScore.childrenRelevanceWeight = 1;
         newScore.childrenWeight = 1;
+        newScore.weight = 1;
       } //Gather children Weights totals for processing further down
 
 
       for (const childScore of childScores) {
-        //Ensure calculations for non-reversible scores don't allow the confidence to be below 0
-        //TODO: Is this needed in the totals seciton?
-        let confidence = childScore.confidence;
-
-        if (!childScore.reversible && childScore.confidence < 0) {
-          confidence = 0;
-        }
-
-        childScore.weight = Math.abs(confidence) * childScore.relevance; // confidenceWeight * RelevanceWeight
+        // //Ensure calculations for non-reversible scores don't allow the confidence to be below 0
+        // //TODO: Is this needed in the totals seciton?
+        // let confidence = childScore.confidence
+        // if (!childScore.reversible && childScore.confidence < 0) {
+        //     confidence = 0
+        // }
+        childScore.weight = calcWeight(childScore); //TODO: Just in case a child score comes in uncalculated - maybe should be removed
 
         newScore.childrenAveragingWeight += 1;
-        newScore.childrenConfidenceWeight += Math.abs(confidence);
+        newScore.childrenConfidenceWeight += Math.abs(childScore.confidence);
         newScore.childrenRelevanceWeight += childScore.relevance;
-        newScore.childrenWeight += childScore.weight; // //TODO: Experimantal
+        newScore.childrenWeight += childScore.weight;
+
+        if (childScore.weight > maxChildWeight) {
+          maxChildWeight = childScore.weight;
+        } // //TODO: Experimantal
         // if (confidence > 0) {
         //     if (childScore.pro) {
         //         newScore.childrenProWeight += confidence
@@ -61,6 +66,7 @@ var reasonscore_core = (function (exports) {
         //         newScore.childrenProWeight += confidence
         //     }
         // }
+
       } // Loop through to calculate the final scores
 
 
@@ -72,9 +78,7 @@ var reasonscore_core = (function (exports) {
             childScore.percentOfWeight = 0;
             newScore.confidence = 0;
           } else {
-            childScore.percentOfWeight = childScore.weight / // @ts-ignore
-            newScore.childrenWeight; // @ts-ignore
-
+            childScore.percentOfWeight = childScore.weight / newScore.childrenWeight;
             newScore.confidence += childScore.percentOfWeight * childScore.confidence * polarity;
           }
         }
@@ -96,16 +100,14 @@ var reasonscore_core = (function (exports) {
           } else {
             newScore.relevance -= confidence / 2;
           }
-        }
-
-        childScore.confidence;
-
-        if (!childScore.reversible && childScore.confidence < 0) ; // if (childScore.pro) {
+        } // if (childScore.pro) {
         //     childScore.percentAgreeWeight = confidence / newScore.childrenProWeight
         // } else {
         //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
         // }
 
+
+        childScore.scaledWeight = childScore.weight / maxChildWeight;
       }
 
       if (Object.is(newScore.confidence, -0)) {
@@ -113,7 +115,53 @@ var reasonscore_core = (function (exports) {
         newScore.confidence = 0;
       }
 
+      Math.abs(newScore.confidence);
+
+      if (!newScore.reversible && newScore.confidence < 0) ;
+
+      newScore.weight = calcWeight(newScore);
+      newScore.scaledWeight = newScore.weight;
       return newScore;
+    }
+
+    function calcWeight(score) {
+      if (score.confidence !== undefined && score.relevance !== undefined) {
+        let confidence = Math.abs(score.confidence);
+
+        if (!score.reversible && score.confidence < 0) {
+          confidence = 0;
+        }
+
+        return confidence * score.relevance;
+      } else {
+        return 1;
+      }
+    }
+
+    function ownKeys(object, enumerableOnly) {
+      var keys = Object.keys(object);
+
+      if (Object.getOwnPropertySymbols) {
+        var symbols = Object.getOwnPropertySymbols(object);
+        enumerableOnly && (symbols = symbols.filter(function (sym) {
+          return Object.getOwnPropertyDescriptor(object, sym).enumerable;
+        })), keys.push.apply(keys, symbols);
+      }
+
+      return keys;
+    }
+
+    function _objectSpread2(target) {
+      for (var i = 1; i < arguments.length; i++) {
+        var source = null != arguments[i] ? arguments[i] : {};
+        i % 2 ? ownKeys(Object(source), !0).forEach(function (key) {
+          _defineProperty(target, key, source[key]);
+        }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) {
+          Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
+        });
+      }
+
+      return target;
     }
 
     function _defineProperty(obj, key, value) {
@@ -129,40 +177,6 @@ var reasonscore_core = (function (exports) {
       }
 
       return obj;
-    }
-
-    function ownKeys(object, enumerableOnly) {
-      var keys = Object.keys(object);
-
-      if (Object.getOwnPropertySymbols) {
-        var symbols = Object.getOwnPropertySymbols(object);
-        if (enumerableOnly) symbols = symbols.filter(function (sym) {
-          return Object.getOwnPropertyDescriptor(object, sym).enumerable;
-        });
-        keys.push.apply(keys, symbols);
-      }
-
-      return keys;
-    }
-
-    function _objectSpread2(target) {
-      for (var i = 1; i < arguments.length; i++) {
-        var source = arguments[i] != null ? arguments[i] : {};
-
-        if (i % 2) {
-          ownKeys(Object(source), true).forEach(function (key) {
-            _defineProperty(target, key, source[key]);
-          });
-        } else if (Object.getOwnPropertyDescriptors) {
-          Object.defineProperties(target, Object.getOwnPropertyDescriptors(source));
-        } else {
-          ownKeys(Object(source)).forEach(function (key) {
-            Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key));
-          });
-        }
-      }
-
-      return target;
     }
 
     class Messenger {
@@ -234,7 +248,9 @@ var reasonscore_core = (function (exports) {
       affects = "confidence", confidence = 1,
       /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
        * A multiplier set by all the child edges that affect 'relevance'*/
-      relevance = 1, id = newId(), priority = "", content = "") {
+      relevance = 1, id = newId(), priority = "", content = "",
+      /** the impact/weight of this score on it's parent score but scaled so all the children are less than 1  */
+      scaledWeight = 0) {
         this.sourceClaimId = sourceClaimId;
         this.scoreTreeId = scoreTreeId;
         this.parentScoreId = parentScoreId;
@@ -247,6 +263,7 @@ var reasonscore_core = (function (exports) {
         this.id = id;
         this.priority = priority;
         this.content = content;
+        this.scaledWeight = scaledWeight;
 
         _defineProperty(this, "type", 'score');
 
@@ -269,7 +286,10 @@ var reasonscore_core = (function (exports) {
         _defineProperty(this, "weight", 1);
 
         _defineProperty(this, "percentOfWeight", 1);
-      } // //TODO:Experimental
+
+        _defineProperty(this, "proMain", true);
+      } // TODO: should this start undefined?
+      // //TODO:Experimental
       // public childrenProWeight: number = 0;
       // public childrenConWeight: number = 0;
       // public percentAgreeWeight: number = 0;
@@ -547,6 +567,46 @@ var reasonscore_core = (function (exports) {
         return scores;
       }
 
+      async getDescendantScoresById(mainScoreId) {
+        // TODO: This assumes no loops in the tree
+        const scores = [];
+        const scoresToProcess = await this.getChildrenByScoreId(mainScoreId);
+
+        while (scoresToProcess.length > 0) {
+          const currentScore = scoresToProcess.pop();
+
+          if (currentScore) {
+            scores.push(currentScore);
+            const childScores = await this.getChildrenByScoreId(currentScore.id);
+            scoresToProcess.push(...childScores);
+          }
+        }
+
+        return scores;
+      }
+
+      async getLeafScoresById(mainScoreId) {
+        // TODO: This assumes no loops in the tree
+        const scores = [];
+        const scoresToProcess = await this.getChildrenByScoreId(mainScoreId);
+
+        while (scoresToProcess.length > 0) {
+          const currentScore = scoresToProcess.pop();
+
+          if (currentScore) {
+            const children = await this.getChildrenByScoreId(currentScore.id);
+
+            if (children.length === 0) {
+              scores.push(currentScore);
+            }
+
+            scoresToProcess.push(...children);
+          }
+        }
+
+        return scores;
+      }
+
     }
 
     function scores(state, action, reverse = false) {
@@ -784,9 +844,17 @@ var reasonscore_core = (function (exports) {
 
           if (generationActions.length > 0) {
             await repository.notify(generationActions);
-          }
+          } // const proMainActions: Action[] = []; 
+          // const newChildScore = { ...mainScore, proMain: true }
+          // proMainActions.push(new Action(newChildScore, undefined, "modify_score"));
+          // await calculateProMain(repository, mainScore.id, proMainActions, true)
+          // if (proMainActions.length > 0) {
+          //     await repository.notify(proMainActions)
+          // }
 
-          scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions, ...generationActions);
+
+          scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions, ...generationActions // ...proMainActions,
+          );
 
           if (scoreTree.descendantCount != newMainScore.descendantCount) {
             let newScoreTreePartial = {
@@ -896,7 +964,7 @@ var reasonscore_core = (function (exports) {
           await calculateFractions(repository, newChildScore, actions);
         }
       }
-    } // TODO: factor out duplicate code of these calculate functions. maybe mae an array of items to process...
+    } // TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
 
 
     async function calculateGenerations(repository, parentScoreId, actions, generation) {
@@ -914,7 +982,25 @@ var reasonscore_core = (function (exports) {
 
         await calculateGenerations(repository, oldChildScore.id, actions, generation);
       }
-    }
+    } // // TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
+    // async function calculateProMain(repository: iRepository, parentScoreId: string, actions: Action[], proMain: boolean) {
+    //     const oldChildScores = await repository.getChildrenByScoreId(parentScoreId)
+    //     for (const oldChildScore of oldChildScores) {
+    //         // const newChildScore = { ...oldChildScore, proMain: false }
+    //         // actions.push(new Action(newChildScore, undefined, "modify_score"));
+    //         // await calculateProMain(repository, oldChildScore.id, actions, proMain)
+    //         if (oldChildScore.pro === true){// && oldChildScore.proMain !== proMain) {
+    //             const newChildScore = { ...oldChildScore, proMain: proMain }
+    //             actions.push(new Action(newChildScore, undefined, "modify_score"));
+    //             await calculateProMain(repository, oldChildScore.id, actions, proMain)
+    //         }
+    //         if (oldChildScore.pro === false){// && oldChildScore.proMain === proMain) {
+    //             const newChildScore = { ...oldChildScore, proMain: !proMain }
+    //             actions.push(new Action(newChildScore, undefined, "modify_score"));
+    //             await calculateProMain(repository, oldChildScore.id, actions, !proMain)
+    //         }
+    //     }
+    // }
 
     function deepClone(item) {
       return JSON.parse(JSON.stringify(item));
@@ -931,11 +1017,13 @@ var reasonscore_core = (function (exports) {
       let parentScoreId = (_rsData$items$selecte = rsData.items[selectedId]) === null || _rsData$items$selecte === void 0 ? void 0 : _rsData$items$selecte.parentScoreId;
 
       while (parentScoreId != undefined) {
+        var _rsData$items$parentS;
+
         result.push({
           itemId: parentScoreId,
           status: "ancestor"
         });
-        parentScoreId = rsData.items[parentScoreId].parentScoreId;
+        parentScoreId = (_rsData$items$parentS = rsData.items[parentScoreId]) === null || _rsData$items$parentS === void 0 ? void 0 : _rsData$items$parentS.parentScoreId;
       } //get the children
 
 
@@ -953,6 +1041,10 @@ var reasonscore_core = (function (exports) {
       return result;
     }
 
+    function isScore(item) {
+      return item.type === "score";
+    }
+
     exports.Action = Action;
     exports.Claim = Claim;
     exports.ClaimEdge = ClaimEdge;
@@ -964,6 +1056,7 @@ var reasonscore_core = (function (exports) {
     exports.calculateScore = calculateScore;
     exports.calculateScoreActions = calculateScoreActions;
     exports.deepClone = deepClone;
+    exports.isScore = isScore;
     exports.newId = newId;
     exports.selectNode = selectNode;
 
@@ -971,4 +1064,4 @@ var reasonscore_core = (function (exports) {
 
     return exports;
 
-}({}));
+})({});

@@ -15,3 +15,4 @@ export * from "./dataModels/RsData";
 export * from "./dataModels/Score";
 export * from "./dataModels/ScoreTree";
 export * from "./dataModels/Claim";
+export * from "./utils/is";
