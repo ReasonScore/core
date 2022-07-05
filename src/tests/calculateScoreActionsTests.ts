@@ -80,7 +80,7 @@ export function calculateScoreActionTests() {
 
     const edge = (await repository.getClaimEdgesByChildId("ChildClaim1"))[0];
     const result = await calculateScoreActions({
-      actions: [new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, u, edge.id,'Priority Modified'), undefined, "modify_claimEdge")],
+      actions: [new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, u, edge.id, 'Priority Modified'), undefined, "modify_claimEdge")],
       repository: repository
     })
     expect((await repository.getScoresBySourceId("ChildClaim1"))[0]?.priority).toEqual("Priority Modified");
@@ -475,6 +475,44 @@ export function calculateScoreActionTests() {
       ["ChildClaim2.generation", 1],
       ["grandChild1.generation", 2],
       ["grandChild2.generation", 2],
+    ]
+    for (const expectation of expectations) {
+      const source = expectation[0].split(".");
+      const tempResult = (await repository.getScoresBySourceId(source[0])) as any;
+      results.push([
+        expectation[0],
+        (tempResult[0])[source[1]]
+      ])
+    }
+    expect(results).toMatchObject(expectations);
+  });
+
+  test('Pro Main Tests', async () => {
+    const repository = new RepositoryLocalPure();
+    let result;
+    await calculateScoreActions({
+      actions: [
+        new Action(new Claim("Top Claim", "topTestClaim"), u, "add_claim"),
+        new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+        new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+        new Action(new Claim("Child Claim 3", "ChildClaim3"), u, "add_claim"),
+        new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
+        new Action(new Claim("Grandchild Claim 2", "grandChild2"), u, "add_claim"),
+        new Action(new Claim("Grandchild Claim 3", "grandChild3"), u, "add_claim"),
+        new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, con, "ChildClaim1Edge"), u, "add_claimEdge"),
+        new Action(new ClaimEdge("ChildClaim1", "grandChild1", u, pro, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+        new Action(new ClaimEdge("ChildClaim1", "grandChild2", u, con, "GrandChildClaim2Edge"), u, "add_claimEdge"),
+        new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), undefined, "add_scoreTree"),
+      ],
+      repository: repository
+    })
+
+    let results: [string, any][], expectations: [string, any][]
+    results = []
+    expectations = [
+      ["ChildClaim1.proMain", false],
+      ["grandChild1.proMain", false],
+      ["grandChild2.proMain", true],
     ]
     for (const expectation of expectations) {
       const source = expectation[0].split(".");
