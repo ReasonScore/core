@@ -21,9 +21,9 @@ export class Score implements Item {
         public reversible: boolean = false,
         /** Is this score a pro of it's parent (false if it is a con) */
         public pro: boolean = true,
-        /** how confident we sould be in the claim. (AKA True) */
         /** How the child affects the parent score */
         public affects: Affects = "confidence",
+        /** how confident we should be in the claim. (AKA True) */
         public confidence: number = 1,
         /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
          * A multiplier set by all the child edges that affect 'relevance'*/
@@ -36,6 +36,7 @@ export class Score implements Item {
     ) {
     }
 
+    /** number of total claims below this one */
     public descendantCount: number = 0;
     public generation: number = 0;
 
