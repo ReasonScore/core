@@ -242,10 +242,10 @@ var reasonscore_core = (function (exports) {
       sourceEdgeId = null, reversible = false,
       /** Is this score a pro of it's parent (false if it is a con) */
       pro = true,
-      /** how confident we sould be in the claim. (AKA True) */
-
       /** How the child affects the parent score */
-      affects = "confidence", confidence = 1,
+      affects = "confidence",
+      /** how confident we should be in the claim. (AKA True) */
+      confidence = 1,
       /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
        * A multiplier set by all the child edges that affect 'relevance'*/
       relevance = 1, id = newId(), priority = "", content = "",
@@ -288,7 +288,9 @@ var reasonscore_core = (function (exports) {
         _defineProperty(this, "percentOfWeight", 1);
 
         _defineProperty(this, "proMain", true);
-      } // TODO: should this start undefined?
+      }
+      /** number of total claims below this one */
+      // TODO: should this start undefined?
       // //TODO:Experimental
       // public childrenProWeight: number = 0;
       // public childrenConWeight: number = 0;
@@ -844,17 +846,19 @@ var reasonscore_core = (function (exports) {
 
           if (generationActions.length > 0) {
             await repository.notify(generationActions);
-          } // const proMainActions: Action[] = []; 
-          // const newChildScore = { ...mainScore, proMain: true }
-          // proMainActions.push(new Action(newChildScore, undefined, "modify_score"));
-          // await calculateProMain(repository, mainScore.id, proMainActions, true)
-          // if (proMainActions.length > 0) {
-          //     await repository.notify(proMainActions)
-          // }
+          }
 
+          const proMainActions = [];
+          proMainActions.push(new Action({
+            proMain: true
+          }, undefined, "modify_score", mainScore.id));
+          await calculateProMain(repository, mainScore.id, proMainActions, true);
 
-          scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions, ...generationActions // ...proMainActions,
-          );
+          if (proMainActions.length > 0) {
+            await repository.notify(proMainActions);
+          }
+
+          scoreActions.push(...missingScoreActions, ...scoreTreeActions, ...fractionActions, ...generationActions, ...proMainActions);
 
           if (scoreTree.descendantCount != newMainScore.descendantCount) {
             let newScoreTreePartial = {
@@ -973,34 +977,39 @@ var reasonscore_core = (function (exports) {
 
       for (const oldChildScore of oldChildScores) {
         if (oldChildScore.generation != generation) {
-          const newChildScore = _objectSpread2(_objectSpread2({}, oldChildScore), {}, {
+          actions.push(new Action({
             generation: generation
-          });
-
-          actions.push(new Action(newChildScore, undefined, "modify_score"));
+          }, undefined, "modify_score", oldChildScore.id));
         }
 
         await calculateGenerations(repository, oldChildScore.id, actions, generation);
       }
-    } // // TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
-    // async function calculateProMain(repository: iRepository, parentScoreId: string, actions: Action[], proMain: boolean) {
-    //     const oldChildScores = await repository.getChildrenByScoreId(parentScoreId)
-    //     for (const oldChildScore of oldChildScores) {
-    //         // const newChildScore = { ...oldChildScore, proMain: false }
-    //         // actions.push(new Action(newChildScore, undefined, "modify_score"));
-    //         // await calculateProMain(repository, oldChildScore.id, actions, proMain)
-    //         if (oldChildScore.pro === true){// && oldChildScore.proMain !== proMain) {
-    //             const newChildScore = { ...oldChildScore, proMain: proMain }
-    //             actions.push(new Action(newChildScore, undefined, "modify_score"));
-    //             await calculateProMain(repository, oldChildScore.id, actions, proMain)
-    //         }
-    //         if (oldChildScore.pro === false){// && oldChildScore.proMain === proMain) {
-    //             const newChildScore = { ...oldChildScore, proMain: !proMain }
-    //             actions.push(new Action(newChildScore, undefined, "modify_score"));
-    //             await calculateProMain(repository, oldChildScore.id, actions, !proMain)
-    //         }
-    //     }
-    // }
+    } // TODO: factor out duplicate code of these calculate functions. maybe make an array of items to process...
+
+
+    async function calculateProMain(repository, parentScoreId, actions, proMain) {
+      const oldChildScores = await repository.getChildrenByScoreId(parentScoreId);
+
+      for (const oldChildScore of oldChildScores) {
+        if (oldChildScore.pro === true) {
+          // && oldChildScore.proMain !== proMain) {
+          //const newChildScore = { ...oldChildScore, proMain: proMain }
+          actions.push(new Action({
+            proMain: proMain
+          }, undefined, "modify_score", oldChildScore.id));
+          await calculateProMain(repository, oldChildScore.id, actions, proMain);
+        }
+
+        if (oldChildScore.pro === false) {
+          // && oldChildScore.proMain === proMain) {
+          //const newChildScore = { ...oldChildScore, proMain: !proMain }
+          actions.push(new Action({
+            proMain: !proMain
+          }, undefined, "modify_score", oldChildScore.id));
+          await calculateProMain(repository, oldChildScore.id, actions, !proMain);
+        }
+      }
+    }
 
     function deepClone(item) {
       return JSON.parse(JSON.stringify(item));

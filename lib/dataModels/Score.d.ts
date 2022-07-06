@@ -16,9 +16,9 @@ export declare class Score implements Item {
     reversible: boolean;
     /** Is this score a pro of it's parent (false if it is a con) */
     pro: boolean;
-    /** how confident we sould be in the claim. (AKA True) */
     /** How the child affects the parent score */
     affects: Affects;
+    /** how confident we should be in the claim. (AKA True) */
     confidence: number;
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
@@ -40,14 +40,16 @@ export declare class Score implements Item {
     sourceEdgeId?: string | null, reversible?: boolean, 
     /** Is this score a pro of it's parent (false if it is a con) */
     pro?: boolean, 
-    /** how confident we sould be in the claim. (AKA True) */
     /** How the child affects the parent score */
-    affects?: Affects, confidence?: number, 
+    affects?: Affects, 
+    /** how confident we should be in the claim. (AKA True) */
+    confidence?: number, 
     /** How relevent this claim is to it's parent claim. Ranges from 0 to infinity.
      * A multiplier set by all the child edges that affect 'relevance'*/
     relevance?: number, id?: string, priority?: string, content?: string, 
     /** the impact/weight of this score on it's parent score but scaled so all the children are less than 1  */
     scaledWeight?: number);
+    /** number of total claims below this one */
     descendantCount: number;
     generation: number;
     /** What fraction of tree is this disregarding all scores */
