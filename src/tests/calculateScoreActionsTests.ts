@@ -399,6 +399,51 @@ export function calculateScoreActionTests() {
     expect(results).toMatchObject(expectations);
   });
 
+  test('Relevance test 2', async () => {
+    const repository = new RepositoryLocalPure();
+    let result;
+    await calculateScoreActions({
+      actions: [
+        new Action(new Claim("Top Claim", "topTestClaim"), u, "add_claim"),
+        new Action(new Claim("Child Claim 1", "ChildClaim1"), u, "add_claim"),
+        new Action(new Claim("Child Claim 2", "ChildClaim2"), u, "add_claim"),
+
+        new Action(new Claim("Grandchild Claim 1", "grandChild1"), u, "add_claim"),
+        new Action(new Claim("Grandchild Claim 2", "grandChild2"), u, "add_claim"),
+
+
+        new Action(new ClaimEdge("topTestClaim", "ChildClaim1", u, pro, "ChildClaim1Edge"), u, "add_claimEdge"),
+        new Action(new ClaimEdge("topTestClaim", "ChildClaim2", u, con, "ChildClaim2Edge"), u, "add_claimEdge"),
+
+        new Action(new ClaimEdge("ChildClaim1", "grandChild1", "confidence", pro, "GrandChildClaim1Edge"), u, "add_claimEdge"),
+        new Action(new ClaimEdge("ChildClaim1", "grandChild2", "relevance", pro, "GrandChildClaim1Edge2"), u, "add_claimEdge"),
+
+        new Action(new ScoreTree("topTestClaim", "testTopScore", u, "testScoreTree"), u, "add_scoreTree"),
+      ],
+      repository: repository
+    })
+
+    let results: [string, any][], expectations: [string, any][]
+
+    console.log(await repository.getScoresBySourceId("ChildClaim1"))
+
+    // Check descendantCount
+    results = []
+    expectations = [
+      ["topTestClaim.confidence", 0.3333333333333333],
+    ]
+    for (const expectation of expectations) {
+      const source = expectation[0].split(".");
+      const tempResult = (await repository.getScoresBySourceId(source[0])) as any;
+      //console.log(tempResult)
+      results.push([
+        expectation[0],
+        (tempResult[0])[source[1]]
+      ])
+    }
+    expect(results).toMatchObject(expectations);
+  });
+
   test('Descendant Count Tests', async () => {
     const repository = new RepositoryLocalPure();
     let result;

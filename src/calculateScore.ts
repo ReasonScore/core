@@ -53,11 +53,16 @@ export function calculateScore({ childScores = [], reversible = true }: {
 
         childScore.weight = calcWeight(childScore); //TODO: Just in case a child score comes in uncalculated - maybe should be removed
         newScore.childrenAveragingWeight += 1;
+        // if (childScore.affects = "confidence") {
         newScore.childrenConfidenceWeight += Math.abs(childScore.confidence);
+        // } else {
         newScore.childrenRelevanceWeight += childScore.relevance;
-        newScore.childrenWeight += childScore.weight;
-        if (childScore.weight > maxChildWeight){
-            maxChildWeight = childScore.weight;
+        // }
+        if (childScore.affects === "confidence") {
+            newScore.childrenWeight += childScore.weight;
+            if (childScore.weight > maxChildWeight) {
+                maxChildWeight = childScore.weight;
+            }
         }
 
         // //TODO: Experimantal
@@ -123,13 +128,13 @@ export function calculateScore({ childScores = [], reversible = true }: {
         //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
         // }
 
-        childScore.scaledWeight = (childScore.weight/maxChildWeight)
+        childScore.scaledWeight = (childScore.weight / maxChildWeight)
 
     }
 
 
+    // Protect against negative zero 
     if (Object.is(newScore.confidence, -0)) {
-        // Protect against negative zero 
         newScore.confidence = 0;
     }
 
@@ -145,7 +150,7 @@ export function calculateScore({ childScores = [], reversible = true }: {
 }
 
 function calcWeight(score: Partial<Score>) {
-    if (score.confidence !== undefined && score.relevance !== undefined){
+    if (score.confidence !== undefined && score.relevance !== undefined) {
         let confidence = Math.abs(score.confidence)
         if (!score.reversible && score.confidence < 0) {
             confidence = 0

@@ -33,8 +33,9 @@ export function calcullateScoreTests() {
         t(" 1 and -1r  =  0 ", s(0), [s(+1), s(-1, u, u, u, true)]),
         t("-1r         = -1 ", s(-1), [s(-1, u, u, u, true)]),
         t("pro and con =  0", s(0), [s(+1), s(+1, u, con)]),
-        t("1 Relevance =  2", s(1, 2), [s(+1, 1, pro, "relevance")]),
+        t("1 Relevance =  1.2", s(1, 2), [s(+1, 1, pro, "relevance")]),
         t("pro and con with relevance", s(0.3333333333333333), [s(+1, 2), s(+1, 1, con)]),
+        t("1 Relevance & 1 pro =  1,2", s(1, 2), [s(+1), s(+1, 1, pro, "relevance")]),
     ]
 
     const JsonTestData: string[] = [];
