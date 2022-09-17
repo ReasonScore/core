@@ -83,7 +83,7 @@ export function calculateScore({ childScores = [], reversible = true }: {
         // }
     }
 
-    // Loop through to calculate the final scores
+    // Loop through to calculate the final confidence
     for (const childScore of childScores) {
         const polarity = childScore.pro ? 1 : -1
 
@@ -103,6 +103,18 @@ export function calculateScore({ childScores = [], reversible = true }: {
             }
         }
 
+        // if (childScore.pro) {
+        //     childScore.percentAgreeWeight = confidence / newScore.childrenProWeight
+        // } else {
+        //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
+        // }
+
+        childScore.scaledWeight = (childScore.weight / maxChildWeight)
+
+    }
+
+    // Loop through to calculate the final relevance
+    for (const childScore of childScores) {
         if (childScore.affects === "relevance") {
             // Process Relevance child claims
 
@@ -116,20 +128,13 @@ export function calculateScore({ childScores = [], reversible = true }: {
             }
 
             if (childScore.pro) {
+                // newScore.relevance = newScore.relevance * 2;
                 newScore.relevance += confidence;
             } else {
-                newScore.relevance -= confidence / 2;
+                // newScore.relevance = newScore.relevance / 2;
+                newScore.relevance -= confidence / 2
             }
         }
-
-        // if (childScore.pro) {
-        //     childScore.percentAgreeWeight = confidence / newScore.childrenProWeight
-        // } else {
-        //     childScore.percentAgreeWeight = confidence / newScore.childrenConWeight
-        // }
-
-        childScore.scaledWeight = (childScore.weight / maxChildWeight)
-
     }
 
 

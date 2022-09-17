@@ -6,8 +6,8 @@ import { selectNodeTests } from "./selectNodeTests";
 import { sortingTests } from "./sortingTests";
 
 
-describe('calculateScoreActionTests', calculateScoreActionTests)
 describe('calculateScoreTests', calcullateScoreTests)
+describe('calculateScoreActionTests', calculateScoreActionTests)
 describe('itemChangesTests', itemChangesTests)
 describe('scoreTests', scoreTests)
 describe('selectNodeTests', selectNodeTests)
