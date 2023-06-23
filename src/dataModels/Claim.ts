@@ -9,6 +9,9 @@ export class Claim implements Item {
         public content: string = "",
         public id: string = newId(),
         public reversible: boolean = false,
+        public labelMax?: string,
+        public labelMid?: string,
+        public labelMin?: string
     ) {
     }
 }

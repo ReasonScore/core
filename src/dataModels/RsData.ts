@@ -1,15 +1,19 @@
 import { Action } from "./Action";
+import { Claim } from "./Claim";
+import { ClaimEdge } from "./ClaimEdge";
 import { Item } from "./Item";
+import { Score } from "./Score";
+import { ScoreTree } from "./ScoreTree";
 
-export interface Index { [searchIndex: string]: string; } //Store the string for the ID
+export interface Index<T> { [searchIndex: string]: T; } //Store the string for the ID
 export interface IndexArray { [searchIndex: string]: string[]; } //Store the string for the ID
 
-export class RsData implements RsData {
+export class RsData {
     constructor(
         public actionsLog: { actions: Action[] }[] = [],
         // Claim data
         /** Stores all the current items */
-        public items: { [idString: string]: Item; } = {},
+        public items: { [id: string]: Score | ScoreTree | ClaimEdge | Claim } = {},
 
         // Claim Indexes - Local
         public claimEdgeIdsByParentId: IndexArray = {},
